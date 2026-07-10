@@ -37,7 +37,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
 */
 Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): void {
     require __DIR__.'/modules/company.php';
-    // require __DIR__.'/modules/employees.php';
+    require __DIR__.'/modules/employees.php';
 });
 
 /*

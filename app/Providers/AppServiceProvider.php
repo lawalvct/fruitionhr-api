@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Modules\Employee\Models\Employee;
+use App\Modules\Employee\Policies\EmployeePolicy;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,5 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Surface missing $fillable/relationship mistakes early in dev.
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        Gate::policy(Employee::class, EmployeePolicy::class);
     }
 }
