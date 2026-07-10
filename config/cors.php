@@ -22,7 +22,7 @@ return [
     // Cookie auth requires exact origins — never '*' with credentials.
     'allowed_origins' => array_filter(explode(',', (string) env(
         'CORS_ALLOWED_ORIGINS',
-        'http://fruitionhr.test:3000,http://app.fruitionhr.test:3000,http://admin.fruitionhr.test:3000,http://localhost:3000'
+        'http://fruitionhr.test:3000,http://app.fruitionhr.test:3000,http://admin.fruitionhr.test:3000,http://localhost:3000,http://app.localhost:3000,http://admin.localhost:3000'
     ))),
 
     'allowed_origins_patterns' => [],
