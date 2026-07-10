@@ -40,6 +40,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): 
     require __DIR__.'/modules/company.php';
     require __DIR__.'/modules/employees.php';
     require __DIR__.'/modules/attendance.php';
+    require __DIR__.'/modules/leave.php';
 });
 
 /*
