@@ -21,6 +21,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => SetCurrentTenant::class,
             'super-admin' => EnsureSuperAdmin::class,
         ]);
+
+        // SECURITY: tenant context MUST be established before route-model
+        // binding runs, otherwise {employee}-style bindings resolve without
+        // the tenant scope and leak cross-tenant records.
+        $middleware->priority([
+            \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            \Illuminate\Auth\Middleware\Authenticate::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
+            SetCurrentTenant::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \Illuminate\Auth\Middleware\Authorize::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

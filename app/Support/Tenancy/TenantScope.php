@@ -14,6 +14,14 @@ class TenantScope implements Scope
 
         if ($tenantId !== null) {
             $builder->where($model->qualifyColumn('tenant_id'), $tenantId);
+
+            return;
         }
+
+        // SECURITY — fail closed: querying a tenant-owned model without a
+        // tenant context returns nothing rather than everything. Seeders,
+        // jobs and console code must establish context (CurrentTenant::set /
+        // TenantAware::restoreTenantContext) before querying.
+        $builder->whereRaw('1 = 0');
     }
 }
