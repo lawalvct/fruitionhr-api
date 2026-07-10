@@ -36,8 +36,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
 | All company-facing module routes register inside this group.
 */
 Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): void {
-    // Module route files will be required here as modules land, e.g.:
-    // require __DIR__.'/modules/company.php';
+    require __DIR__.'/modules/company.php';
     // require __DIR__.'/modules/employees.php';
 });
 
