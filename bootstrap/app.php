@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Workflow\Console\BackfillWorkflowsCommand;
 use App\Support\Http\EnsureSuperAdmin;
 use App\Support\Tenancy\SetCurrentTenant;
 use Illuminate\Foundation\Application;
@@ -14,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([
+        BackfillWorkflowsCommand::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
 

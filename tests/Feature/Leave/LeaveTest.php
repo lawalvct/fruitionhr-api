@@ -147,6 +147,27 @@ test('full flow: apply, approve through workflow, balance debited and attendance
         ->and($row['days']['2026-07-07']['status'])->toBe('on_leave');
 });
 
+test('a pending leave request appears in the approvals inbox with a readable summary', function () {
+    $type = LeaveType::factory()->create(['name' => 'Annual Leave']);
+    $this->putJson("/api/v1/leave-types/{$type->id}", ['name' => $type->name, 'days_per_year' => 20])->assertOk();
+    $employee = Employee::factory()->create(['first_name' => 'Ada', 'last_name' => 'Okoro']);
+
+    $this->postJson('/api/v1/leave-requests', [
+        'employee_id' => $employee->id, 'leave_type_id' => $type->id,
+        'start_date' => '2026-07-06', 'end_date' => '2026-07-08',
+    ])->assertCreated();
+
+    // Owner can see every pending step; the record must serialize without
+    // tripping strict-mode missing-attribute errors.
+    $response = $this->getJson('/api/v1/approvals')->assertOk();
+
+    expect($response->json('data.pending_for_me'))->toHaveCount(1)
+        ->and($response->json('data.pending_for_me.0.record_summary'))
+        ->toContain('Ada Okoro')
+        ->and($response->json('data.pending_for_me.0.record_summary'))
+        ->toContain('Annual Leave');
+});
+
 test('rejecting a leave request does not debit the balance', function () {
     $type = LeaveType::factory()->create();
     $this->putJson("/api/v1/leave-types/{$type->id}", ['name' => $type->name, 'days_per_year' => 20])->assertOk();

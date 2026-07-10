@@ -44,19 +44,26 @@ class WorkflowRequestResource extends JsonResource
     private function recordSummary(): string
     {
         $record = $this->resource->relationLoaded('record') ? $this->record : null;
+        $fallback = ucfirst(str_replace('_', ' ', $this->module)).' request #'.$this->record_id;
 
         if ($record === null) {
-            return ucfirst($this->module).' request #'.$this->record_id;
+            return $fallback;
         }
 
-        // Prefer a human-readable label when the record offers one.
-        foreach (['full_name', 'name', 'title'] as $attribute) {
-            $value = $record->getAttribute($attribute);
-            if (is_string($value) && $value !== '') {
-                return $value;
+        // Records may expose a human-readable label for approvals lists.
+        if (method_exists($record, 'workflowSummary')) {
+            return $record->workflowSummary();
+        }
+
+        // Otherwise use a known column if present (guard strict-mode missing
+        // attribute errors by checking loaded attributes, not accessors).
+        $attributes = $record->getAttributes();
+        foreach (['name', 'title'] as $column) {
+            if (! empty($attributes[$column]) && is_string($attributes[$column])) {
+                return $attributes[$column];
             }
         }
 
-        return ucfirst($this->module).' request #'.$this->record_id;
+        return $fallback;
     }
 }

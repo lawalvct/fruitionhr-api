@@ -52,4 +52,14 @@ class LeaveRequest extends Model
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
+
+    /** Human-readable label shown in the approvals inbox. */
+    public function workflowSummary(): string
+    {
+        $employee = $this->employee?->full_name ?? 'Employee';
+        $type = $this->leaveType?->name ?? 'Leave';
+
+        return "{$employee} · {$type} ({$this->days} day".($this->days === 1 ? '' : 's').')';
+    }
 }
+
