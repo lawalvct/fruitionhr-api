@@ -2,6 +2,7 @@
 
 namespace App\Modules\Payroll\Controllers;
 
+use App\Modules\Payroll\Actions\ReversePayrollRun;
 use App\Modules\Payroll\Models\PayrollRun;
 use App\Modules\Payroll\Models\PayrollRunEmployee;
 use App\Modules\Payroll\Services\PayrollRunService;
@@ -113,12 +114,28 @@ class PayrollRunController extends Controller
         return response()->json(['data' => $this->presentSummary($payrollRun->refresh())]);
     }
 
+    public function reverse(Request $request, PayrollRun $payrollRun, ReversePayrollRun $action)
+    {
+        abort_unless($request->user()->can(Permissions::PAYROLL_REVERSE), 403);
+
+        $data = $request->validate([
+            'reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $reversal = $action->execute($payrollRun, $request->user(), $data['reason']);
+
+        return response()->json(['data' => $this->presentSummary($reversal)], 201);
+    }
+
     private function presentSummary(PayrollRun $run): array
     {
         return [
             'id' => $run->id,
             'period' => $run->period,
             'status' => $run->status,
+            'is_reversal' => $run->is_reversal,
+            'reversed_of_run_id' => $run->reversed_of_run_id,
+            'reversal_reason' => $run->reversal_reason,
             'employee_count' => $run->employee_count,
             'total_gross' => $run->total_gross,
             'total_statutory' => $run->total_statutory,

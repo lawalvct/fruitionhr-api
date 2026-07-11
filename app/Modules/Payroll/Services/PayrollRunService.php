@@ -34,8 +34,11 @@ class PayrollRunService
             throw new ConflictHttpException('Payroll preflight checks are not all passing for this period.');
         }
 
+        // A period is free for a new run if its prior run was reversed. Ignore
+        // reversal (mirror) runs and reversed originals when checking.
         $existing = PayrollRun::query()
             ->where('period', $period)
+            ->where('is_reversal', false)
             ->whereNotIn('status', [PayrollRun::STATUS_REVERSED])
             ->exists();
 

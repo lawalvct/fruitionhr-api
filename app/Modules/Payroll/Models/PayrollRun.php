@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'pay_period_id', 'period', 'status', 'employee_count',
+    'pay_period_id', 'period', 'status', 'is_reversal', 'reversed_of_run_id',
+    'reversal_reason', 'employee_count',
     'total_gross', 'total_statutory', 'total_deductions', 'total_net',
     'total_employer_cost', 'notes', 'created_by',
     'submitted_at', 'approved_at', 'locked_at',
@@ -38,6 +39,7 @@ class PayrollRun extends Model
     protected function casts(): array
     {
         return [
+            'is_reversal' => 'boolean',
             'total_gross' => 'integer',
             'total_statutory' => 'integer',
             'total_deductions' => 'integer',
@@ -47,6 +49,11 @@ class PayrollRun extends Model
             'approved_at' => 'datetime',
             'locked_at' => 'datetime',
         ];
+    }
+
+    public function reversalOf(): BelongsTo
+    {
+        return $this->belongsTo(PayrollRun::class, 'reversed_of_run_id');
     }
 
     public function payPeriod(): BelongsTo

@@ -2,6 +2,7 @@
 
 use App\Modules\Payroll\Controllers\EmployeeSalaryController;
 use App\Modules\Payroll\Controllers\PayrollOutputController;
+use App\Modules\Payroll\Controllers\PayrollReportController;
 use App\Modules\Payroll\Controllers\PayrollRunController;
 use App\Modules\Payroll\Controllers\SalaryComponentController;
 use App\Modules\Payroll\Controllers\SalaryStructureController;
@@ -31,8 +32,14 @@ Route::get('payroll-runs/{payrollRun}', [PayrollRunController::class, 'show'])->
 Route::get('payroll-runs/{payrollRun}/employees/{runEmployee}', [PayrollRunController::class, 'employeeDetail'])->name('v1.payroll-runs.employee');
 Route::post('payroll-runs/{payrollRun}/submit', [PayrollRunController::class, 'submit'])->name('v1.payroll-runs.submit');
 Route::post('payroll-runs/{payrollRun}/lock', [PayrollRunController::class, 'lock'])->name('v1.payroll-runs.lock');
+Route::post('payroll-runs/{payrollRun}/reverse', [PayrollRunController::class, 'reverse'])->name('v1.payroll-runs.reverse');
 
 // Payroll outputs (available once approved/locked)
 Route::get('payroll-runs/{payrollRun}/employees/{runEmployee}/payslip', [PayrollOutputController::class, 'payslip'])->name('v1.payroll-runs.payslip');
 Route::get('payroll-runs/{payrollRun}/bank-schedule', [PayrollOutputController::class, 'bankSchedule'])->name('v1.payroll-runs.bank-schedule');
 Route::get('payroll-runs/{payrollRun}/statutory-report', [PayrollOutputController::class, 'statutoryReport'])->name('v1.payroll-runs.statutory-report');
+
+// Advanced payroll reports
+Route::get('payroll-runs/{payrollRun}/variance', [PayrollReportController::class, 'variance'])->name('v1.payroll-runs.variance');
+Route::get('payroll-runs/{payrollRun}/journal', [PayrollReportController::class, 'journal'])->name('v1.payroll-runs.journal');
+Route::get('payroll-runs/{payrollRun}/journal.xlsx', [PayrollReportController::class, 'journalExport'])->name('v1.payroll-runs.journal-export');
