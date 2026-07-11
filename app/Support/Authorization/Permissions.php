@@ -62,6 +62,13 @@ class Permissions
     public const RECRUITMENT_MANAGE = 'recruitment.manage';
     public const RECRUITMENT_APPROVE = 'recruitment.approve';
 
+    // Performance and goals
+    public const PERFORMANCE_VIEW = 'performance.view';
+    public const PERFORMANCE_MANAGE = 'performance.manage';
+    public const PERFORMANCE_REVIEW = 'performance.review';
+    public const GOALS_VIEW = 'goals.view';
+    public const GOALS_MANAGE = 'goals.manage';
+
     // Reports
     public const REPORTS_VIEW = 'reports.view';
 
@@ -103,6 +110,11 @@ class Permissions
             self::RECRUITMENT_VIEW,
             self::RECRUITMENT_MANAGE,
             self::RECRUITMENT_APPROVE,
+            self::PERFORMANCE_VIEW,
+            self::PERFORMANCE_MANAGE,
+            self::PERFORMANCE_REVIEW,
+            self::GOALS_VIEW,
+            self::GOALS_MANAGE,
             self::REPORTS_VIEW,
         ];
     }
@@ -146,6 +158,11 @@ class Permissions
                 self::RECRUITMENT_VIEW,
                 self::RECRUITMENT_MANAGE,
                 self::RECRUITMENT_APPROVE,
+                self::PERFORMANCE_VIEW,
+                self::PERFORMANCE_MANAGE,
+                self::PERFORMANCE_REVIEW,
+                self::GOALS_VIEW,
+                self::GOALS_MANAGE,
                 self::REPORTS_VIEW,
             ],
             'manager' => [
@@ -164,6 +181,10 @@ class Permissions
                 self::MSS_TEAM_VIEW,
                 self::RECRUITMENT_VIEW,
                 self::RECRUITMENT_APPROVE,
+                self::PERFORMANCE_VIEW,
+                self::PERFORMANCE_REVIEW,
+                self::GOALS_VIEW,
+                self::GOALS_MANAGE,
                 self::REPORTS_VIEW,
             ],
             'employee' => [
@@ -173,6 +194,9 @@ class Permissions
                 self::ESS_LEAVE_APPLY,
                 self::ESS_ATTENDANCE_VIEW,
                 self::ESS_PAYSLIPS_VIEW,
+                self::PERFORMANCE_REVIEW,
+                self::GOALS_VIEW,
+                self::GOALS_MANAGE,
             ],
         ];
     }
