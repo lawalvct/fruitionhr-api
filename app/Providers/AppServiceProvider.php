@@ -7,6 +7,7 @@ use App\Core\Workflow\Events\WorkflowRejected;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Employee\Policies\EmployeePolicy;
 use App\Modules\Leave\Listeners\ApplyLeaveWorkflowDecision;
+use App\Modules\Payroll\Listeners\ApplyPayrollWorkflowDecision;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -39,5 +40,7 @@ class AppServiceProvider extends ServiceProvider
         // it doesn't own, so registering many here is cheap.
         Event::listen(WorkflowApproved::class, [ApplyLeaveWorkflowDecision::class, 'approved']);
         Event::listen(WorkflowRejected::class, [ApplyLeaveWorkflowDecision::class, 'rejected']);
+        Event::listen(WorkflowApproved::class, [ApplyPayrollWorkflowDecision::class, 'approved']);
+        Event::listen(WorkflowRejected::class, [ApplyPayrollWorkflowDecision::class, 'rejected']);
     }
 }

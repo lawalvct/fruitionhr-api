@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Payroll\Controllers\EmployeeSalaryController;
+use App\Modules\Payroll\Controllers\PayrollRunController;
 use App\Modules\Payroll\Controllers\SalaryComponentController;
 use App\Modules\Payroll\Controllers\SalaryStructureController;
 use Illuminate\Support\Facades\Route;
@@ -20,3 +21,12 @@ Route::delete('salary-structures/{salaryStructure}', [SalaryStructureController:
 // Employee salary (history + resolved breakdown)
 Route::get('employees/{employee}/salary', [EmployeeSalaryController::class, 'show'])->name('v1.employees.salary.show');
 Route::post('employees/{employee}/salary', [EmployeeSalaryController::class, 'store'])->name('v1.employees.salary.store');
+
+// Payroll runs
+Route::get('payroll/preflight', [PayrollRunController::class, 'preflight'])->name('v1.payroll.preflight');
+Route::get('payroll-runs', [PayrollRunController::class, 'index'])->name('v1.payroll-runs.index');
+Route::post('payroll-runs', [PayrollRunController::class, 'store'])->name('v1.payroll-runs.store');
+Route::get('payroll-runs/{payrollRun}', [PayrollRunController::class, 'show'])->name('v1.payroll-runs.show');
+Route::get('payroll-runs/{payrollRun}/employees/{runEmployee}', [PayrollRunController::class, 'employeeDetail'])->name('v1.payroll-runs.employee');
+Route::post('payroll-runs/{payrollRun}/submit', [PayrollRunController::class, 'submit'])->name('v1.payroll-runs.submit');
+Route::post('payroll-runs/{payrollRun}/lock', [PayrollRunController::class, 'lock'])->name('v1.payroll-runs.lock');
