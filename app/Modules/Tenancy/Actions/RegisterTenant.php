@@ -4,6 +4,7 @@ namespace App\Modules\Tenancy\Actions;
 
 use App\Core\Workflow\WorkflowProvisioner;
 use App\Models\User;
+use App\Modules\Payroll\Support\StatutoryProvisioner;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use Illuminate\Support\Facades\DB;
@@ -11,13 +12,15 @@ use Illuminate\Support\Str;
 
 /**
  * Company sign-up: creates the tenant, provisions default roles, default
- * approval workflows, and creates the owner user — atomically.
+ * approval workflows, default statutory rules, and creates the owner user —
+ * atomically.
  */
 class RegisterTenant
 {
     public function __construct(
         private readonly TenantRoleProvisioner $roleProvisioner,
         private readonly WorkflowProvisioner $workflowProvisioner,
+        private readonly StatutoryProvisioner $statutoryProvisioner,
     ) {
     }
 
@@ -37,6 +40,7 @@ class RegisterTenant
 
             $this->roleProvisioner->provision($tenant);
             $this->workflowProvisioner->provision($tenant);
+            $this->statutoryProvisioner->provision($tenant);
 
             $user = User::query()->create([
                 'tenant_id' => $tenant->id,
