@@ -5,6 +5,8 @@ namespace App\Modules\Auth\Controllers;
 use App\Models\User;
 use App\Modules\Auth\Requests\LoginRequest;
 use App\Modules\Auth\Resources\MeResource;
+use App\Modules\Tenancy\Models\Tenant;
+use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -78,6 +80,18 @@ class AuthController extends Controller
 
     public function me(Request $request): MeResource
     {
-        return new MeResource($request->user()->loadMissing(['tenant', 'employee']));
+        $user = $request->user();
+
+        // /me runs outside the tenant middleware (super admins use it too), so
+        // establish the user's OWN tenant context here — otherwise the
+        // fail-closed tenant scope hides their linked employee record.
+        if ($user->tenant_id !== null && ! app(CurrentTenant::class)->check()) {
+            $tenant = Tenant::query()->find($user->tenant_id);
+            if ($tenant !== null) {
+                app(CurrentTenant::class)->set($tenant);
+            }
+        }
+
+        return new MeResource($user->loadMissing(['tenant', 'employee']));
     }
 }
