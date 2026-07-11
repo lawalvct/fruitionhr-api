@@ -14,49 +14,7 @@ use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
 
-/**
- * Builds a tenant with one employee earning ₦500,000/month (basic ₦250,000 +
- * ₦200,000 pensionable allowances + ₦50,000 taxable meal), with statutory
- * rules provisioned and attendance finalized (no shift → zero absence).
- */
-function payrollScenario(): array
-{
-    $tenant = Tenant::factory()->create();
-    app(TenantRoleProvisioner::class)->provision($tenant);
-    app(WorkflowProvisioner::class)->provision($tenant);
-    app(StatutoryProvisioner::class)->provision($tenant);
-    app(CurrentTenant::class)->set($tenant);
-    setPermissionsTeamId($tenant->id);
-
-    $owner = User::factory()->create(['tenant_id' => $tenant->id]);
-    $owner->assignRole('owner');
-    test()->actingAs($owner);
-
-    $housing = SalaryComponent::factory()->create(['code' => 'HOU', 'is_taxable' => true, 'is_pensionable' => true]);
-    $transport = SalaryComponent::factory()->create(['code' => 'TRA', 'is_taxable' => true, 'is_pensionable' => true]);
-    $meal = SalaryComponent::factory()->create(['code' => 'MEAL', 'is_taxable' => true, 'is_pensionable' => false]);
-
-    $structure = SalaryStructure::factory()->create();
-    $structure->components()->createMany([
-        ['salary_component_id' => $housing->id, 'amount' => 12_500_000],  // ₦125,000
-        ['salary_component_id' => $transport->id, 'amount' => 7_500_000], // ₦75,000
-        ['salary_component_id' => $meal->id, 'amount' => 5_000_000],      // ₦50,000
-    ]);
-
-    $employee = Employee::factory()->create(['employment_status' => Employee::STATUS_ACTIVE]);
-    \App\Modules\Payroll\Models\EmployeeSalary::query()->create([
-        'employee_id' => $employee->id,
-        'salary_structure_id' => $structure->id,
-        'basic_salary' => 25_000_000, // ₦250,000
-        'effective_from' => '2026-07-01',
-        'is_current' => true,
-    ]);
-
-    // Finalize attendance (no shift → zero working days → no absence deduction)
-    app(AttendanceService::class)->finalize('2026-07', $owner);
-
-    return [$tenant, $owner, $employee];
-}
+// payrollScenario() is defined in tests/Support/PayrollScenario.php.
 
 beforeEach(function () {
     [$this->tenant, $this->owner, $this->employee] = payrollScenario();

@@ -12,11 +12,9 @@ class SalaryComponentFactory extends Factory
 
     public function definition(): array
     {
-        $name = fake()->unique()->randomElement(['Housing', 'Transport', 'Meal', 'Utility']);
-
         return [
-            'name' => $name.' Allowance',
-            'code' => strtoupper(substr($name, 0, 4)).fake()->unique()->numberBetween(1, 999),
+            'name' => fake()->randomElement(['Housing', 'Transport', 'Meal', 'Utility']).' Allowance',
+            'code' => strtoupper(fake()->bothify('???###')),
             'type' => SalaryComponent::TYPE_EARNING,
             'calc_type' => SalaryComponent::CALC_FIXED,
             'percent' => null,

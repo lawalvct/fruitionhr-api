@@ -13,7 +13,7 @@ class SalaryStructureFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->randomElement(['Junior', 'Senior', 'Management']).' Structure',
+            'name' => fake()->randomElement(['Junior', 'Senior', 'Management']).' '.fake()->bothify('Structure-###'),
             'description' => null,
             'is_active' => true,
         ];
