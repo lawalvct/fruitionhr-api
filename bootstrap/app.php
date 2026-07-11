@@ -1,12 +1,23 @@
 <?php
 
 use App\Core\Workflow\Console\BackfillWorkflowsCommand;
+use App\Support\Http\EnsureEmailVerified;
 use App\Support\Http\EnsureSuperAdmin;
 use App\Support\Tenancy\SetCurrentTenant;
+use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Auth\Middleware\Authorize;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,23 +35,24 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant' => SetCurrentTenant::class,
             'super-admin' => EnsureSuperAdmin::class,
+            'verified.email' => EnsureEmailVerified::class,
         ]);
 
         // SECURITY: tenant context MUST be established before route-model
         // binding runs, otherwise {employee}-style bindings resolve without
         // the tenant scope and leak cross-tenant records.
         $middleware->priority([
-            \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Session\Middleware\AuthenticateSession::class,
+            HandlePrecognitiveRequests::class,
+            EnsureFrontendRequestsAreStateful::class,
+            EncryptCookies::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            ValidateCsrfToken::class,
+            Authenticate::class,
+            AuthenticateSession::class,
             SetCurrentTenant::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
+            SubstituteBindings::class,
+            Authorize::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Modules\Tenancy\Services;
+
+use App\Models\User;
+use App\Modules\Tenancy\Models\Tenant;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+
+class OnboardingService
+{
+    public function __construct(private readonly StarterDataProvisioner $starterData) {}
+
+    public function save(User $owner, array $input): Tenant
+    {
+        $tenant = $owner->tenant;
+        $data = array_merge($tenant->onboarding_data ?? [], Arr::except($input, ['step']));
+
+        $tenant->update([
+            'name' => $data['company_name'] ?? $tenant->name,
+            'phone' => $data['phone'] ?? $tenant->phone,
+            'onboarding_status' => Tenant::ONBOARDING_IN_PROGRESS,
+            'onboarding_step' => $input['step'],
+            'onboarding_data' => $data,
+        ]);
+
+        return $tenant->refresh();
+    }
+
+    public function finish(User $owner, bool $skipped): Tenant
+    {
+        return DB::transaction(function () use ($owner, $skipped): Tenant {
+            $tenant = Tenant::query()->lockForUpdate()->findOrFail($owner->tenant_id);
+
+            if (in_array($tenant->onboarding_status, [
+                Tenant::ONBOARDING_COMPLETED,
+                Tenant::ONBOARDING_SKIPPED,
+            ], true)) {
+                return $tenant;
+            }
+
+            $this->starterData->provision($owner, $tenant->onboarding_data ?? []);
+
+            $tenant->update([
+                'onboarding_status' => $skipped
+                    ? Tenant::ONBOARDING_SKIPPED
+                    : Tenant::ONBOARDING_COMPLETED,
+                'onboarding_step' => 3,
+                'onboarding_completed_at' => $skipped ? null : now(),
+                'onboarding_skipped_at' => $skipped ? now() : null,
+            ]);
+
+            return $tenant->refresh();
+        });
+    }
+}

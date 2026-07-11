@@ -1834,6 +1834,31 @@ Audit log foundation
 Basic dashboard
 ```
 
+### Account Activation and Company Onboarding
+
+Company registration remains short: company name, owner name, work email,
+optional phone number, and password. The owner must verify the work email with
+a six-digit, short-lived code before accessing tenant business modules.
+
+After verification, the owner enters a resumable company setup flow covering:
+
+```txt
+Company profile and address
+Industry and company size
+RC number and TIN (optional)
+Tax state
+Pay frequency and pay day
+Working days
+Timezone and currency
+```
+
+The setup can be skipped and resumed later. Completing or skipping creates an
+editable starter structure (main branch, common departments, employment types,
+leave types, salary components, and holiday-calendar shell). It must not create
+fake employees, salary assignments, attendance, leave requests, or payroll runs.
+
+This company setup flow is distinct from Phase 8 candidate onboarding.
+
 ### Technical Work
 
 ```txt

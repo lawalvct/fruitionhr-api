@@ -89,6 +89,7 @@ Edit the `nav` array in `fruitionhr-web/src/app/app/(protected)/layout.tsx`.
 
 Build in this order. Do not start a phase until the previous one's Definition of Done is met.
 
+- **P1b** Account activation + company onboarding (email code verification, optional resumable setup, starter master data)
 - **P2a** Shared UI kit (frontend only)
 - **P2b** Company Setup module
 - **P2c** Employee module
@@ -99,6 +100,22 @@ Build in this order. Do not start a phase until the previous one's Definition of
 - **P6** Payroll advanced
 - **P7** Self-service (ESS/MSS)
 - **P8+** Recruitment, Performance, Training, Enterprise — consult `fruitionhr_saas_development_plan.md` §13.3, §13.8–13.14 when you get there.
+
+---
+
+## Phase 1b — Account activation and company onboarding
+
+**Status:** implemented 2026-07-11.
+
+- Registration signs the owner in and sends a six-digit email verification code. Codes are hashed, expire after 10 minutes, allow five attempts, and resend after 60 seconds.
+- Unverified users may access `/me`, logout, verification, and resend endpoints only. Every tenant module route uses `verified.email` middleware.
+- Company onboarding is owner-only, server-backed, resumable, and skippable. Progress lives on the tenant (`onboarding_status`, step, data, timestamps, version).
+- Completing or skipping provisions editable starter data exactly once: Main Office, common departments and employment types, standard leave types, salary components, and a Nigeria holiday-calendar shell.
+- Never seed fake employees, salaries, attendance, leave requests, payroll runs, or statutory submissions into a real tenant.
+- Skipped onboarding remains available from the dashboard. Saving later changes it back to `in_progress`; completion finalises it.
+- Local development currently uses `MAIL_MAILER=log`; retrieve codes from `storage/logs/laravel.log` or Telescope Mail. Production requires a real mail transport.
+
+**Definition of Done:** verification security tests, onboarding/idempotency tests, all Pest tests, TypeScript, ESLint, and frontend build pass.
 
 ---
 

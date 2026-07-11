@@ -23,6 +23,7 @@ class MeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'is_email_verified' => $this->hasVerifiedEmail(),
             'is_super_admin' => $this->isSuperAdmin(),
             'status' => $this->status,
             'tenant' => $this->when($isTenantUser, fn () => [
@@ -30,6 +31,8 @@ class MeResource extends JsonResource
                 'name' => $this->tenant->name,
                 'slug' => $this->tenant->slug,
                 'status' => $this->tenant->status,
+                'onboarding_status' => $this->tenant->onboarding_status,
+                'onboarding_step' => $this->tenant->onboarding_step,
             ]),
             'employee' => $this->when($isTenantUser && $this->relationLoaded('employee') && $this->employee !== null, fn () => [
                 'id' => $this->employee->id,

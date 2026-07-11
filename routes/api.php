@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Auth\Controllers\AuthController;
+use App\Modules\Auth\Controllers\EmailVerificationController;
 use App\Modules\Tenancy\Controllers\RegisterTenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,12 @@ Route::prefix('v1')->group(function (): void {
 Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('v1.logout');
     Route::get('/me', [AuthController::class, 'me'])->name('v1.me');
+    Route::post('/email/verify', [EmailVerificationController::class, 'verify'])
+        ->middleware('throttle:10,1')
+        ->name('v1.email.verify');
+    Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:3,1')
+        ->name('v1.email.resend');
 });
 
 /*
@@ -35,7 +42,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
 |--------------------------------------------------------------------------
 | All company-facing module routes register inside this group.
 */
-Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): void {
+Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->group(function (): void {
+    require __DIR__.'/modules/onboarding.php';
     require __DIR__.'/modules/core.php';
     require __DIR__.'/modules/company.php';
     require __DIR__.'/modules/employees.php';

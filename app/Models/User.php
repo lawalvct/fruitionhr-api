@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Employee\Models\Employee;
+use App\Modules\Tenancy\Models\Tenant;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,10 +19,10 @@ use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['tenant_id', 'name', 'email', 'password', 'status'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, MustVerifyEmail, Notifiable;
 
     public const STATUS_ACTIVE = 'active';
 
