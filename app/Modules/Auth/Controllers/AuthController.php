@@ -78,6 +78,6 @@ class AuthController extends Controller
 
     public function me(Request $request): MeResource
     {
-        return new MeResource($request->user()->loadMissing('tenant'));
+        return new MeResource($request->user()->loadMissing(['tenant', 'employee']));
     }
 }

@@ -45,6 +45,18 @@ class Permissions
     public const PAYROLL_APPROVE = 'payroll.approve';
     public const PAYROLL_REVERSE = 'payroll.reverse';
 
+    // Employee self-service (ESS)
+    public const ESS_PROFILE_VIEW = 'ess.profile.view';
+    public const ESS_PROFILE_UPDATE = 'ess.profile.update';
+    public const ESS_LEAVE_VIEW = 'ess.leave.view';
+    public const ESS_LEAVE_APPLY = 'ess.leave.apply';
+    public const ESS_ATTENDANCE_VIEW = 'ess.attendance.view';
+    public const ESS_PAYSLIPS_VIEW = 'ess.payslips.view';
+
+    // Manager self-service (MSS)
+    public const MSS_APPROVALS_VIEW = 'mss.approvals.view';
+    public const MSS_TEAM_VIEW = 'mss.team.view';
+
     // Reports
     public const REPORTS_VIEW = 'reports.view';
 
@@ -75,6 +87,14 @@ class Permissions
             self::PAYROLL_PROCESS,
             self::PAYROLL_APPROVE,
             self::PAYROLL_REVERSE,
+            self::ESS_PROFILE_VIEW,
+            self::ESS_PROFILE_UPDATE,
+            self::ESS_LEAVE_VIEW,
+            self::ESS_LEAVE_APPLY,
+            self::ESS_ATTENDANCE_VIEW,
+            self::ESS_PAYSLIPS_VIEW,
+            self::MSS_APPROVALS_VIEW,
+            self::MSS_TEAM_VIEW,
             self::REPORTS_VIEW,
         ];
     }
@@ -107,6 +127,14 @@ class Permissions
                 self::LEAVE_APPROVE,
                 self::PAYROLL_VIEW,
                 self::PAYROLL_PROCESS,
+                self::ESS_PROFILE_VIEW,
+                self::ESS_PROFILE_UPDATE,
+                self::ESS_LEAVE_VIEW,
+                self::ESS_LEAVE_APPLY,
+                self::ESS_ATTENDANCE_VIEW,
+                self::ESS_PAYSLIPS_VIEW,
+                self::MSS_APPROVALS_VIEW,
+                self::MSS_TEAM_VIEW,
                 self::REPORTS_VIEW,
             ],
             'manager' => [
@@ -115,11 +143,23 @@ class Permissions
                 self::ATTENDANCE_APPROVE,
                 self::LEAVE_VIEW,
                 self::LEAVE_APPROVE,
+                self::ESS_PROFILE_VIEW,
+                self::ESS_PROFILE_UPDATE,
+                self::ESS_LEAVE_VIEW,
+                self::ESS_LEAVE_APPLY,
+                self::ESS_ATTENDANCE_VIEW,
+                self::ESS_PAYSLIPS_VIEW,
+                self::MSS_APPROVALS_VIEW,
+                self::MSS_TEAM_VIEW,
                 self::REPORTS_VIEW,
             ],
             'employee' => [
-                // Self-service permissions arrive with the ESS module;
-                // baseline employees can authenticate but manage nothing.
+                self::ESS_PROFILE_VIEW,
+                self::ESS_PROFILE_UPDATE,
+                self::ESS_LEAVE_VIEW,
+                self::ESS_LEAVE_APPLY,
+                self::ESS_ATTENDANCE_VIEW,
+                self::ESS_PAYSLIPS_VIEW,
             ],
         ];
     }

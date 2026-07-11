@@ -31,6 +31,11 @@ class MeResource extends JsonResource
                 'slug' => $this->tenant->slug,
                 'status' => $this->tenant->status,
             ]),
+            'employee' => $this->when($isTenantUser && $this->relationLoaded('employee') && $this->employee !== null, fn () => [
+                'id' => $this->employee->id,
+                'employee_number' => $this->employee->employee_number,
+                'name' => $this->employee->full_name,
+            ]),
             'roles' => $this->when($isTenantUser, fn () => $this->getRoleNames()),
             'permissions' => $this->when($isTenantUser, fn () => $this->getAllPermissions()->pluck('name')),
         ];
