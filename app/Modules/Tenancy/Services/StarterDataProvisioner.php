@@ -80,8 +80,10 @@ class StarterDataProvisioner
             );
         }
 
+        $country = $data['country'] ?? 'Nigeria';
+
         HolidayCalendar::query()->firstOrCreate(
-            ['year' => (int) now()->year, 'name' => 'Nigeria Public Holidays'],
+            ['year' => (int) now()->year, 'name' => $country.' Public Holidays'],
             ['created_by' => $owner->id],
         );
     }

@@ -4,6 +4,7 @@ use App\Models\User;
 use App\Modules\Company\Models\Branch;
 use App\Modules\Company\Models\Department;
 use App\Modules\Company\Models\EmploymentType;
+use App\Modules\Company\Models\HolidayCalendar;
 use App\Modules\Leave\Models\LeaveType;
 use App\Modules\Payroll\Models\SalaryComponent;
 use App\Modules\Tenancy\Models\Tenant;
@@ -53,6 +54,7 @@ test('an owner can save and resume onboarding progress', function (): void {
 test('skipping onboarding provisions editable starter data only once', function (): void {
     $payload = [
         'step' => 2,
+        'country' => 'Ghana',
         'address' => '1 Marina Road',
         'city' => 'Lagos',
         'state' => 'Lagos',
@@ -68,7 +70,8 @@ test('skipping onboarding provisions editable starter data only once', function 
         ->and(EmploymentType::query()->count())->toBe(4)
         ->and(LeaveType::query()->count())->toBe(4)
         ->and(SalaryComponent::query()->count())->toBe(4)
-        ->and(Branch::query()->first()->address)->toBe('1 Marina Road');
+        ->and(Branch::query()->first()->address)->toBe('1 Marina Road')
+        ->and(HolidayCalendar::query()->first()->name)->toBe('Ghana Public Holidays');
 
     $this->postJson('/api/v1/onboarding/skip')->assertOk();
 
