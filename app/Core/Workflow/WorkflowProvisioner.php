@@ -27,6 +27,10 @@ class WorkflowProvisioner
             ['HR approval', 'hr_admin'],
             ['Owner approval', 'owner'],
         ],
+        'recruitment_requisition' => [
+            ['Manager approval', 'manager'],
+            ['HR approval', 'hr_admin'],
+        ],
     ];
 
     public function provision(Tenant $tenant): void

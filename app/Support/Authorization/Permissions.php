@@ -57,6 +57,11 @@ class Permissions
     public const MSS_APPROVALS_VIEW = 'mss.approvals.view';
     public const MSS_TEAM_VIEW = 'mss.team.view';
 
+    // Recruitment
+    public const RECRUITMENT_VIEW = 'recruitment.view';
+    public const RECRUITMENT_MANAGE = 'recruitment.manage';
+    public const RECRUITMENT_APPROVE = 'recruitment.approve';
+
     // Reports
     public const REPORTS_VIEW = 'reports.view';
 
@@ -95,6 +100,9 @@ class Permissions
             self::ESS_PAYSLIPS_VIEW,
             self::MSS_APPROVALS_VIEW,
             self::MSS_TEAM_VIEW,
+            self::RECRUITMENT_VIEW,
+            self::RECRUITMENT_MANAGE,
+            self::RECRUITMENT_APPROVE,
             self::REPORTS_VIEW,
         ];
     }
@@ -135,6 +143,9 @@ class Permissions
                 self::ESS_PAYSLIPS_VIEW,
                 self::MSS_APPROVALS_VIEW,
                 self::MSS_TEAM_VIEW,
+                self::RECRUITMENT_VIEW,
+                self::RECRUITMENT_MANAGE,
+                self::RECRUITMENT_APPROVE,
                 self::REPORTS_VIEW,
             ],
             'manager' => [
@@ -151,6 +162,8 @@ class Permissions
                 self::ESS_PAYSLIPS_VIEW,
                 self::MSS_APPROVALS_VIEW,
                 self::MSS_TEAM_VIEW,
+                self::RECRUITMENT_VIEW,
+                self::RECRUITMENT_APPROVE,
                 self::REPORTS_VIEW,
             ],
             'employee' => [

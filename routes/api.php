@@ -43,6 +43,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): 
     require __DIR__.'/modules/leave.php';
     require __DIR__.'/modules/payroll.php';
     require __DIR__.'/modules/self-service.php';
+    require __DIR__.'/modules/recruitment.php';
 });
 
 /*
