@@ -14,6 +14,7 @@ class LocationSeeder extends Seeder
         $this->importCountries();
         $this->importStates();
         Cache::forget('reference.countries');
+        Cache::forget('reference.countries.v2');
     }
 
     private function importCountries(): void

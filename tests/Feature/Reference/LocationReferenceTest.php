@@ -41,6 +41,21 @@ test('countries and their states are available as dependent reference data', fun
         ->and(State::query()->count())->toBeGreaterThanOrEqual(5000);
 });
 
+test('location reference data is available before tenant onboarding', function (): void {
+    $this->app['auth']->forgetGuards();
+
+    $this->getJson('/api/v1/reference/countries')
+        ->assertOk()
+        ->assertJsonFragment([
+            'name' => 'Nigeria',
+            'code' => 'NG',
+        ]);
+
+    $this->getJson('/api/v1/reference/countries/NG/states')
+        ->assertOk()
+        ->assertJsonFragment(['name' => 'Lagos']);
+});
+
 test('onboarding rejects a state that does not belong to the selected country', function (): void {
     $this->patchJson('/api/v1/onboarding', [
         'step' => 2,

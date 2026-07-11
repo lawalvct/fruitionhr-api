@@ -18,6 +18,8 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/login', [AuthController::class, 'login'])
         ->middleware('throttle:10,1')
         ->name('v1.login');
+
+    require __DIR__.'/modules/reference.php';
 });
 
 /*
@@ -43,7 +45,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
 | All company-facing module routes register inside this group.
 */
 Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->group(function (): void {
-    require __DIR__.'/modules/reference.php';
     require __DIR__.'/modules/onboarding.php';
     require __DIR__.'/modules/core.php';
     require __DIR__.'/modules/company.php';
