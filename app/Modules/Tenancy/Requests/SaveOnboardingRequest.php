@@ -15,6 +15,17 @@ class SaveOnboardingRequest extends FormRequest
         return $this->user()?->hasRole('owner') === true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $companySize = $this->input('company_size');
+
+        if (is_string($companySize)) {
+            $this->merge([
+                'company_size' => str($companySize)->replaceEnd(' employees', '')->toString(),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [

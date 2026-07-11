@@ -51,6 +51,15 @@ test('an owner can save and resume onboarding progress', function (): void {
     expect($this->tenant->fresh()->name)->toBe('Fruition Services');
 });
 
+test('company size labels from the onboarding form are normalized', function (): void {
+    $this->patchJson('/api/v1/onboarding', [
+        'step' => 2,
+        'company_name' => 'Fruition Traders',
+        'company_size' => '1-10 employees',
+    ])->assertOk()
+        ->assertJsonPath('data.data.company_size', '1-10');
+});
+
 test('skipping onboarding provisions editable starter data only once', function (): void {
     $payload = [
         'step' => 2,
