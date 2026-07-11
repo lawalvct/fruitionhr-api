@@ -43,6 +43,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
 | All company-facing module routes register inside this group.
 */
 Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->group(function (): void {
+    require __DIR__.'/modules/reference.php';
     require __DIR__.'/modules/onboarding.php';
     require __DIR__.'/modules/core.php';
     require __DIR__.'/modules/company.php';

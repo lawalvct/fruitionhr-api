@@ -2,8 +2,11 @@
 
 namespace App\Modules\Tenancy\Requests;
 
+use App\Modules\Reference\Models\Country;
+use App\Modules\Reference\Models\State;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class SaveOnboardingRequest extends FormRequest
 {
@@ -25,6 +28,7 @@ class SaveOnboardingRequest extends FormRequest
             'city' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:100'],
             'country' => ['nullable', 'string', 'max:100'],
+            'country_code' => ['nullable', 'string', 'size:2', 'exists:countries,code'],
             'timezone' => ['nullable', 'timezone'],
             'currency' => ['nullable', Rule::in(['NGN'])],
             'pay_frequency' => ['nullable', Rule::in(['monthly', 'biweekly', 'weekly'])],
@@ -37,5 +41,29 @@ class SaveOnboardingRequest extends FormRequest
             'tin' => ['nullable', 'string', 'max:100'],
             'rc_number' => ['nullable', 'string', 'max:100'],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            $countryCode = $this->string('country_code')->upper()->toString();
+
+            if ($countryCode === '') {
+                return;
+            }
+
+            $countryId = Country::query()->where('code', $countryCode)->value('id');
+
+            foreach (['state', 'tax_state'] as $field) {
+                $state = $this->input($field);
+
+                if ($state !== null && $state !== '' && ! State::query()
+                    ->where('country_id', $countryId)
+                    ->where('name', $state)
+                    ->exists()) {
+                    $validator->errors()->add($field, 'Select a valid state for the chosen country.');
+                }
+            }
+        }];
     }
 }
