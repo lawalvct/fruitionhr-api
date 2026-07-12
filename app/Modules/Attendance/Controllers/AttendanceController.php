@@ -3,6 +3,7 @@
 namespace App\Modules\Attendance\Controllers;
 
 use App\Modules\Attendance\Imports\AttendanceLogsImport;
+use App\Modules\Attendance\Exports\AttendanceImportTemplateExport;
 use App\Modules\Attendance\Models\AttendanceLog;
 use App\Modules\Attendance\Models\AttendanceSummary;
 use App\Modules\Attendance\Services\AttendanceService;
@@ -128,6 +129,16 @@ class AttendanceController extends Controller
                 'errors' => $import->errors,
             ],
         ]);
+    }
+
+    public function importTemplate(Request $request): mixed
+    {
+        abort_unless($request->user()->can(Permissions::ATTENDANCE_MANAGE), 403);
+
+        return Excel::download(
+            new AttendanceImportTemplateExport($this->validPeriod($request->query('period'))),
+            'attendance-import-template.xlsx',
+        );
     }
 
     public function finalize(Request $request, string $period)

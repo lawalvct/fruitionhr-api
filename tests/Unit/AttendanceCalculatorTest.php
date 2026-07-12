@@ -79,6 +79,23 @@ it('records overtime when clocking out after shift end', function () {
         ->and($result->overtimeMinutes)->toBe(120);
 });
 
+it('handles an overnight shift when the clock-out time is earlier than the start time', function () {
+    $shift = new Shift([
+        'start_time' => '19:00',
+        'end_time' => '07:00',
+        'grace_minutes' => 15,
+        'working_days' => [1, 2, 3, 4, 5],
+    ]);
+
+    $result = app(AttendanceCalculator::class)->forDay(
+        Carbon::parse(MON), $shift, logAt('19:00', '07:00'), false, false,
+    );
+
+    expect($result->status)->toBe(DayStatus::PRESENT)
+        ->and($result->earlyMinutes)->toBe(0)
+        ->and($result->overtimeMinutes)->toBe(0);
+});
+
 it('prioritises late over early exit for the primary status but keeps both minute figures', function () {
     $result = app(AttendanceCalculator::class)->forDay(
         Carbon::parse(MON), stdShift(15), logAt('08:30', '16:30'), false, false,

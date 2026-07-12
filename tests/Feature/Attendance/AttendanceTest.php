@@ -52,14 +52,111 @@ test('a shift can be created, listed, updated and deleted', function () {
     $this->deleteJson("/api/v1/shifts/{$id}")->assertNoContent();
 });
 
-test('shift validation rejects end before start and invalid weekdays', function () {
+test('shift validation rejects equal start and end times and invalid weekdays', function () {
     $this->postJson('/api/v1/shifts', [
         'name' => 'Bad',
         'start_time' => '17:00',
-        'end_time' => '08:00',
+        'end_time' => '17:00',
         'working_days' => [1, 9],
     ])->assertUnprocessable()
         ->assertJsonValidationErrors(['end_time', 'working_days.1']);
+});
+
+test('an overnight shift can be created', function () {
+    $this->postJson('/api/v1/shifts', [
+        'name' => 'Night Shift',
+        'start_time' => '19:00',
+        'end_time' => '07:00',
+        'working_days' => [1, 2, 3, 4, 5],
+    ])->assertCreated()
+        ->assertJsonPath('data.start_time', '19:00')
+        ->assertJsonPath('data.end_time', '07:00');
+});
+
+test('shift assignments can be listed and changed', function () {
+    $employee = Employee::factory()->create();
+    $dayShift = Shift::factory()->create(['name' => 'Day Shift']);
+    $nightShift = Shift::factory()->create(['name' => 'Night Shift', 'start_time' => '19:00', 'end_time' => '07:00']);
+
+    $this->getJson('/api/v1/shift-assignments')
+        ->assertOk()
+        ->assertJsonPath('data.0.employee.id', $employee->id)
+        ->assertJsonPath('data.0.assignment', null);
+
+    $this->postJson('/api/v1/shift-assignments', [
+        'employee_id' => $employee->id,
+        'shift_id' => $dayShift->id,
+        'effective_from' => '2026-07-01',
+    ])->assertCreated();
+
+    $this->postJson('/api/v1/shift-assignments', [
+        'employee_id' => $employee->id,
+        'shift_id' => $nightShift->id,
+        'effective_from' => '2026-08-01',
+    ])->assertCreated();
+
+    $this->getJson('/api/v1/shift-assignments')
+        ->assertOk()
+        ->assertJsonPath('data.0.assignment.shift.id', $nightShift->id)
+        ->assertJsonPath('data.0.assignment.effective_from', '2026-08-01');
+
+    $this->deleteJson("/api/v1/shifts/{$nightShift->id}")
+        ->assertStatus(409);
+
+    expect(ShiftAssignment::query()->where('employee_id', $employee->id)->count())->toBe(2)
+        ->and(ShiftAssignment::query()->where('shift_id', $dayShift->id)->value('is_current'))->toBeFalse();
+});
+
+test('attendance uses the shift effective on each day', function () {
+    $employee = Employee::factory()->create();
+    $dayShift = Shift::factory()->create([
+        'start_time' => '08:00',
+        'end_time' => '17:00',
+        'grace_minutes' => 15,
+    ]);
+    $nightShift = Shift::factory()->create([
+        'start_time' => '19:00',
+        'end_time' => '07:00',
+        'grace_minutes' => 15,
+    ]);
+
+    ShiftAssignment::query()->create([
+        'employee_id' => $employee->id,
+        'shift_id' => $dayShift->id,
+        'effective_from' => '2026-07-01',
+        'effective_to' => '2026-07-15',
+        'is_current' => false,
+    ]);
+    ShiftAssignment::query()->create([
+        'employee_id' => $employee->id,
+        'shift_id' => $nightShift->id,
+        'effective_from' => '2026-07-15',
+        'is_current' => true,
+    ]);
+
+    $this->postJson('/api/v1/attendance-logs', [
+        'employee_id' => $employee->id,
+        'date' => '2026-07-14',
+        'clock_in' => '08:30',
+        'clock_out' => '17:00',
+    ])->assertCreated();
+    $this->postJson('/api/v1/attendance-logs', [
+        'employee_id' => $employee->id,
+        'date' => '2026-07-16',
+        'clock_in' => '19:30',
+        'clock_out' => '07:00',
+    ])->assertCreated();
+
+    $this->getJson('/api/v1/attendance?period=2026-07')
+        ->assertOk()
+        ->assertJsonPath('data.rows.0.days.2026-07-14.late_minutes', 30)
+        ->assertJsonPath('data.rows.0.days.2026-07-16.late_minutes', 30);
+});
+
+test('an attendance import template can be downloaded', function () {
+    $this->get('/api/v1/attendance/import-template.xlsx?period=2026-07')
+        ->assertOk()
+        ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 });
 
 test('a manual attendance log can be recorded and updates the grid', function () {

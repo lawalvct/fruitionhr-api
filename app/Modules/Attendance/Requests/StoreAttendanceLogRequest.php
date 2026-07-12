@@ -4,6 +4,7 @@ namespace App\Modules\Attendance\Requests;
 
 use App\Support\Authorization\Permissions;
 use App\Support\Tenancy\CurrentTenant;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +26,15 @@ class StoreAttendanceLogRequest extends FormRequest
             ],
             'date' => ['required', 'date_format:Y-m-d'],
             'clock_in' => ['nullable', 'date_format:H:i'],
-            'clock_out' => ['nullable', 'date_format:H:i', 'after:clock_in'],
+            'clock_out' => [
+                'nullable',
+                'date_format:H:i',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if ($value !== null && $value === $this->input('clock_in')) {
+                        $fail('The clock out time must be different from the clock in time.');
+                    }
+                },
+            ],
             'note' => ['nullable', 'string', 'max:255'],
         ];
     }

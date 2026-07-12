@@ -50,6 +50,12 @@ class AttendanceCalculator
 
         $start = $this->minutes($shift->start_time) ?? 0;
         $end = $this->minutes($shift->end_time) ?? 0;
+        // An end time earlier than the start belongs to the following day,
+        // which supports overnight shifts such as 19:00 to 07:00.
+        $isOvernight = $end < $start;
+        if ($isOvernight) {
+            $end += 24 * 60;
+        }
         $grace = (int) $shift->grace_minutes;
 
         $lateMinutes = max(0, $clockIn - $start);
@@ -60,6 +66,9 @@ class AttendanceCalculator
         $overtimeMinutes = 0;
 
         if ($clockOut !== null) {
+            if ($isOvernight && $clockOut < $start) {
+                $clockOut += 24 * 60;
+            }
             $earlyMinutes = max(0, $end - $clockOut);
             $overtimeMinutes = max(0, $clockOut - $end);
         }

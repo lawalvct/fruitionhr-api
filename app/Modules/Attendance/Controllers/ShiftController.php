@@ -40,6 +40,11 @@ class ShiftController extends Controller
     public function destroy(Request $request, Shift $shift)
     {
         abort_unless($request->user()->can(Permissions::ATTENDANCE_MANAGE), 403);
+        abort_if(
+            $shift->assignments()->where('is_current', true)->exists(),
+            409,
+            'Reassign employees before deleting this shift.',
+        );
 
         $shift->delete();
 

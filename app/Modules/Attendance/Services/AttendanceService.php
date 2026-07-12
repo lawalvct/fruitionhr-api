@@ -36,7 +36,19 @@ class AttendanceService
     {
         [$start, $end] = $this->periodBounds($period);
 
-        $shift = $this->currentShift($employee->id);
+        $assignments = ShiftAssignment::query()
+            ->with('shift')
+            ->where('employee_id', $employee->id)
+            ->whereDate('effective_from', '<=', $end->toDateString())
+            ->where(function ($query) use ($start): void {
+                $query->whereNull('effective_to')
+                    ->orWhereDate('effective_to', '>=', $start->toDateString());
+            })
+            ->orderByDesc('effective_from')
+            ->get();
+
+        $activeShifts = Shift::query()->where('is_active', true)->get();
+        $fallbackShift = $activeShifts->count() === 1 ? $activeShifts->first() : null;
         $holidays = $this->holidayDates($start, $end);
         $leaveDates = $this->leaveDates($employee->id, $start, $end);
 
@@ -50,10 +62,14 @@ class AttendanceService
 
         foreach (CarbonPeriod::create($start, $end) as $date) {
             $key = $date->toDateString();
+            $assignment = $assignments->first(fn (ShiftAssignment $item): bool =>
+                $item->effective_from->lte($date)
+                && ($item->effective_to === null || $item->effective_to->gte($date))
+            );
 
             $days[$key] = $this->calculator->forDay(
                 $date,
-                $shift,
+                $assignment?->shift ?? $fallbackShift,
                 $logs->get($key),
                 $holidays->contains($key),
                 $leaveDates->contains($key),
