@@ -5,6 +5,8 @@ namespace App\Modules\Employee\Controllers;
 use App\Modules\Employee\Actions\AssignEmployee;
 use App\Modules\Employee\Actions\CreateEmployee;
 use App\Modules\Employee\Exports\EmployeesExport;
+use App\Modules\Employee\Exports\EmployeeImportTemplateExport;
+use App\Modules\Employee\Imports\EmployeesImport;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Employee\Requests\StoreAssignmentRequest;
 use App\Modules\Employee\Requests\StoreEmployeeRequest;
@@ -80,6 +82,28 @@ class EmployeeController extends Controller
         ])->setPaper('a4', 'landscape')->download('employees.pdf');
     }
 
+    public function importEmployees(Request $request): JsonResponse
+    {
+        Gate::authorize('create', Employee::class);
+        $request->validate(['file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120']]);
+
+        $import = new EmployeesImport((int) $request->user()->id);
+        Excel::import($import, $request->file('file'));
+
+        return response()->json(['data' => [
+            'imported' => $import->imported,
+            'skipped' => $import->skipped,
+            'errors' => $import->errors,
+        ]]);
+    }
+
+    public function importTemplate(Request $request): mixed
+    {
+        Gate::authorize('viewAny', Employee::class);
+
+        return Excel::download(new EmployeeImportTemplateExport, 'employees-import-template.xlsx');
+    }
+
     public function store(StoreEmployeeRequest $request, CreateEmployee $createEmployee): JsonResponse
     {
         Gate::authorize('create', Employee::class);
@@ -122,11 +146,33 @@ class EmployeeController extends Controller
         return new EmployeeResource($this->loadProfile($employee));
     }
 
-    public function update(UpdateEmployeeRequest $request, Employee $employee): EmployeeResource
+    public function update(UpdateEmployeeRequest $request, Employee $employee, AssignEmployee $assignEmployee): EmployeeResource
     {
         Gate::authorize('update', $employee);
 
-        $employee->update($request->validated());
+        $validated = $request->validated();
+        $assignment = $validated['assignment'] ?? null;
+        $contacts = $validated['contacts'] ?? null;
+        $bankAccounts = $validated['bank_accounts'] ?? null;
+        $statutory = $validated['statutory'] ?? null;
+        unset($validated['assignment'], $validated['contacts'], $validated['bank_accounts'], $validated['statutory']);
+
+        $employee->update($validated);
+
+        if ($assignment !== null) {
+            $assignEmployee->execute($employee, $assignment, $request->user()?->id);
+        }
+        if ($contacts !== null) {
+            $employee->contacts()->delete();
+            foreach ($contacts as $contact) $employee->contacts()->create([...$contact, 'created_by' => $request->user()?->id]);
+        }
+        if ($bankAccounts !== null) {
+            $employee->bankAccounts()->delete();
+            foreach ($bankAccounts as $account) $employee->bankAccounts()->create([...$account, 'created_by' => $request->user()?->id]);
+        }
+        if ($statutory !== null) {
+            $employee->statutoryDetails()->updateOrCreate([], [...$statutory, 'created_by' => $request->user()?->id]);
+        }
 
         return new EmployeeResource($this->loadProfile($employee->refresh()));
     }

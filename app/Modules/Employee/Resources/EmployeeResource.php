@@ -28,7 +28,8 @@ class EmployeeResource extends JsonResource
             'state' => $this->state,
             'country' => $this->country,
             'photo_path' => $this->photo_path,
-            'photo_url' => $this->photo_path ? route('employees.photo.show', ['employee' => $this->id]) : null,
+            // Keep this relative so the SPA uses its same-origin /api rewrite and session cookies.
+            'photo_url' => $this->photo_path ? "/api/v1/employees/{$this->id}/photo" : null,
             'employment_status' => $this->employment_status,
             'hired_at' => $this->hired_at?->format('Y-m-d'),
             'exited_at' => $this->exited_at?->format('Y-m-d'),

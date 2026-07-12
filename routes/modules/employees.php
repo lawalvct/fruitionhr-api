@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('employees/export.xlsx', [EmployeeController::class, 'exportExcel'])->name('v1.employees.export.xlsx');
 Route::get('employees/export.pdf', [EmployeeController::class, 'exportPdf'])->name('v1.employees.export.pdf');
+Route::get('employees/import-template.xlsx', [EmployeeController::class, 'importTemplate'])->name('v1.employees.import-template');
+Route::post('employees/import', [EmployeeController::class, 'importEmployees'])->name('v1.employees.import');
 Route::apiResource('employees', EmployeeController::class);
 Route::post('employees/{employee}/assignments', [EmployeeController::class, 'assign']);
 Route::get('employees/{employee}/photo', [EmployeeController::class, 'showPhoto'])->name('employees.photo.show');

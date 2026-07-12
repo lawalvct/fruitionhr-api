@@ -11,6 +11,7 @@ use App\Modules\Employee\Models\EmployeeEmploymentRecord;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
+use Illuminate\Http\UploadedFile;
 
 function actingAsEmployeeOwner(): array
 {
@@ -103,6 +104,33 @@ test('employee validation catches missing names', function (): void {
         'hired_at' => '2026-01-01',
     ])->assertUnprocessable()
         ->assertJsonValidationErrors(['first_name', 'last_name']);
+});
+
+test('employees can be imported from the accepted csv template', function (): void {
+    $department = Department::factory()->create(['name' => 'Engineering']);
+    Position::factory()->create(['title' => 'Software Engineer', 'department_id' => $department->id]);
+
+    $this->get('/api/v1/employees/import-template.xlsx')
+        ->assertOk()
+        ->assertDownload('employees-import-template.xlsx');
+
+    $csv = implode("\n", [
+        'employee_number,first_name,last_name,official_email,employment_status,hired_at,department,position',
+        'SAMPLE-001,Ada,Example,sample@example.test,active,2026-01-01,Engineering,Software Engineer',
+        ',Tola,Adeyemi,tola@example.test,active,2026-02-01,Engineering,Software Engineer',
+    ]);
+
+    $this->post('/api/v1/employees/import', [
+        'file' => UploadedFile::fake()->createWithContent('employees.csv', $csv),
+    ])->assertOk()
+        ->assertJsonPath('data.imported', 2)
+        ->assertJsonPath('data.skipped', 0);
+
+    $employee = Employee::query()->where('official_email', 'tola@example.test')->firstOrFail();
+    expect($employee->full_name)->toBe('Tola Adeyemi')
+        ->and($employee->currentAssignment?->department?->name)->toBe('Engineering')
+        ->and($employee->currentAssignment?->position?->title)->toBe('Software Engineer')
+        ->and(Employee::query()->where('employee_number', 'SAMPLE-001')->exists())->toBeTrue();
 });
 
 test('employee numbers are unique per tenant sequence', function (): void {
