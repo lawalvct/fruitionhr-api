@@ -4,19 +4,25 @@ namespace App\Modules\Employee\Controllers;
 
 use App\Modules\Employee\Actions\AssignEmployee;
 use App\Modules\Employee\Actions\CreateEmployee;
+use App\Modules\Employee\Exports\EmployeesExport;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Employee\Requests\StoreAssignmentRequest;
 use App\Modules\Employee\Requests\StoreEmployeeRequest;
 use App\Modules\Employee\Requests\UpdateEmployeeRequest;
 use App\Modules\Employee\Resources\EmployeeAssignmentResource;
 use App\Modules\Employee\Resources\EmployeeResource;
+use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EmployeeController extends Controller
 {
@@ -54,6 +60,24 @@ class EmployeeController extends Controller
         return EmployeeResource::collection(
             $query->paginate(min((int) $request->integer('per_page', 15), 100))->appends($request->query())
         );
+    }
+
+    public function exportExcel(Request $request): mixed
+    {
+        Gate::authorize('viewAny', Employee::class);
+
+        return Excel::download(new EmployeesExport($this->exportQuery($request)->get()), 'employees.xlsx');
+    }
+
+    public function exportPdf(Request $request): mixed
+    {
+        Gate::authorize('viewAny', Employee::class);
+        $employees = $this->exportQuery($request)->get();
+
+        return Pdf::loadView('employees.export-pdf', [
+            'employees' => $employees,
+            'tenantName' => app(CurrentTenant::class)->get()?->name ?? 'Company',
+        ])->setPaper('a4', 'landscape')->download('employees.pdf');
     }
 
     public function store(StoreEmployeeRequest $request, CreateEmployee $createEmployee): JsonResponse
@@ -132,6 +156,35 @@ class EmployeeController extends Controller
         ]));
     }
 
+    public function uploadPhoto(Request $request, Employee $employee): EmployeeResource
+    {
+        Gate::authorize('update', $employee);
+
+        $request->validate([
+            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
+
+        $disk = Storage::disk('local');
+
+        if ($employee->photo_path && $disk->exists($employee->photo_path)) {
+            $disk->delete($employee->photo_path);
+        }
+
+        $tenantId = app(CurrentTenant::class)->id();
+        $path = $request->file('photo')->store("tenants/{$tenantId}/employees/{$employee->id}/avatar", 'local');
+        $employee->update(['photo_path' => $path]);
+
+        return new EmployeeResource($this->loadProfile($employee->refresh()));
+    }
+
+    public function showPhoto(Request $request, Employee $employee): StreamedResponse
+    {
+        Gate::authorize('view', $employee);
+        abort_unless($employee->photo_path && Storage::disk('local')->exists($employee->photo_path), 404);
+
+        return Storage::disk('local')->response($employee->photo_path);
+    }
+
     private function loadProfile(Employee $employee): Employee
     {
         return $employee->load([
@@ -151,5 +204,18 @@ class EmployeeController extends Controller
             'bankAccounts',
             'statutoryDetails',
         ]);
+    }
+
+    private function exportQuery(Request $request): Builder
+    {
+        $filters = $request->input('filter', []);
+        $departmentId = is_array($filters) ? ($filters['department_id'] ?? null) : null;
+        $status = is_array($filters) ? ($filters['employment_status'] ?? null) : null;
+
+        return Employee::query()
+            ->with(['currentAssignment.department', 'currentAssignment.position'])
+            ->when($departmentId, fn (Builder $query) => $query->whereHas('currentAssignment', fn (Builder $assignment) => $assignment->where('department_id', $departmentId)))
+            ->when($status, fn (Builder $query) => $query->where('employment_status', $status))
+            ->orderBy('first_name');
     }
 }

@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'address',
     'city',
     'state',
+    'country',
     'photo_path',
     'employment_status',
     'hired_at',

@@ -35,6 +35,7 @@ class UpdateEmployeeRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:2000'],
             'city' => ['nullable', 'string', 'max:120'],
             'state' => ['nullable', 'string', 'max:120'],
+            'country' => ['nullable', 'string', 'max:120'],
             'photo_path' => ['nullable', 'string', 'max:500'],
             'employment_status' => ['required', Rule::in([
                 Employee::STATUS_ACTIVE,
