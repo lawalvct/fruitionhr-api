@@ -12,7 +12,12 @@ use App\Modules\Recruitment\Models\ManpowerRequisition;
 use App\Modules\Recruitment\Models\Offer;
 use App\Modules\Recruitment\Models\OnboardingTask;
 use App\Modules\Recruitment\Models\Vacancy;
+use App\Support\Tenancy\CurrentTenant;
+use App\Support\Tenancy\TenantScope;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class RecruitmentService
@@ -64,12 +69,34 @@ class RecruitmentService
             throw new ConflictHttpException('Vacancy positions exceed the approved requisition headcount.');
         }
 
-        return Vacancy::query()->create([...$data, 'created_by' => $user->id, 'status' => Vacancy::STATUS_DRAFT]);
+        $tenantSlug = app(CurrentTenant::class)->get()?->slug ?? 'company';
+
+        return Vacancy::query()->create([
+            ...$data,
+            'employment_type_id' => $data['employment_type_id'] ?? $requisition->employment_type_id,
+            'public_slug' => $this->uniqueVacancySlug($tenantSlug, $data['title']),
+            'visibility' => $data['visibility'] ?? Vacancy::VISIBILITY_PRIVATE,
+            'created_by' => $user->id,
+            'status' => Vacancy::STATUS_DRAFT,
+        ]);
     }
 
-    public function apply(array $data, User $user): Application
+    public function publish(Vacancy $vacancy): Vacancy
     {
-        return DB::transaction(function () use ($data, $user): Application {
+        if (! $vacancy->public_slug) {
+            $tenantSlug = app(CurrentTenant::class)->get()?->slug ?? 'company';
+            $vacancy->public_slug = $this->uniqueVacancySlug($tenantSlug, $vacancy->title, $vacancy->id);
+        }
+
+        $vacancy->visibility = Vacancy::VISIBILITY_PUBLIC;
+        $vacancy->save();
+
+        return $vacancy->refresh();
+    }
+
+    public function apply(array $data, ?User $user, ?UploadedFile $resume = null): Application
+    {
+        return DB::transaction(function () use ($data, $user, $resume): Application {
             $vacancy = Vacancy::query()->findOrFail($data['vacancy_id']);
             if ($vacancy->status !== Vacancy::STATUS_OPEN) {
                 throw new ConflictHttpException('Applications are only accepted for open vacancies.');
@@ -84,9 +111,36 @@ class RecruitmentService
                     'city' => $data['city'] ?? null,
                     'state' => $data['state'] ?? null,
                     'linkedin_url' => $data['linkedin_url'] ?? null,
-                    'created_by' => $user->id,
+                    'created_by' => $user?->id,
                 ],
             );
+
+            if (Application::query()->where('vacancy_id', $vacancy->id)->where('applicant_id', $applicant->id)->exists()) {
+                throw new ConflictHttpException('An application for this vacancy already exists for this email address.');
+            }
+
+            $applicant->fill([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'phone' => $data['phone'] ?? $applicant->phone,
+                'city' => $data['city'] ?? $applicant->city,
+                'state' => $data['state'] ?? $applicant->state,
+                'linkedin_url' => $data['linkedin_url'] ?? $applicant->linkedin_url,
+            ])->save();
+
+            if ($resume) {
+                $oldPath = $applicant->resume_path;
+                $tenantId = app(CurrentTenant::class)->id();
+                $path = $resume->store("tenants/{$tenantId}/recruitment/applicants/{$applicant->id}/resume", 'local');
+                $applicant->update([
+                    'resume_path' => $path,
+                    'resume_original_name' => $resume->getClientOriginalName(),
+                ]);
+
+                if ($oldPath && $oldPath !== $path) {
+                    DB::afterCommit(fn () => Storage::disk('local')->delete($oldPath));
+                }
+            }
 
             $application = Application::query()->create([
                 'vacancy_id' => $vacancy->id,
@@ -95,13 +149,31 @@ class RecruitmentService
                 'source' => $data['source'] ?? null,
                 'cover_letter' => $data['cover_letter'] ?? null,
                 'applied_at' => now(),
-                'created_by' => $user->id,
+                'created_by' => $user?->id,
             ]);
 
-            $application->stageHistory()->create(['to_stage' => 'applied', 'changed_by' => $user->id]);
+            $application->stageHistory()->create(['to_stage' => 'applied', 'changed_by' => $user?->id]);
 
             return $application;
         });
+    }
+
+    private function uniqueVacancySlug(string $tenantSlug, string $title, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($tenantSlug.'-'.$title) ?: 'vacancy';
+        $slug = $base;
+        $suffix = 2;
+
+        while (Vacancy::withoutGlobalScope(TenantScope::class)
+            ->withTrashed()
+            ->where('public_slug', $slug)
+            ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
+            ->exists()) {
+            $slug = $base.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $slug;
     }
 
     public function move(Application $application, string $stage, User $user, ?string $notes = null): Application

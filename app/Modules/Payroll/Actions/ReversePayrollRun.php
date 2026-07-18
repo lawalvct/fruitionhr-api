@@ -4,6 +4,8 @@ namespace App\Modules\Payroll\Actions;
 
 use App\Models\User;
 use App\Modules\Payroll\Models\PayrollRun;
+use App\Modules\Payroll\Services\LoanService;
+use App\Modules\Payroll\Services\OvertimeService;
 use App\Modules\Payroll\Support\PayrollRunState;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -15,8 +17,11 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  */
 class ReversePayrollRun
 {
-    public function __construct(private readonly PayrollRunState $state)
-    {
+    public function __construct(
+        private readonly PayrollRunState $state,
+        private readonly OvertimeService $overtime,
+        private readonly LoanService $loans,
+    ) {
     }
 
     public function execute(PayrollRun $run, User $user, string $reason): PayrollRun
@@ -71,6 +76,11 @@ class ReversePayrollRun
                     ])->all()
                 );
             });
+
+            // Unwind recoveries the original run applied: release its overtime
+            // back to approved and credit loan balances (reopening closed loans).
+            $this->overtime->releaseForRun($run);
+            $this->loans->reverseRecoveriesForRun($run);
 
             // The original transitions locked -> reversed.
             $this->state->transition($run, PayrollRun::STATUS_REVERSED);

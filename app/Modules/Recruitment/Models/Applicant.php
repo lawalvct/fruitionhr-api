@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['first_name', 'last_name', 'email', 'phone', 'city', 'state', 'linkedin_url', 'resume_path', 'created_by'])]
+#[Fillable(['first_name', 'last_name', 'email', 'phone', 'city', 'state', 'linkedin_url', 'resume_path', 'resume_original_name', 'created_by'])]
 class Applicant extends Model
 {
     use BelongsToTenant, HasFactory, SoftDeletes;

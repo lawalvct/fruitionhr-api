@@ -16,10 +16,13 @@ Route::post('recruitment/vacancies', [VacancyController::class, 'store']);
 Route::put('recruitment/vacancies/{vacancy}', [VacancyController::class, 'update']);
 Route::post('recruitment/vacancies/{vacancy}/open', [VacancyController::class, 'open']);
 Route::post('recruitment/vacancies/{vacancy}/close', [VacancyController::class, 'close']);
+Route::post('recruitment/vacancies/{vacancy}/publish', [VacancyController::class, 'publish']);
+Route::post('recruitment/vacancies/{vacancy}/unpublish', [VacancyController::class, 'unpublish']);
 
 Route::get('recruitment/applications', [ApplicationController::class, 'index']);
 Route::post('recruitment/applications', [ApplicationController::class, 'store']);
 Route::get('recruitment/applications/{application}', [ApplicationController::class, 'show']);
+Route::get('recruitment/applications/{application}/resume', [ApplicationController::class, 'resume']);
 Route::post('recruitment/applications/{application}/move', [ApplicationController::class, 'move']);
 Route::post('recruitment/applications/{application}/interviews', [ApplicationController::class, 'scheduleInterview']);
 Route::post('recruitment/interviews/{interview}/complete', [ApplicationController::class, 'completeInterview']);

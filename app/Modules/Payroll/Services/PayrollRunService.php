@@ -21,6 +21,8 @@ class PayrollRunService
         private readonly PayrollRunState $state,
         private readonly PayrollPreflight $preflight,
         private readonly WorkflowService $workflow,
+        private readonly OvertimeService $overtime,
+        private readonly LoanService $loans,
     ) {
     }
 
@@ -144,5 +146,12 @@ class PayrollRunService
     {
         $this->state->transition($run, PayrollRun::STATUS_LOCKED);
         $run->update(['locked_at' => now()]);
+
+        // Overtime that rode this run is now settled — mark it paid and bind it
+        // to the run so it can never be pulled into a second run.
+        $this->overtime->markPaidForRun($run);
+
+        // Apply loan/advance recoveries to balances, close settled loans.
+        $this->loans->applyRecoveriesForRun($run);
     }
 }

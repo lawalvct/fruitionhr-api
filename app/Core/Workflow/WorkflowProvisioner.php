@@ -27,6 +27,14 @@ class WorkflowProvisioner
             ['HR approval', 'hr_admin'],
             ['Owner approval', 'owner'],
         ],
+        'overtime' => [
+            ['Manager approval', 'manager'],
+            ['HR approval', 'hr_admin'],
+        ],
+        'loan' => [
+            ['Manager approval', 'manager'],
+            ['HR approval', 'hr_admin'],
+        ],
         'recruitment_requisition' => [
             ['Manager approval', 'manager'],
             ['HR approval', 'hr_admin'],

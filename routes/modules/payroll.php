@@ -1,6 +1,8 @@
 <?php
 
 use App\Modules\Payroll\Controllers\EmployeeSalaryController;
+use App\Modules\Payroll\Controllers\LoanController;
+use App\Modules\Payroll\Controllers\OvertimeController;
 use App\Modules\Payroll\Controllers\PayrollOutputController;
 use App\Modules\Payroll\Controllers\PayrollReportController;
 use App\Modules\Payroll\Controllers\PayrollRunController;
@@ -38,6 +40,29 @@ Route::post('payroll-runs/{payrollRun}/reverse', [PayrollRunController::class, '
 Route::get('payroll-runs/{payrollRun}/employees/{runEmployee}/payslip', [PayrollOutputController::class, 'payslip'])->name('v1.payroll-runs.payslip');
 Route::get('payroll-runs/{payrollRun}/bank-schedule', [PayrollOutputController::class, 'bankSchedule'])->name('v1.payroll-runs.bank-schedule');
 Route::get('payroll-runs/{payrollRun}/statutory-report', [PayrollOutputController::class, 'statutoryReport'])->name('v1.payroll-runs.statutory-report');
+
+// Overtime payments (approved via the 'overtime' workflow; paid in payroll or off-cycle)
+Route::get('overtime/attendance-candidates', [OvertimeController::class, 'attendanceCandidates'])->name('v1.overtime.attendance-candidates');
+Route::post('overtime/from-attendance', [OvertimeController::class, 'fromAttendance'])->name('v1.overtime.from-attendance');
+Route::get('overtime', [OvertimeController::class, 'index'])->name('v1.overtime.index');
+Route::post('overtime', [OvertimeController::class, 'store'])->name('v1.overtime.store');
+Route::get('overtime/{overtime}', [OvertimeController::class, 'show'])->name('v1.overtime.show');
+Route::put('overtime/{overtime}', [OvertimeController::class, 'update'])->name('v1.overtime.update');
+Route::delete('overtime/{overtime}', [OvertimeController::class, 'destroy'])->name('v1.overtime.destroy');
+Route::post('overtime/{overtime}/submit', [OvertimeController::class, 'submit'])->name('v1.overtime.submit');
+Route::post('overtime/{overtime}/pay', [OvertimeController::class, 'pay'])->name('v1.overtime.pay');
+
+// Staff loans & salary advances (approved via the 'loan' workflow; recovered from payroll)
+Route::get('loans', [LoanController::class, 'index'])->name('v1.loans.index');
+Route::post('loans', [LoanController::class, 'store'])->name('v1.loans.store');
+Route::get('loans/{loan}', [LoanController::class, 'show'])->name('v1.loans.show');
+Route::put('loans/{loan}', [LoanController::class, 'update'])->name('v1.loans.update');
+Route::delete('loans/{loan}', [LoanController::class, 'destroy'])->name('v1.loans.destroy');
+Route::post('loans/{loan}/submit', [LoanController::class, 'submit'])->name('v1.loans.submit');
+Route::post('loans/{loan}/plan-deduction', [LoanController::class, 'planDeduction'])->name('v1.loans.plan-deduction');
+Route::post('loans/{loan}/clear-deduction', [LoanController::class, 'clearDeduction'])->name('v1.loans.clear-deduction');
+Route::post('loans/{loan}/installment', [LoanController::class, 'setInstallment'])->name('v1.loans.installment');
+Route::get('loans/{loan}/repayments', [LoanController::class, 'repayments'])->name('v1.loans.repayments');
 
 // Advanced payroll reports
 Route::get('payroll-runs/{payrollRun}/variance', [PayrollReportController::class, 'variance'])->name('v1.payroll-runs.variance');

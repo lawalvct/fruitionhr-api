@@ -25,6 +25,9 @@ class ApplicationResource extends JsonResource
                 'phone' => $this->applicant->phone,
                 'city' => $this->applicant->city,
                 'state' => $this->applicant->state,
+                'linkedin_url' => $this->applicant->linkedin_url,
+                'has_resume' => filled($this->applicant->resume_path),
+                'resume_file_name' => $this->applicant->resume_original_name,
             ]),
             'vacancy' => $this->whenLoaded('vacancy', fn () => ['id' => $this->vacancy->id, 'title' => $this->vacancy->title]),
             'stage_history' => $this->whenLoaded('stageHistory', fn () => $this->stageHistory->map(fn ($item) => [

@@ -4,6 +4,7 @@ namespace App\Modules\Recruitment\Requests;
 
 use App\Support\Authorization\Permissions;
 use App\Support\Tenancy\CurrentTenant;
+use App\Modules\Recruitment\Models\Vacancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +28,7 @@ class VacancyRequest extends FormRequest
             'positions_available' => ['required', 'integer', 'min:1', 'max:1000'],
             'opens_at' => ['nullable', 'date_format:Y-m-d'],
             'closes_at' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:opens_at'],
+            'visibility' => ['sometimes', Rule::in([Vacancy::VISIBILITY_PRIVATE, Vacancy::VISIBILITY_PUBLIC])],
         ];
     }
 }

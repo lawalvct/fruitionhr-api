@@ -18,7 +18,10 @@ use App\Support\Authorization\Permissions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ApplicationController extends Controller
 {
@@ -54,6 +57,20 @@ class ApplicationController extends Controller
         abort_unless($request->user()->can(Permissions::RECRUITMENT_VIEW), 403);
 
         return new ApplicationResource($this->load($application));
+    }
+
+    public function resume(Request $request, Application $application): StreamedResponse
+    {
+        abort_unless($request->user()->can(Permissions::RECRUITMENT_VIEW), 403);
+        $application->loadMissing('applicant');
+
+        $path = $application->applicant->resume_path;
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $filename = Str::slug($application->applicant->full_name).'-resume'.($extension ? '.'.$extension : '');
+
+        return Storage::disk('local')->download($path, $filename);
     }
 
     public function move(MoveApplicationRequest $request, Application $application): ApplicationResource

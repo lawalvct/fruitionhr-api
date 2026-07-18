@@ -14,6 +14,8 @@ use App\Modules\Recruitment\Models\Vacancy;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 function recruitmentTenant(): array
 {
@@ -181,4 +183,114 @@ test('employee role has no recruitment access', function () {
     $employeeUser->assignRole('employee');
 
     $this->actingAs($employeeUser)->getJson('/api/v1/recruitment/requisitions')->assertForbidden();
+});
+
+test('vacancies can be published with a stable public slug and made private again', function () {
+    $approved = createApprovedRequisition($this);
+    $created = $this->postJson('/api/v1/recruitment/vacancies', [
+        'manpower_requisition_id' => $approved->id,
+        'title' => 'Senior Accountant',
+        'description' => 'Lead statutory reporting and financial controls.',
+        'positions_available' => 1,
+    ])->assertCreated()
+        ->assertJsonPath('data.visibility', Vacancy::VISIBILITY_PRIVATE);
+
+    $vacancyId = $created->json('data.id');
+    $slug = $created->json('data.public_slug');
+    expect($slug)->toBeString()->not->toBeEmpty();
+
+    $this->postJson('/api/v1/recruitment/vacancies/'.$vacancyId.'/open')->assertOk();
+    $this->getJson('/api/v1/careers/'.$slug)->assertNotFound();
+
+    $this->postJson('/api/v1/recruitment/vacancies/'.$vacancyId.'/publish')
+        ->assertOk()
+        ->assertJsonPath('data.visibility', Vacancy::VISIBILITY_PUBLIC)
+        ->assertJsonPath('data.public_slug', $slug);
+
+    app(CurrentTenant::class)->forget();
+    $this->getJson('/api/v1/careers/'.$slug)
+        ->assertOk()
+        ->assertJsonPath('data.title', 'Senior Accountant')
+        ->assertJsonPath('data.company.name', $this->tenant->name);
+
+    $this->postJson('/api/v1/recruitment/vacancies/'.$vacancyId.'/unpublish')
+        ->assertOk()
+        ->assertJsonPath('data.visibility', Vacancy::VISIBILITY_PRIVATE);
+    $this->getJson('/api/v1/careers/'.$slug)->assertNotFound();
+});
+
+test('public careers catalogue lists vacancies from active companies', function () {
+    $approved = createApprovedRequisition($this);
+    $firstSlug = $this->postJson('/api/v1/recruitment/vacancies', [
+        'manpower_requisition_id' => $approved->id,
+        'title' => 'Finance Analyst',
+        'description' => 'Support planning and performance reporting.',
+        'positions_available' => 1,
+        'visibility' => Vacancy::VISIBILITY_PUBLIC,
+    ])->assertCreated()->json('data.public_slug');
+    $firstVacancy = Vacancy::query()->where('public_slug', $firstSlug)->firstOrFail();
+    $this->postJson('/api/v1/recruitment/vacancies/'.$firstVacancy->id.'/open')->assertOk();
+
+    [$secondTenant, $secondOwner] = recruitmentTenant();
+    $secondRequisition = ManpowerRequisition::factory()->create([
+        'requested_by' => $secondOwner->id,
+        'status' => ManpowerRequisition::STATUS_APPROVED,
+    ]);
+    Vacancy::factory()->create([
+        'manpower_requisition_id' => $secondRequisition->id,
+        'title' => 'People Operations Lead',
+        'public_slug' => 'people-operations-lead-test',
+        'status' => Vacancy::STATUS_OPEN,
+        'visibility' => Vacancy::VISIBILITY_PUBLIC,
+        'opens_at' => today(),
+    ]);
+
+    app(CurrentTenant::class)->forget();
+    $response = $this->getJson('/api/v1/careers?per_page=50')->assertOk();
+    expect(collect($response->json('data'))->pluck('company.name')->all())
+        ->toContain($this->tenant->name, $secondTenant->name);
+});
+
+test('a public applicant can submit a resume into the tenant recruitment pipeline', function () {
+    Storage::fake('local');
+    $approved = createApprovedRequisition($this);
+    $created = $this->postJson('/api/v1/recruitment/vacancies', [
+        'manpower_requisition_id' => $approved->id,
+        'title' => 'Payroll Specialist',
+        'description' => 'Run compliant monthly payroll and reconciliations.',
+        'positions_available' => 1,
+        'visibility' => Vacancy::VISIBILITY_PUBLIC,
+    ])->assertCreated();
+    $vacancyId = $created->json('data.id');
+    $slug = $created->json('data.public_slug');
+    $this->postJson('/api/v1/recruitment/vacancies/'.$vacancyId.'/open')->assertOk();
+
+    app(CurrentTenant::class)->forget();
+    $this->post('/api/v1/careers/'.$slug.'/apply', [
+        'first_name' => 'Amara',
+        'last_name' => 'Eze',
+        'email' => 'amara.public@example.com',
+        'phone' => '08030000001',
+        'cover_letter' => 'I have five years of payroll operations experience.',
+        'privacy_consent' => '1',
+        'resume' => UploadedFile::fake()->create('amara-eze-resume.pdf', 120, 'application/pdf'),
+    ], ['Accept' => 'application/json'])->assertCreated()
+        ->assertJsonPath('message', 'Your application has been submitted successfully.');
+
+    app(CurrentTenant::class)->set($this->tenant);
+    $application = Application::query()->with('applicant')->where('vacancy_id', $vacancyId)->firstOrFail();
+    expect($application->source)->toBe('public_careers')
+        ->and($application->created_by)->toBeNull()
+        ->and($application->applicant->resume_original_name)->toBe('amara-eze-resume.pdf');
+    Storage::disk('local')->assertExists($application->applicant->resume_path);
+
+    app(CurrentTenant::class)->forget();
+    $this->post('/api/v1/careers/'.$slug.'/apply', [
+        'first_name' => 'Amara',
+        'last_name' => 'Eze',
+        'email' => 'amara.public@example.com',
+        'phone' => '08030000001',
+        'privacy_consent' => '1',
+        'resume' => UploadedFile::fake()->create('duplicate.pdf', 80, 'application/pdf'),
+    ], ['Accept' => 'application/json'])->assertConflict();
 });

@@ -20,6 +20,7 @@ class VacancyFactory extends Factory
             'description' => fake()->paragraph(),
             'positions_available' => 1,
             'status' => Vacancy::STATUS_DRAFT,
+            'visibility' => Vacancy::VISIBILITY_PRIVATE,
         ];
     }
 }

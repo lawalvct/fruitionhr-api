@@ -45,6 +45,16 @@ class Permissions
     public const PAYROLL_APPROVE = 'payroll.approve';
     public const PAYROLL_REVERSE = 'payroll.reverse';
 
+    // Overtime
+    public const OVERTIME_VIEW = 'overtime.view';
+    public const OVERTIME_MANAGE = 'overtime.manage';
+    public const OVERTIME_APPROVE = 'overtime.approve';
+
+    // Loans & salary advances
+    public const LOANS_VIEW = 'loans.view';
+    public const LOANS_MANAGE = 'loans.manage';
+    public const LOANS_APPROVE = 'loans.approve';
+
     // Employee self-service (ESS)
     public const ESS_PROFILE_VIEW = 'ess.profile.view';
     public const ESS_PROFILE_UPDATE = 'ess.profile.update';
@@ -99,6 +109,12 @@ class Permissions
             self::PAYROLL_PROCESS,
             self::PAYROLL_APPROVE,
             self::PAYROLL_REVERSE,
+            self::OVERTIME_VIEW,
+            self::OVERTIME_MANAGE,
+            self::OVERTIME_APPROVE,
+            self::LOANS_VIEW,
+            self::LOANS_MANAGE,
+            self::LOANS_APPROVE,
             self::ESS_PROFILE_VIEW,
             self::ESS_PROFILE_UPDATE,
             self::ESS_LEAVE_VIEW,
@@ -147,6 +163,12 @@ class Permissions
                 self::LEAVE_APPROVE,
                 self::PAYROLL_VIEW,
                 self::PAYROLL_PROCESS,
+                self::OVERTIME_VIEW,
+                self::OVERTIME_MANAGE,
+                self::OVERTIME_APPROVE,
+                self::LOANS_VIEW,
+                self::LOANS_MANAGE,
+                self::LOANS_APPROVE,
                 self::ESS_PROFILE_VIEW,
                 self::ESS_PROFILE_UPDATE,
                 self::ESS_LEAVE_VIEW,
@@ -171,6 +193,10 @@ class Permissions
                 self::ATTENDANCE_APPROVE,
                 self::LEAVE_VIEW,
                 self::LEAVE_APPROVE,
+                self::OVERTIME_VIEW,
+                self::OVERTIME_APPROVE,
+                self::LOANS_VIEW,
+                self::LOANS_APPROVE,
                 self::ESS_PROFILE_VIEW,
                 self::ESS_PROFILE_UPDATE,
                 self::ESS_LEAVE_VIEW,

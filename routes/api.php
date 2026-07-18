@@ -20,6 +20,7 @@ Route::prefix('v1')->group(function (): void {
         ->name('v1.login');
 
     require __DIR__.'/modules/reference.php';
+    require __DIR__.'/modules/public-recruitment.php';
 });
 
 /*

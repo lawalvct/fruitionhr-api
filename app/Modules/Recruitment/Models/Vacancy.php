@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['manpower_requisition_id', 'employment_type_id', 'title', 'code', 'description', 'requirements', 'location', 'positions_available', 'opens_at', 'closes_at', 'status', 'created_by'])]
+#[Fillable(['manpower_requisition_id', 'employment_type_id', 'title', 'code', 'public_slug', 'description', 'requirements', 'location', 'positions_available', 'opens_at', 'closes_at', 'status', 'visibility', 'created_by'])]
 class Vacancy extends Model
 {
     use BelongsToTenant, HasFactory, SoftDeletes;
@@ -22,6 +22,10 @@ class Vacancy extends Model
     public const STATUS_DRAFT = 'draft';
     public const STATUS_OPEN = 'open';
     public const STATUS_CLOSED = 'closed';
+
+    public const VISIBILITY_PRIVATE = 'private';
+
+    public const VISIBILITY_PUBLIC = 'public';
 
     protected function casts(): array
     {

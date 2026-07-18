@@ -156,5 +156,5 @@ test('registration provisions default workflow definitions', function () {
     app(CurrentTenant::class)->set($tenant);
 
     expect(WorkflowDefinition::query()->pluck('module')->sort()->values()->all())
-        ->toBe(['leave', 'payroll', 'profile_update', 'recruitment_requisition']);
+        ->toBe(['leave', 'loan', 'overtime', 'payroll', 'profile_update', 'recruitment_requisition']);
 });
