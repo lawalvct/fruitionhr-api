@@ -151,7 +151,7 @@ endpoints:
         name: remember
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -160,8 +160,396 @@ endpoints:
     cleanBodyParameters:
       email: gbailey@example.net
       password: '|]|{+-'
-      remember: true
+      remember: false
     fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/reference/countries
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data":[{"id":1,"name":"Afghanistan","code":"AF","iso3":"AFG","phone_code":"93","currency_code":"AFN"},{"id":2,"name":"Aland Islands","code":"AX","iso3":"ALA","phone_code":"358","currency_code":"EUR"},{"id":3,"name":"Albania","code":"AL","iso3":"ALB","phone_code":"355","currency_code":"ALL"},{"id":4,"name":"Algeria","code":"DZ","iso3":"DZA","phone_code":"213","currency_code":"DZD"},{"id":5,"name":"American Samoa","code":"AS","iso3":"ASM","phone_code":"1","currency_code":"USD"},{"id":6,"name":"Andorra","code":"AD","iso3":"AND","phone_code":"376","currency_code":"EUR"},{"id":7,"name":"Angola","code":"AO","iso3":"AGO","phone_code":"244","currency_code":"AOA"},{"id":8,"name":"Anguilla","code":"AI","iso3":"AIA","phone_code":"1","currency_code":"XCD"},{"id":9,"name":"Antarctica","code":"AQ","iso3":"ATA","phone_code":"672","currency_code":"AAD"},{"id":10,"name":"Antigua and Barbuda","code":"AG","iso3":"ATG","phone_code":"1","currency_code":"XCD"},{"id":11,"name":"Argentina","code":"AR","iso3":"ARG","phone_code":"54","currency_code":"ARS"},{"id":12,"name":"Armenia","code":"AM","iso3":"ARM","phone_code":"374","currency_code":"AMD"},{"id":13,"name":"Aruba","code":"AW","iso3":"ABW","phone_code":"297","currency_code":"AWG"},{"id":14,"name":"Australia","code":"AU","iso3":"AUS","phone_code":"61","currency_code":"AUD"},{"id":15,"name":"Austria","code":"AT","iso3":"AUT","phone_code":"43","currency_code":"EUR"},{"id":16,"name":"Azerbaijan","code":"AZ","iso3":"AZE","phone_code":"994","currency_code":"AZN"},{"id":18,"name":"Bahrain","code":"BH","iso3":"BHR","phone_code":"973","currency_code":"BHD"},{"id":19,"name":"Bangladesh","code":"BD","iso3":"BGD","phone_code":"880","currency_code":"BDT"},{"id":20,"name":"Barbados","code":"BB","iso3":"BRB","phone_code":"1","currency_code":"BBD"},{"id":21,"name":"Belarus","code":"BY","iso3":"BLR","phone_code":"375","currency_code":"BYN"},{"id":22,"name":"Belgium","code":"BE","iso3":"BEL","phone_code":"32","currency_code":"EUR"},{"id":23,"name":"Belize","code":"BZ","iso3":"BLZ","phone_code":"501","currency_code":"BZD"},{"id":24,"name":"Benin","code":"BJ","iso3":"BEN","phone_code":"229","currency_code":"XOF"},{"id":25,"name":"Bermuda","code":"BM","iso3":"BMU","phone_code":"1","currency_code":"BMD"},{"id":26,"name":"Bhutan","code":"BT","iso3":"BTN","phone_code":"975","currency_code":"BTN"},{"id":27,"name":"Bolivia","code":"BO","iso3":"BOL","phone_code":"591","currency_code":"BOB"},{"id":155,"name":"Bonaire, Sint Eustatius and Saba","code":"BQ","iso3":"BES","phone_code":"599","currency_code":"USD"},{"id":28,"name":"Bosnia and Herzegovina","code":"BA","iso3":"BIH","phone_code":"387","currency_code":"BAM"},{"id":29,"name":"Botswana","code":"BW","iso3":"BWA","phone_code":"267","currency_code":"BWP"},{"id":30,"name":"Bouvet Island","code":"BV","iso3":"BVT","phone_code":"0055","currency_code":"NOK"},{"id":31,"name":"Brazil","code":"BR","iso3":"BRA","phone_code":"55","currency_code":"BRL"},{"id":32,"name":"British Indian Ocean Territory","code":"IO","iso3":"IOT","phone_code":"246","currency_code":"USD"},{"id":33,"name":"Brunei","code":"BN","iso3":"BRN","phone_code":"673","currency_code":"BND"},{"id":34,"name":"Bulgaria","code":"BG","iso3":"BGR","phone_code":"359","currency_code":"EUR"},{"id":35,"name":"Burkina Faso","code":"BF","iso3":"BFA","phone_code":"226","currency_code":"XOF"},{"id":36,"name":"Burundi","code":"BI","iso3":"BDI","phone_code":"257","currency_code":"BIF"},{"id":37,"name":"Cambodia","code":"KH","iso3":"KHM","phone_code":"855","currency_code":"KHR"},{"id":38,"name":"Cameroon","code":"CM","iso3":"CMR","phone_code":"237","currency_code":"XAF"},{"id":39,"name":"Canada","code":"CA","iso3":"CAN","phone_code":"1","currency_code":"CAD"},{"id":40,"name":"Cape Verde","code":"CV","iso3":"CPV","phone_code":"238","currency_code":"CVE"},{"id":41,"name":"Cayman Islands","code":"KY","iso3":"CYM","phone_code":"1","currency_code":"KYD"},{"id":42,"name":"Central African Republic","code":"CF","iso3":"CAF","phone_code":"236","currency_code":"XAF"},{"id":43,"name":"Chad","code":"TD","iso3":"TCD","phone_code":"235","currency_code":"XAF"},{"id":44,"name":"Chile","code":"CL","iso3":"CHL","phone_code":"56","currency_code":"CLP"},{"id":45,"name":"China","code":"CN","iso3":"CHN","phone_code":"86","currency_code":"CNY"},{"id":46,"name":"Christmas Island","code":"CX","iso3":"CXR","phone_code":"61","currency_code":"AUD"},{"id":47,"name":"Cocos (Keeling) Islands","code":"CC","iso3":"CCK","phone_code":"61","currency_code":"AUD"},{"id":48,"name":"Colombia","code":"CO","iso3":"COL","phone_code":"57","currency_code":"COP"},{"id":49,"name":"Comoros","code":"KM","iso3":"COM","phone_code":"269","currency_code":"KMF"},{"id":50,"name":"Congo","code":"CG","iso3":"COG","phone_code":"242","currency_code":"CDF"},{"id":52,"name":"Cook Islands","code":"CK","iso3":"COK","phone_code":"682","currency_code":"NZD"},{"id":53,"name":"Costa Rica","code":"CR","iso3":"CRI","phone_code":"506","currency_code":"CRC"},{"id":55,"name":"Croatia","code":"HR","iso3":"HRV","phone_code":"385","currency_code":"EUR"},{"id":56,"name":"Cuba","code":"CU","iso3":"CUB","phone_code":"53","currency_code":"CUP"},{"id":249,"name":"Cura\u00e7ao","code":"CW","iso3":"CUW","phone_code":"599","currency_code":"ANG"},{"id":57,"name":"Cyprus","code":"CY","iso3":"CYP","phone_code":"357","currency_code":"EUR"},{"id":58,"name":"Czech Republic","code":"CZ","iso3":"CZE","phone_code":"420","currency_code":"CZK"},{"id":51,"name":"Democratic Republic of the Congo","code":"CD","iso3":"COD","phone_code":"243","currency_code":"CDF"},{"id":59,"name":"Denmark","code":"DK","iso3":"DNK","phone_code":"45","currency_code":"DKK"},{"id":60,"name":"Djibouti","code":"DJ","iso3":"DJI","phone_code":"253","currency_code":"DJF"},{"id":61,"name":"Dominica","code":"DM","iso3":"DMA","phone_code":"1","currency_code":"XCD"},{"id":62,"name":"Dominican Republic","code":"DO","iso3":"DOM","phone_code":"1","currency_code":"DOP"},{"id":64,"name":"Ecuador","code":"EC","iso3":"ECU","phone_code":"593","currency_code":"USD"},{"id":65,"name":"Egypt","code":"EG","iso3":"EGY","phone_code":"20","currency_code":"EGP"},{"id":66,"name":"El Salvador","code":"SV","iso3":"SLV","phone_code":"503","currency_code":"USD"},{"id":67,"name":"Equatorial Guinea","code":"GQ","iso3":"GNQ","phone_code":"240","currency_code":"XAF"},{"id":68,"name":"Eritrea","code":"ER","iso3":"ERI","phone_code":"291","currency_code":"ERN"},{"id":69,"name":"Estonia","code":"EE","iso3":"EST","phone_code":"372","currency_code":"EUR"},{"id":212,"name":"Eswatini","code":"SZ","iso3":"SWZ","phone_code":"268","currency_code":"SZL"},{"id":70,"name":"Ethiopia","code":"ET","iso3":"ETH","phone_code":"251","currency_code":"ETB"},{"id":71,"name":"Falkland Islands","code":"FK","iso3":"FLK","phone_code":"500","currency_code":"FKP"},{"id":72,"name":"Faroe Islands","code":"FO","iso3":"FRO","phone_code":"298","currency_code":"DKK"},{"id":73,"name":"Fiji Islands","code":"FJ","iso3":"FJI","phone_code":"679","currency_code":"FJD"},{"id":74,"name":"Finland","code":"FI","iso3":"FIN","phone_code":"358","currency_code":"EUR"},{"id":75,"name":"France","code":"FR","iso3":"FRA","phone_code":"33","currency_code":"EUR"},{"id":76,"name":"French Guiana","code":"GF","iso3":"GUF","phone_code":"594","currency_code":"EUR"},{"id":77,"name":"French Polynesia","code":"PF","iso3":"PYF","phone_code":"689","currency_code":"XPF"},{"id":78,"name":"French Southern Territories","code":"TF","iso3":"ATF","phone_code":"262","currency_code":"EUR"},{"id":79,"name":"Gabon","code":"GA","iso3":"GAB","phone_code":"241","currency_code":"XAF"},{"id":81,"name":"Georgia","code":"GE","iso3":"GEO","phone_code":"995","currency_code":"GEL"},{"id":82,"name":"Germany","code":"DE","iso3":"DEU","phone_code":"49","currency_code":"EUR"},{"id":83,"name":"Ghana","code":"GH","iso3":"GHA","phone_code":"233","currency_code":"GHS"},{"id":84,"name":"Gibraltar","code":"GI","iso3":"GIB","phone_code":"350","currency_code":"GIP"},{"id":85,"name":"Greece","code":"GR","iso3":"GRC","phone_code":"30","currency_code":"EUR"},{"id":86,"name":"Greenland","code":"GL","iso3":"GRL","phone_code":"299","currency_code":"DKK"},{"id":87,"name":"Grenada","code":"GD","iso3":"GRD","phone_code":"1","currency_code":"XCD"},{"id":88,"name":"Guadeloupe","code":"GP","iso3":"GLP","phone_code":"590","currency_code":"EUR"},{"id":89,"name":"Guam","code":"GU","iso3":"GUM","phone_code":"1","currency_code":"USD"},{"id":90,"name":"Guatemala","code":"GT","iso3":"GTM","phone_code":"502","currency_code":"GTQ"},{"id":91,"name":"Guernsey","code":"GG","iso3":"GGY","phone_code":"44","currency_code":"GBP"},{"id":92,"name":"Guinea","code":"GN","iso3":"GIN","phone_code":"224","currency_code":"GNF"},{"id":93,"name":"Guinea-Bissau","code":"GW","iso3":"GNB","phone_code":"245","currency_code":"XOF"},{"id":94,"name":"Guyana","code":"GY","iso3":"GUY","phone_code":"592","currency_code":"GYD"},{"id":95,"name":"Haiti","code":"HT","iso3":"HTI","phone_code":"509","currency_code":"HTG"},{"id":96,"name":"Heard Island and McDonald Islands","code":"HM","iso3":"HMD","phone_code":"672","currency_code":"AUD"},{"id":97,"name":"Honduras","code":"HN","iso3":"HND","phone_code":"504","currency_code":"HNL"},{"id":98,"name":"Hong Kong S.A.R.","code":"HK","iso3":"HKG","phone_code":"852","currency_code":"HKD"},{"id":99,"name":"Hungary","code":"HU","iso3":"HUN","phone_code":"36","currency_code":"HUF"},{"id":100,"name":"Iceland","code":"IS","iso3":"ISL","phone_code":"354","currency_code":"ISK"},{"id":101,"name":"India","code":"IN","iso3":"IND","phone_code":"91","currency_code":"INR"},{"id":102,"name":"Indonesia","code":"ID","iso3":"IDN","phone_code":"62","currency_code":"IDR"},{"id":103,"name":"Iran","code":"IR","iso3":"IRN","phone_code":"98","currency_code":"IRR"},{"id":104,"name":"Iraq","code":"IQ","iso3":"IRQ","phone_code":"964","currency_code":"IQD"},{"id":105,"name":"Ireland","code":"IE","iso3":"IRL","phone_code":"353","currency_code":"EUR"},{"id":106,"name":"Israel","code":"IL","iso3":"ISR","phone_code":"972","currency_code":"ILS"},{"id":107,"name":"Italy","code":"IT","iso3":"ITA","phone_code":"39","currency_code":"EUR"},{"id":54,"name":"Ivory Coast","code":"CI","iso3":"CIV","phone_code":"225","currency_code":"XOF"},{"id":108,"name":"Jamaica","code":"JM","iso3":"JAM","phone_code":"1","currency_code":"JMD"},{"id":109,"name":"Japan","code":"JP","iso3":"JPN","phone_code":"81","currency_code":"JPY"},{"id":110,"name":"Jersey","code":"JE","iso3":"JEY","phone_code":"44","currency_code":"GBP"},{"id":111,"name":"Jordan","code":"JO","iso3":"JOR","phone_code":"962","currency_code":"JOD"},{"id":112,"name":"Kazakhstan","code":"KZ","iso3":"KAZ","phone_code":"7","currency_code":"KZT"},{"id":113,"name":"Kenya","code":"KE","iso3":"KEN","phone_code":"254","currency_code":"KES"},{"id":114,"name":"Kiribati","code":"KI","iso3":"KIR","phone_code":"686","currency_code":"AUD"},{"id":248,"name":"Kosovo","code":"XK","iso3":"XKX","phone_code":"383","currency_code":"EUR"},{"id":117,"name":"Kuwait","code":"KW","iso3":"KWT","phone_code":"965","currency_code":"KWD"},{"id":118,"name":"Kyrgyzstan","code":"KG","iso3":"KGZ","phone_code":"996","currency_code":"KGS"},{"id":119,"name":"Laos","code":"LA","iso3":"LAO","phone_code":"856","currency_code":"LAK"},{"id":120,"name":"Latvia","code":"LV","iso3":"LVA","phone_code":"371","currency_code":"EUR"},{"id":121,"name":"Lebanon","code":"LB","iso3":"LBN","phone_code":"961","currency_code":"LBP"},{"id":122,"name":"Lesotho","code":"LS","iso3":"LSO","phone_code":"266","currency_code":"LSL"},{"id":123,"name":"Liberia","code":"LR","iso3":"LBR","phone_code":"231","currency_code":"LRD"},{"id":124,"name":"Libya","code":"LY","iso3":"LBY","phone_code":"218","currency_code":"LYD"},{"id":125,"name":"Liechtenstein","code":"LI","iso3":"LIE","phone_code":"423","currency_code":"CHF"},{"id":126,"name":"Lithuania","code":"LT","iso3":"LTU","phone_code":"370","currency_code":"EUR"},{"id":127,"name":"Luxembourg","code":"LU","iso3":"LUX","phone_code":"352","currency_code":"EUR"},{"id":128,"name":"Macau S.A.R.","code":"MO","iso3":"MAC","phone_code":"853","currency_code":"MOP"},{"id":130,"name":"Madagascar","code":"MG","iso3":"MDG","phone_code":"261","currency_code":"MGA"},{"id":131,"name":"Malawi","code":"MW","iso3":"MWI","phone_code":"265","currency_code":"MWK"},{"id":132,"name":"Malaysia","code":"MY","iso3":"MYS","phone_code":"60","currency_code":"MYR"},{"id":133,"name":"Maldives","code":"MV","iso3":"MDV","phone_code":"960","currency_code":"MVR"},{"id":134,"name":"Mali","code":"ML","iso3":"MLI","phone_code":"223","currency_code":"XOF"},{"id":135,"name":"Malta","code":"MT","iso3":"MLT","phone_code":"356","currency_code":"EUR"},{"id":136,"name":"Man (Isle of)","code":"IM","iso3":"IMN","phone_code":"44","currency_code":"GBP"},{"id":137,"name":"Marshall Islands","code":"MH","iso3":"MHL","phone_code":"692","currency_code":"USD"},{"id":138,"name":"Martinique","code":"MQ","iso3":"MTQ","phone_code":"596","currency_code":"EUR"},{"id":139,"name":"Mauritania","code":"MR","iso3":"MRT","phone_code":"222","currency_code":"MRU"},{"id":140,"name":"Mauritius","code":"MU","iso3":"MUS","phone_code":"230","currency_code":"MUR"},{"id":141,"name":"Mayotte","code":"YT","iso3":"MYT","phone_code":"262","currency_code":"EUR"},{"id":142,"name":"Mexico","code":"MX","iso3":"MEX","phone_code":"52","currency_code":"MXN"},{"id":143,"name":"Micronesia","code":"FM","iso3":"FSM","phone_code":"691","currency_code":"USD"},{"id":144,"name":"Moldova","code":"MD","iso3":"MDA","phone_code":"373","currency_code":"MDL"},{"id":145,"name":"Monaco","code":"MC","iso3":"MCO","phone_code":"377","currency_code":"EUR"},{"id":146,"name":"Mongolia","code":"MN","iso3":"MNG","phone_code":"976","currency_code":"MNT"},{"id":147,"name":"Montenegro","code":"ME","iso3":"MNE","phone_code":"382","currency_code":"EUR"},{"id":148,"name":"Montserrat","code":"MS","iso3":"MSR","phone_code":"1","currency_code":"XCD"},{"id":149,"name":"Morocco","code":"MA","iso3":"MAR","phone_code":"212","currency_code":"MAD"},{"id":150,"name":"Mozambique","code":"MZ","iso3":"MOZ","phone_code":"258","currency_code":"MZN"},{"id":151,"name":"Myanmar","code":"MM","iso3":"MMR","phone_code":"95","currency_code":"MMK"},{"id":152,"name":"Namibia","code":"NA","iso3":"NAM","phone_code":"264","currency_code":"NAD"},{"id":153,"name":"Nauru","code":"NR","iso3":"NRU","phone_code":"674","currency_code":"AUD"},{"id":154,"name":"Nepal","code":"NP","iso3":"NPL","phone_code":"977","currency_code":"NPR"},{"id":156,"name":"Netherlands","code":"NL","iso3":"NLD","phone_code":"31","currency_code":"EUR"},{"id":157,"name":"New Caledonia","code":"NC","iso3":"NCL","phone_code":"687","currency_code":"XPF"},{"id":158,"name":"New Zealand","code":"NZ","iso3":"NZL","phone_code":"64","currency_code":"NZD"},{"id":159,"name":"Nicaragua","code":"NI","iso3":"NIC","phone_code":"505","currency_code":"NIO"},{"id":160,"name":"Niger","code":"NE","iso3":"NER","phone_code":"227","currency_code":"XOF"},{"id":161,"name":"Nigeria","code":"NG","iso3":"NGA","phone_code":"234","currency_code":"NGN"},{"id":162,"name":"Niue","code":"NU","iso3":"NIU","phone_code":"683","currency_code":"NZD"},{"id":163,"name":"Norfolk Island","code":"NF","iso3":"NFK","phone_code":"672","currency_code":"AUD"},{"id":115,"name":"North Korea","code":"KP","iso3":"PRK","phone_code":"850","currency_code":"KPW"},{"id":129,"name":"North Macedonia","code":"MK","iso3":"MKD","phone_code":"389","currency_code":"MKD"},{"id":164,"name":"Northern Mariana Islands","code":"MP","iso3":"MNP","phone_code":"1","currency_code":"USD"},{"id":165,"name":"Norway","code":"NO","iso3":"NOR","phone_code":"47","currency_code":"NOK"},{"id":166,"name":"Oman","code":"OM","iso3":"OMN","phone_code":"968","currency_code":"OMR"},{"id":167,"name":"Pakistan","code":"PK","iso3":"PAK","phone_code":"92","currency_code":"PKR"},{"id":168,"name":"Palau","code":"PW","iso3":"PLW","phone_code":"680","currency_code":"USD"},{"id":169,"name":"Palestinian Territory Occupied","code":"PS","iso3":"PSE","phone_code":"970","currency_code":"ILS"},{"id":170,"name":"Panama","code":"PA","iso3":"PAN","phone_code":"507","currency_code":"PAB"},{"id":171,"name":"Papua New Guinea","code":"PG","iso3":"PNG","phone_code":"675","currency_code":"PGK"},{"id":172,"name":"Paraguay","code":"PY","iso3":"PRY","phone_code":"595","currency_code":"PYG"},{"id":173,"name":"Peru","code":"PE","iso3":"PER","phone_code":"51","currency_code":"PEN"},{"id":174,"name":"Philippines","code":"PH","iso3":"PHL","phone_code":"63","currency_code":"PHP"},{"id":175,"name":"Pitcairn Island","code":"PN","iso3":"PCN","phone_code":"870","currency_code":"NZD"},{"id":176,"name":"Poland","code":"PL","iso3":"POL","phone_code":"48","currency_code":"PLN"},{"id":177,"name":"Portugal","code":"PT","iso3":"PRT","phone_code":"351","currency_code":"EUR"},{"id":178,"name":"Puerto Rico","code":"PR","iso3":"PRI","phone_code":"1","currency_code":"USD"},{"id":179,"name":"Qatar","code":"QA","iso3":"QAT","phone_code":"974","currency_code":"QAR"},{"id":180,"name":"Reunion","code":"RE","iso3":"REU","phone_code":"262","currency_code":"EUR"},{"id":181,"name":"Romania","code":"RO","iso3":"ROU","phone_code":"40","currency_code":"RON"},{"id":182,"name":"Russia","code":"RU","iso3":"RUS","phone_code":"7","currency_code":"RUB"},{"id":183,"name":"Rwanda","code":"RW","iso3":"RWA","phone_code":"250","currency_code":"RWF"},{"id":184,"name":"Saint Helena","code":"SH","iso3":"SHN","phone_code":"290","currency_code":"SHP"},{"id":185,"name":"Saint Kitts and Nevis","code":"KN","iso3":"KNA","phone_code":"1","currency_code":"XCD"},{"id":186,"name":"Saint Lucia","code":"LC","iso3":"LCA","phone_code":"1","currency_code":"XCD"},{"id":187,"name":"Saint Pierre and Miquelon","code":"PM","iso3":"SPM","phone_code":"508","currency_code":"EUR"},{"id":188,"name":"Saint Vincent and the Grenadines","code":"VC","iso3":"VCT","phone_code":"1","currency_code":"XCD"},{"id":189,"name":"Saint-Barthelemy","code":"BL","iso3":"BLM","phone_code":"590","currency_code":"EUR"},{"id":190,"name":"Saint-Martin (French part)","code":"MF","iso3":"MAF","phone_code":"590","currency_code":"EUR"},{"id":191,"name":"Samoa","code":"WS","iso3":"WSM","phone_code":"685","currency_code":"WST"},{"id":192,"name":"San Marino","code":"SM","iso3":"SMR","phone_code":"378","currency_code":"EUR"},{"id":193,"name":"Sao Tome and Principe","code":"ST","iso3":"STP","phone_code":"239","currency_code":"STN"},{"id":194,"name":"Saudi Arabia","code":"SA","iso3":"SAU","phone_code":"966","currency_code":"SAR"},{"id":195,"name":"Senegal","code":"SN","iso3":"SEN","phone_code":"221","currency_code":"XOF"},{"id":196,"name":"Serbia","code":"RS","iso3":"SRB","phone_code":"381","currency_code":"RSD"},{"id":197,"name":"Seychelles","code":"SC","iso3":"SYC","phone_code":"248","currency_code":"SCR"},{"id":198,"name":"Sierra Leone","code":"SL","iso3":"SLE","phone_code":"232","currency_code":"SLL"},{"id":199,"name":"Singapore","code":"SG","iso3":"SGP","phone_code":"65","currency_code":"SGD"},{"id":250,"name":"Sint Maarten (Dutch part)","code":"SX","iso3":"SXM","phone_code":"1721","currency_code":"ANG"},{"id":200,"name":"Slovakia","code":"SK","iso3":"SVK","phone_code":"421","currency_code":"EUR"},{"id":201,"name":"Slovenia","code":"SI","iso3":"SVN","phone_code":"386","currency_code":"EUR"},{"id":202,"name":"Solomon Islands","code":"SB","iso3":"SLB","phone_code":"677","currency_code":"SBD"},{"id":203,"name":"Somalia","code":"SO","iso3":"SOM","phone_code":"252","currency_code":"SOS"},{"id":204,"name":"South Africa","code":"ZA","iso3":"ZAF","phone_code":"27","currency_code":"ZAR"},{"id":205,"name":"South Georgia","code":"GS","iso3":"SGS","phone_code":"500","currency_code":"GBP"},{"id":116,"name":"South Korea","code":"KR","iso3":"KOR","phone_code":"82","currency_code":"KRW"},{"id":206,"name":"South Sudan","code":"SS","iso3":"SSD","phone_code":"211","currency_code":"SSP"},{"id":207,"name":"Spain","code":"ES","iso3":"ESP","phone_code":"34","currency_code":"EUR"},{"id":208,"name":"Sri Lanka","code":"LK","iso3":"LKA","phone_code":"94","currency_code":"LKR"},{"id":209,"name":"Sudan","code":"SD","iso3":"SDN","phone_code":"249","currency_code":"SDG"},{"id":210,"name":"Suriname","code":"SR","iso3":"SUR","phone_code":"597","currency_code":"SRD"},{"id":211,"name":"Svalbard and Jan Mayen Islands","code":"SJ","iso3":"SJM","phone_code":"47","currency_code":"NOK"},{"id":213,"name":"Sweden","code":"SE","iso3":"SWE","phone_code":"46","currency_code":"SEK"},{"id":214,"name":"Switzerland","code":"CH","iso3":"CHE","phone_code":"41","currency_code":"CHF"},{"id":215,"name":"Syria","code":"SY","iso3":"SYR","phone_code":"963","currency_code":"SYP"},{"id":216,"name":"Taiwan","code":"TW","iso3":"TWN","phone_code":"886","currency_code":"TWD"},{"id":217,"name":"Tajikistan","code":"TJ","iso3":"TJK","phone_code":"992","currency_code":"TJS"},{"id":218,"name":"Tanzania","code":"TZ","iso3":"TZA","phone_code":"255","currency_code":"TZS"},{"id":219,"name":"Thailand","code":"TH","iso3":"THA","phone_code":"66","currency_code":"THB"},{"id":17,"name":"The Bahamas","code":"BS","iso3":"BHS","phone_code":"1","currency_code":"BSD"},{"id":80,"name":"The Gambia","code":"GM","iso3":"GMB","phone_code":"220","currency_code":"GMD"},{"id":63,"name":"Timor-Leste","code":"TL","iso3":"TLS","phone_code":"670","currency_code":"USD"},{"id":220,"name":"Togo","code":"TG","iso3":"TGO","phone_code":"228","currency_code":"XOF"},{"id":221,"name":"Tokelau","code":"TK","iso3":"TKL","phone_code":"690","currency_code":"NZD"},{"id":222,"name":"Tonga","code":"TO","iso3":"TON","phone_code":"676","currency_code":"TOP"},{"id":223,"name":"Trinidad and Tobago","code":"TT","iso3":"TTO","phone_code":"1","currency_code":"TTD"},{"id":224,"name":"Tunisia","code":"TN","iso3":"TUN","phone_code":"216","currency_code":"TND"},{"id":225,"name":"Turkey","code":"TR","iso3":"TUR","phone_code":"90","currency_code":"TRY"},{"id":226,"name":"Turkmenistan","code":"TM","iso3":"TKM","phone_code":"993","currency_code":"TMT"},{"id":227,"name":"Turks and Caicos Islands","code":"TC","iso3":"TCA","phone_code":"1","currency_code":"USD"},{"id":228,"name":"Tuvalu","code":"TV","iso3":"TUV","phone_code":"688","currency_code":"AUD"},{"id":229,"name":"Uganda","code":"UG","iso3":"UGA","phone_code":"256","currency_code":"UGX"},{"id":230,"name":"Ukraine","code":"UA","iso3":"UKR","phone_code":"380","currency_code":"UAH"},{"id":231,"name":"United Arab Emirates","code":"AE","iso3":"ARE","phone_code":"971","currency_code":"AED"},{"id":232,"name":"United Kingdom","code":"GB","iso3":"GBR","phone_code":"44","currency_code":"GBP"},{"id":233,"name":"United States","code":"US","iso3":"USA","phone_code":"1","currency_code":"USD"},{"id":234,"name":"United States Minor Outlying Islands","code":"UM","iso3":"UMI","phone_code":"1","currency_code":"USD"},{"id":235,"name":"Uruguay","code":"UY","iso3":"URY","phone_code":"598","currency_code":"UYU"},{"id":236,"name":"Uzbekistan","code":"UZ","iso3":"UZB","phone_code":"998","currency_code":"UZS"},{"id":237,"name":"Vanuatu","code":"VU","iso3":"VUT","phone_code":"678","currency_code":"VUV"},{"id":238,"name":"Vatican City State (Holy See)","code":"VA","iso3":"VAT","phone_code":"379","currency_code":"EUR"},{"id":239,"name":"Venezuela","code":"VE","iso3":"VEN","phone_code":"58","currency_code":"VES"},{"id":240,"name":"Vietnam","code":"VN","iso3":"VNM","phone_code":"84","currency_code":"VND"},{"id":241,"name":"Virgin Islands (British)","code":"VG","iso3":"VGB","phone_code":"1","currency_code":"USD"},{"id":242,"name":"Virgin Islands (US)","code":"VI","iso3":"VIR","phone_code":"1","currency_code":"USD"},{"id":243,"name":"Wallis and Futuna Islands","code":"WF","iso3":"WLF","phone_code":"681","currency_code":"XPF"},{"id":244,"name":"Western Sahara","code":"EH","iso3":"ESH","phone_code":"212","currency_code":"MAD"},{"id":245,"name":"Yemen","code":"YE","iso3":"YEM","phone_code":"967","currency_code":"YER"},{"id":246,"name":"Zambia","code":"ZM","iso3":"ZMB","phone_code":"260","currency_code":"ZMW"},{"id":247,"name":"Zimbabwe","code":"ZW","iso3":"ZWE","phone_code":"263","currency_code":"ZWL"}]}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/reference/countries/{country_code}/states'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      country_code:
+        custom: []
+        name: country_code
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      country_code: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Modules\\Reference\\Models\\Country] architecto"
+          }
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/careers
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data":[],"links":{"first":"http:\/\/api.fruitionhr.test\/api\/v1\/careers?page=1","last":"http:\/\/api.fruitionhr.test\/api\/v1\/careers?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":null,"last_page":1,"links":[{"url":null,"label":"&laquo; Previous","page":null,"active":false},{"url":"http:\/\/api.fruitionhr.test\/api\/v1\/careers?page=1","label":"1","page":1,"active":true},{"url":null,"label":"Next &raquo;","page":null,"active":false}],"path":"http:\/\/api.fruitionhr.test\/api\/v1\/careers","per_page":12,"to":null,"total":0}}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          x-ratelimit-limit: '120'
+          x-ratelimit-remaining: '119'
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/careers/{slug}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      slug:
+        custom: []
+        name: slug
+        description: 'The slug of the career.'
+        required: true
+        example: vjr
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      slug: vjr
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+              "message": "No query results for model [App\\Modules\\Recruitment\\Models\\Vacancy]."
+          }
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          x-ratelimit-limit: '120'
+          x-ratelimit-remaining: '119'
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/careers/{slug}/apply'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      slug:
+        custom: []
+        name: slug
+        description: 'The slug of the career.'
+        required: true
+        example: vjr
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      slug: vjr
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      first_name:
+        custom: []
+        name: first_name
+        description: 'Must not be greater than 100 characters.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      last_name:
+        custom: []
+        name: last_name
+        description: 'Must not be greater than 100 characters.'
+        required: true
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'Must be a valid email address. Must not be greater than 255 characters.'
+        required: true
+        example: ashly64@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      phone:
+        custom: []
+        name: phone
+        description: 'Must not be greater than 50 characters.'
+        required: true
+        example: v
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      city:
+        custom: []
+        name: city
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: d
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      state:
+        custom: []
+        name: state
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: l
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      linkedin_url:
+        custom: []
+        name: linkedin_url
+        description: 'Must be a valid URL. Must not be greater than 500 characters.'
+        required: false
+        example: 'http://www.dickens.com/deserunt-aut-ab-provident-perspiciatis-quo-omnis-nostrum'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      cover_letter:
+        custom: []
+        name: cover_letter
+        description: 'Must not be greater than 10000 characters.'
+        required: false
+        example: u
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      resume:
+        custom: []
+        name: resume
+        description: 'Must be a file. Must not be greater than 5120 kilobytes.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      privacy_consent:
+        custom: []
+        name: privacy_consent
+        description: 'Must be accepted.'
+        required: true
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      website:
+        custom: []
+        name: website
+        description: ''
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      first_name: b
+      last_name: 'n'
+      email: ashly64@example.com
+      phone: v
+      city: d
+      state: l
+      linkedin_url: 'http://www.dickens.com/deserunt-aut-ab-provident-perspiciatis-quo-omnis-nostrum'
+      cover_letter: u
+      privacy_consent: true
+    fileParameters:
+      resume: null
     responses: []
     responseFields: []
     auth:
@@ -242,6 +630,483 @@ endpoints:
           content-type: application/json
           vary: Origin
         description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/email/verify
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      code:
+        custom: []
+        name: code
+        description: 'Must be 6 digits.'
+        required: true
+        example: '569775'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      code: '569775'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/email/resend
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/onboarding
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/onboarding
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      step:
+        custom: []
+        name: step
+        description: 'Must be between 1 and 3.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      company_name:
+        custom: []
+        name: company_name
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      phone:
+        custom: []
+        name: phone
+        description: 'Must not be greater than 30 characters.'
+        required: false
+        example: g
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      industry:
+        custom: []
+        name: industry
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: z
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      company_size:
+        custom: []
+        name: company_size
+        description: ''
+        required: false
+        example: 1-10
+        type: string
+        enumValues:
+          - 1-10
+          - 11-50
+          - 51-200
+          - 201-500
+          - 500+
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      website:
+        custom: []
+        name: website
+        description: 'Must be a valid URL. Must not be greater than 255 characters.'
+        required: false
+        example: m
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address:
+        custom: []
+        name: address
+        description: 'Must not be greater than 500 characters.'
+        required: false
+        example: i
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      city:
+        custom: []
+        name: city
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      state:
+        custom: []
+        name: state
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: v
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      country:
+        custom: []
+        name: country
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: d
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      country_code:
+        custom: []
+        name: country_code
+        description: 'Must match an existing stored value. Must be 2 characters.'
+        required: false
+        example: lj
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      timezone:
+        custom: []
+        name: timezone
+        description: 'Must be a valid time zone, such as <code>Africa/Accra</code>.'
+        required: false
+        example: Africa/Bissau
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      currency:
+        custom: []
+        name: currency
+        description: ''
+        required: false
+        example: NGN
+        type: string
+        enumValues:
+          - NGN
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pay_frequency:
+        custom: []
+        name: pay_frequency
+        description: ''
+        required: false
+        example: weekly
+        type: string
+        enumValues:
+          - monthly
+          - biweekly
+          - weekly
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pay_day:
+        custom: []
+        name: pay_day
+        description: 'Must be between 1 and 31.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      working_days:
+        custom: []
+        name: working_days
+        description: ''
+        required: false
+        example:
+          - friday
+        type: 'string[]'
+        enumValues:
+          - monday
+          - tuesday
+          - wednesday
+          - thursday
+          - friday
+          - saturday
+          - sunday
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      tax_state:
+        custom: []
+        name: tax_state
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: k
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      tin:
+        custom: []
+        name: tin
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: h
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      rc_number:
+        custom: []
+        name: rc_number
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: w
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      step: 2
+      company_name: 'n'
+      phone: g
+      industry: z
+      company_size: 1-10
+      website: m
+      address: i
+      city: 'y'
+      state: v
+      country: d
+      country_code: lj
+      timezone: Africa/Bissau
+      currency: NGN
+      pay_frequency: weekly
+      pay_day: 1
+      working_days:
+        - friday
+      tax_state: k
+      tin: h
+      rc_number: w
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/onboarding/complete
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/onboarding/skip
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
     responseFields: []
     auth:
       - headers
@@ -578,7 +1443,7 @@ endpoints:
         name: expires_at
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -600,7 +1465,7 @@ endpoints:
       owner_id: 16
       title: 'n'
       document_type: g
-      expires_at: '2026-07-11T16:56:35'
+      expires_at: '2026-07-18T15:31:27'
     fileParameters:
       file: null
     responses: []
@@ -922,7 +1787,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -934,7 +1799,7 @@ endpoints:
       address: g
       city: z
       state: m
-      is_active: true
+      is_active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -1646,7 +2511,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -1658,7 +2523,7 @@ endpoints:
       department_id: 16
       job_grade_id: 16
       description: 'Et animi quos velit et fugiat.'
-      is_active: false
+      is_active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2196,7 +3061,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2208,7 +3073,7 @@ endpoints:
       level: 7
       min_salary: 12
       max_salary: 77
-      is_active: false
+      is_active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -2661,7 +3526,7 @@ endpoints:
         name: 'dates[].date'
         description: 'This field is required when <code>dates</code> is present. Must be a valid date.'
         required: false
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2683,7 +3548,7 @@ endpoints:
         name: 'dates[].is_recurring'
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -2695,9 +3560,9 @@ endpoints:
       dates:
         -
           id: 16
-          date: '2026-07-11T16:56:35'
+          date: '2026-07-18T15:31:27'
           name: 'n'
-          is_recurring: true
+          is_recurring: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -2850,7 +3715,7 @@ endpoints:
         name: 'dates[].date'
         description: 'This field is required when <code>dates</code> is present. Must be a valid date.'
         required: false
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -2884,7 +3749,7 @@ endpoints:
       dates:
         -
           id: 16
-          date: '2026-07-11T16:56:35'
+          date: '2026-07-18T15:31:27'
           name: 'n'
           is_recurring: true
     fileParameters: []
@@ -2935,6 +3800,185 @@ endpoints:
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/employees/export.xlsx
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/employees/export.pdf
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/employees/import-template.xlsx
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/employees/import
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      file:
+        custom: []
+        name: file
+        description: 'Must be a file. Must not be greater than 5120 kilobytes.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters: []
+    fileParameters:
+      file: null
     responses: []
     responseFields: []
     auth:
@@ -3116,7 +4160,7 @@ endpoints:
         name: date_of_birth
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3166,12 +4210,23 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      country:
+        custom: []
+        name: country
+        description: 'Must not be greater than 120 characters.'
+        required: false
+        example: m
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
       photo_path:
         custom: []
         name: photo_path
         description: 'Must not be greater than 500 characters.'
         required: false
-        example: m
+        example: 'y'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3197,7 +4252,7 @@ endpoints:
         name: hired_at
         description: 'Must be a valid date.'
         required: true
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3208,7 +4263,7 @@ endpoints:
         name: exited_at
         description: 'Must be a valid date. Must be a date after or equal to <code>hired_at</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3296,7 +4351,7 @@ endpoints:
         name: assignment.effective_from
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3384,7 +4439,7 @@ endpoints:
         name: 'contacts[].type'
         description: 'This field is required when <code>contacts</code> is present.'
         required: false
-        example: emergency
+        example: next_of_kin
         type: string
         enumValues:
           - emergency
@@ -3512,15 +4567,16 @@ endpoints:
       personal_email: jermaine.tillman@example.org
       phone: h
       gender: w
-      date_of_birth: '2026-07-11T16:56:35'
+      date_of_birth: '2026-07-18T15:31:27'
       marital_status: a
       address: 'y'
       city: k
       state: c
-      photo_path: m
+      country: m
+      photo_path: 'y'
       employment_status: active
-      hired_at: '2026-07-11T16:56:35'
-      exited_at: '2052-08-03'
+      hired_at: '2026-07-18T15:31:27'
+      exited_at: '2052-08-10'
       assignment:
         branch_id: 16
         department_id: 16
@@ -3528,7 +4584,7 @@ endpoints:
         job_grade_id: 16
         employment_type_id: 16
         supervisor_id: 16
-        effective_from: '2026-07-11T16:56:35'
+        effective_from: '2026-07-18T15:31:27'
       statutory:
         tax_id: 'n'
         pension_pin: g
@@ -3536,7 +4592,7 @@ endpoints:
         nhf_number: m
       contacts:
         -
-          type: emergency
+          type: next_of_kin
           name: i
           relationship: 'y'
           phone: v
@@ -3756,7 +4812,7 @@ endpoints:
         name: date_of_birth
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3806,12 +4862,23 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      country:
+        custom: []
+        name: country
+        description: 'Must not be greater than 120 characters.'
+        required: false
+        example: m
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
       photo_path:
         custom: []
         name: photo_path
         description: 'Must not be greater than 500 characters.'
         required: false
-        example: m
+        example: 'y'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3822,7 +4889,7 @@ endpoints:
         name: employment_status
         description: ''
         required: true
-        example: suspended
+        example: active
         type: string
         enumValues:
           - active
@@ -3837,7 +4904,7 @@ endpoints:
         name: hired_at
         description: 'Must be a valid date.'
         required: true
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -3848,11 +4915,277 @@ endpoints:
         name: exited_at
         description: 'Must be a valid date. Must be a date after or equal to <code>hired_at</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
+        deprecated: false
+      assignment:
+        custom: []
+        name: assignment
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      assignment.branch_id:
+        custom: []
+        name: assignment.branch_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      assignment.department_id:
+        custom: []
+        name: assignment.department_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      assignment.position_id:
+        custom: []
+        name: assignment.position_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      assignment.job_grade_id:
+        custom: []
+        name: assignment.job_grade_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      assignment.employment_type_id:
+        custom: []
+        name: assignment.employment_type_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      assignment.effective_from:
+        custom: []
+        name: assignment.effective_from
+        description: 'This field is required when <code>assignment</code> is present. Must be a valid date.'
+        required: false
+        example: '2026-07-18T15:31:27'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      contacts:
+        custom: []
+        name: contacts
+        description: ''
+        required: false
+        example: null
+        type: 'object[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      bank_accounts:
+        custom: []
+        name: bank_accounts
+        description: ''
+        required: false
+        example: null
+        type: 'object[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      statutory:
+        custom: []
+        name: statutory
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      statutory.tax_id:
+        custom: []
+        name: statutory.tax_id
+        description: 'Must not be greater than 120 characters.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      statutory.pension_pin:
+        custom: []
+        name: statutory.pension_pin
+        description: 'Must not be greater than 120 characters.'
+        required: false
+        example: g
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      statutory.pension_fund_administrator:
+        custom: []
+        name: statutory.pension_fund_administrator
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: z
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      statutory.nhf_number:
+        custom: []
+        name: statutory.nhf_number
+        description: 'Must not be greater than 120 characters.'
+        required: false
+        example: m
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'contacts[].type':
+        custom: []
+        name: 'contacts[].type'
+        description: 'This field is required when <code>contacts</code> is present.'
+        required: false
+        example: next_of_kin
+        type: string
+        enumValues:
+          - emergency
+          - next_of_kin
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'contacts[].name':
+        custom: []
+        name: 'contacts[].name'
+        description: 'This field is required when <code>contacts</code> is present. Must not be greater than 255 characters.'
+        required: false
+        example: i
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'contacts[].relationship':
+        custom: []
+        name: 'contacts[].relationship'
+        description: 'Must not be greater than 120 characters.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'contacts[].phone':
+        custom: []
+        name: 'contacts[].phone'
+        description: 'Must not be greater than 80 characters.'
+        required: false
+        example: v
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'contacts[].email':
+        custom: []
+        name: 'contacts[].email'
+        description: 'Must be a valid email address. Must not be greater than 255 characters.'
+        required: false
+        example: jdach@example.org
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'bank_accounts[].bank_name':
+        custom: []
+        name: 'bank_accounts[].bank_name'
+        description: 'This field is required when <code>bank_accounts</code> is present. Must not be greater than 255 characters.'
+        required: false
+        example: i
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'bank_accounts[].bank_code':
+        custom: []
+        name: 'bank_accounts[].bank_code'
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: khwaykcmyuwpwlvq
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'bank_accounts[].account_number':
+        custom: []
+        name: 'bank_accounts[].account_number'
+        description: 'This field is required when <code>bank_accounts</code> is present. Must not be greater than 40 characters.'
+        required: false
+        example: w
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'bank_accounts[].account_name':
+        custom: []
+        name: 'bank_accounts[].account_name'
+        description: 'This field is required when <code>bank_accounts</code> is present. Must not be greater than 255 characters.'
+        required: false
+        example: r
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'bank_accounts[].is_primary':
+        custom: []
+        name: 'bank_accounts[].is_primary'
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
         deprecated: false
     cleanBodyParameters:
       employee_number: b
@@ -3864,15 +5197,42 @@ endpoints:
       personal_email: jermaine.tillman@example.org
       phone: h
       gender: w
-      date_of_birth: '2026-07-11T16:56:35'
+      date_of_birth: '2026-07-18T15:31:27'
       marital_status: a
       address: 'y'
       city: k
       state: c
-      photo_path: m
-      employment_status: suspended
-      hired_at: '2026-07-11T16:56:35'
-      exited_at: '2052-08-03'
+      country: m
+      photo_path: 'y'
+      employment_status: active
+      hired_at: '2026-07-18T15:31:27'
+      exited_at: '2052-08-10'
+      assignment:
+        branch_id: 16
+        department_id: 16
+        position_id: 16
+        job_grade_id: 16
+        employment_type_id: 16
+        effective_from: '2026-07-18T15:31:27'
+      statutory:
+        tax_id: 'n'
+        pension_pin: g
+        pension_fund_administrator: z
+        nhf_number: m
+      contacts:
+        -
+          type: next_of_kin
+          name: i
+          relationship: 'y'
+          phone: v
+          email: jdach@example.org
+      bank_accounts:
+        -
+          bank_name: i
+          bank_code: khwaykcmyuwpwlvq
+          account_number: w
+          account_name: r
+          is_primary: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -4037,7 +5397,7 @@ endpoints:
         name: effective_from
         description: 'Must be a valid date.'
         required: true
-        example: '2026-07-11T16:56:35'
+        example: '2026-07-18T15:31:27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4050,8 +5410,123 @@ endpoints:
       job_grade_id: 16
       employment_type_id: 16
       supervisor_id: 16
-      effective_from: '2026-07-11T16:56:35'
+      effective_from: '2026-07-18T15:31:27'
     fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/employees/{employee_id}/photo'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      employee_id:
+        custom: []
+        name: employee_id
+        description: 'The ID of the employee.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      employee_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/employees/{employee_id}/photo'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      employee_id:
+        custom: []
+        name: employee_id
+        description: 'The ID of the employee.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      employee_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      photo:
+        custom: []
+        name: photo
+        description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+        required: true
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters: []
+    fileParameters:
+      photo: null
     responses: []
     responseFields: []
     auth:
@@ -4743,7 +6218,7 @@ endpoints:
         name: start_time
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '16:56'
+        example: '15:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4752,9 +6227,9 @@ endpoints:
       end_time:
         custom: []
         name: end_time
-        description: 'Must be a valid date in the format <code>H:i</code>. Must be a date after <code>start_time</code>.'
+        description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '2052-08-03'
+        example: '15:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4777,7 +6252,7 @@ endpoints:
         description: ''
         required: false
         example:
-          - 4
+          - 5
         type: 'integer[]'
         enumValues:
           - 1
@@ -4803,11 +6278,11 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       name: b
-      start_time: '16:56'
-      end_time: '2052-08-03'
+      start_time: '15:31'
+      end_time: '15:31'
       grace_minutes: 22
       working_days:
-        - 4
+        - 5
       is_active: false
     fileParameters: []
     responses: []
@@ -4871,7 +6346,7 @@ endpoints:
         name: start_time
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '16:56'
+        example: '15:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4880,9 +6355,9 @@ endpoints:
       end_time:
         custom: []
         name: end_time
-        description: 'Must be a valid date in the format <code>H:i</code>. Must be a date after <code>start_time</code>.'
+        description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '2052-08-03'
+        example: '15:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -4905,7 +6380,7 @@ endpoints:
         description: ''
         required: false
         example:
-          - 4
+          - 5
         type: 'integer[]'
         enumValues:
           - 1
@@ -4923,7 +6398,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -4931,12 +6406,12 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       name: b
-      start_time: '16:56'
-      end_time: '2052-08-03'
+      start_time: '15:31'
+      end_time: '15:31'
       grace_minutes: 22
       working_days:
-        - 4
-      is_active: true
+        - 5
+      is_active: false
     fileParameters: []
     responses: []
     responseFields: []
@@ -4986,6 +6461,50 @@ endpoints:
     cleanBodyParameters: []
     fileParameters: []
     responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/shift-assignments
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
     responseFields: []
     auth:
       - headers
@@ -5047,7 +6566,7 @@ endpoints:
         name: effective_from
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5056,7 +6575,7 @@ endpoints:
     cleanBodyParameters:
       employee_id: 16
       shift_id: 16
-      effective_from: '2026-07-11'
+      effective_from: '2026-07-18'
     fileParameters: []
     responses: []
     responseFields: []
@@ -5081,6 +6600,50 @@ endpoints:
       title: |-
         Monthly attendance grid: one row per employee with per-day statuses
         and the running summary. ?period=YYYY-MM (defaults to current month).
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/attendance/import-template.xlsx
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
       description: ''
       authenticated: true
       deprecated: false
@@ -5153,7 +6716,7 @@ endpoints:
         name: date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5164,7 +6727,7 @@ endpoints:
         name: clock_in
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '16:56'
+        example: '15:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5173,9 +6736,9 @@ endpoints:
       clock_out:
         custom: []
         name: clock_out
-        description: 'Must be a valid date in the format <code>H:i</code>. Must be a date after <code>clock_in</code>.'
+        description: 'Must be a valid date in the format <code>H:i</code>.'
         required: false
-        example: '2052-08-03'
+        example: '15:31'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5194,9 +6757,9 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       employee_id: 16
-      date: '2026-07-11'
-      clock_in: '16:56'
-      clock_out: '2052-08-03'
+      date: '2026-07-18'
+      clock_in: '15:31'
+      clock_out: '15:31'
       note: 'n'
     fileParameters: []
     responses: []
@@ -5408,7 +6971,7 @@ endpoints:
         name: requires_document
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5419,7 +6982,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5451,8 +7014,8 @@ endpoints:
       name: b
       code: ngzmiyvdljnikhwa
       is_paid: true
-      requires_document: true
-      is_active: false
+      requires_document: false
+      is_active: true
       days_per_year: 24
       carry_forward_max: 18
     fileParameters: []
@@ -5528,7 +7091,7 @@ endpoints:
         name: is_paid
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5539,7 +7102,7 @@ endpoints:
         name: requires_document
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -5581,8 +7144,8 @@ endpoints:
     cleanBodyParameters:
       name: b
       code: ngzmiyvdljnikhwa
-      is_paid: false
-      requires_document: false
+      is_paid: true
+      requires_document: true
       is_active: true
       days_per_year: 24
       carry_forward_max: 18
@@ -5738,7 +7301,7 @@ endpoints:
         name: start_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5749,7 +7312,7 @@ endpoints:
         name: end_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -5769,8 +7332,8 @@ endpoints:
     cleanBodyParameters:
       employee_id: 16
       leave_type_id: 16
-      start_date: '2026-07-11'
-      end_date: '2026-07-11'
+      start_date: '2026-07-18'
+      end_date: '2026-07-18'
       reason: 'n'
     fileParameters: []
     responses: []
@@ -6005,7 +7568,7 @@ endpoints:
         name: is_taxable
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -6016,7 +7579,7 @@ endpoints:
         name: is_pensionable
         description: ''
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -6039,8 +7602,8 @@ endpoints:
       type: deduction
       calc_type: percent_of_basic
       percent: 7
-      is_taxable: true
-      is_pensionable: true
+      is_taxable: false
+      is_pensionable: false
       is_active: true
     fileParameters: []
     responses: []
@@ -6115,7 +7678,7 @@ endpoints:
         name: type
         description: ''
         required: true
-        example: earning
+        example: deduction
         type: string
         enumValues:
           - earning
@@ -6183,7 +7746,7 @@ endpoints:
     cleanBodyParameters:
       name: b
       code: 'n'
-      type: earning
+      type: deduction
       calc_type: percent_of_basic
       percent: 7
       is_taxable: false
@@ -6708,7 +8271,7 @@ endpoints:
         name: effective_from
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -6717,7 +8280,7 @@ endpoints:
     cleanBodyParameters:
       basic_salary: 27
       salary_structure_id: 16
-      effective_from: '2026-07-11'
+      effective_from: '2026-07-18'
     fileParameters: []
     responses: []
     responseFields: []
@@ -7312,6 +8875,1322 @@ endpoints:
     custom: []
     httpMethods:
       - GET
+    uri: api/v1/overtime/attendance-candidates
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: |-
+        Attendance summaries with clocked overtime in a period, flagged with
+        whether they've already been turned into an overtime payment — the
+        "accept or overlook" worklist.
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/overtime/from-attendance
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: "Convert an attendance summary's clocked overtime into a priced record."
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      attendance_summary_id:
+        custom: []
+        name: attendance_summary_id
+        description: ''
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      multiplier:
+        custom: []
+        name: multiplier
+        description: ''
+        required: true
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      disbursement_mode:
+        custom: []
+        name: disbursement_mode
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      attendance_summary_id: 16
+      multiplier: 4326.41688
+      disbursement_mode: architecto
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/overtime
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/overtime
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      employee_id:
+        custom: []
+        name: employee_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      period:
+        custom: []
+        name: period
+        description: 'Must match the regex /^\d{4}-\d{2}$/.'
+        required: true
+        example: 6425-59
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      work_date:
+        custom: []
+        name: work_date
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-07-18T15:31:28'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pay_type:
+        custom: []
+        name: pay_type
+        description: ''
+        required: true
+        example: hourly
+        type: string
+        enumValues:
+          - hourly
+          - fixed
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      disbursement_mode:
+        custom: []
+        name: disbursement_mode
+        description: ''
+        required: true
+        example: in_payroll
+        type: string
+        enumValues:
+          - in_payroll
+          - off_cycle
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      reason:
+        custom: []
+        name: reason
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: j
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      hours:
+        custom: []
+        name: hours
+        description: 'This field is required when <code>pay_type</code> is <code>hourly</code>. Must not be greater than 744.'
+        required: false
+        example: 17
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      multiplier:
+        custom: []
+        name: multiplier
+        description: 'This field is required when <code>pay_type</code> is <code>hourly</code>.'
+        required: false
+        example: 1.0
+        type: number
+        enumValues:
+          - 1.0
+          - 1.5
+          - 2.0
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      amount:
+        custom: []
+        name: amount
+        description: 'This field is required when <code>pay_type</code> is <code>fixed</code>.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      employee_id: 16
+      period: 6425-59
+      work_date: '2026-07-18T15:31:28'
+      pay_type: hourly
+      disbursement_mode: in_payroll
+      reason: j
+      hours: 17
+      multiplier: 1.0
+      amount: 16
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/overtime/{id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the overtime.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/v1/overtime/{id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the overtime.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      employee_id:
+        custom: []
+        name: employee_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      period:
+        custom: []
+        name: period
+        description: 'Must match the regex /^\d{4}-\d{2}$/.'
+        required: true
+        example: 6425-59
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      work_date:
+        custom: []
+        name: work_date
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-07-18T15:31:28'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pay_type:
+        custom: []
+        name: pay_type
+        description: ''
+        required: true
+        example: fixed
+        type: string
+        enumValues:
+          - hourly
+          - fixed
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      disbursement_mode:
+        custom: []
+        name: disbursement_mode
+        description: ''
+        required: true
+        example: off_cycle
+        type: string
+        enumValues:
+          - in_payroll
+          - off_cycle
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      reason:
+        custom: []
+        name: reason
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: j
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      hours:
+        custom: []
+        name: hours
+        description: 'This field is required when <code>pay_type</code> is <code>hourly</code>. Must not be greater than 744.'
+        required: false
+        example: 17
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      multiplier:
+        custom: []
+        name: multiplier
+        description: 'This field is required when <code>pay_type</code> is <code>hourly</code>.'
+        required: false
+        example: 1.5
+        type: number
+        enumValues:
+          - 1.0
+          - 1.5
+          - 2.0
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      amount:
+        custom: []
+        name: amount
+        description: 'This field is required when <code>pay_type</code> is <code>fixed</code>.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      employee_id: 16
+      period: 6425-59
+      work_date: '2026-07-18T15:31:28'
+      pay_type: fixed
+      disbursement_mode: off_cycle
+      reason: j
+      hours: 17
+      multiplier: 1.5
+      amount: 16
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/overtime/{id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the overtime.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/overtime/{overtime_id}/submit'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      overtime_id:
+        custom: []
+        name: overtime_id
+        description: 'The ID of the overtime.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      overtime_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/overtime/{overtime_id}/pay'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Pay an approved off-cycle overtime record — gross, no tax.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      overtime_id:
+        custom: []
+        name: overtime_id
+        description: 'The ID of the overtime.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      overtime_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/loans
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/loans
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      employee_id:
+        custom: []
+        name: employee_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      type:
+        custom: []
+        name: type
+        description: ''
+        required: true
+        example: loan
+        type: string
+        enumValues:
+          - advance
+          - loan
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      principal:
+        custom: []
+        name: principal
+        description: ''
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      months:
+        custom: []
+        name: months
+        description: 'This field is required when <code>type</code> is <code>loan</code>. Must be at least 1. Must not be greater than 60.'
+        required: false
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      start_period:
+        custom: []
+        name: start_period
+        description: 'Must match the regex /^\d{4}-\d{2}$/.'
+        required: true
+        example: 6425-59
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      reason:
+        custom: []
+        name: reason
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: j
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      employee_id: 16
+      type: loan
+      principal: 16
+      months: 22
+      start_period: 6425-59
+      reason: j
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/loans/{id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/v1/loans/{id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      employee_id:
+        custom: []
+        name: employee_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      type:
+        custom: []
+        name: type
+        description: ''
+        required: true
+        example: loan
+        type: string
+        enumValues:
+          - advance
+          - loan
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      principal:
+        custom: []
+        name: principal
+        description: ''
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      months:
+        custom: []
+        name: months
+        description: 'This field is required when <code>type</code> is <code>loan</code>. Must be at least 1. Must not be greater than 60.'
+        required: false
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      start_period:
+        custom: []
+        name: start_period
+        description: 'Must match the regex /^\d{4}-\d{2}$/.'
+        required: true
+        example: 6425-59
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      reason:
+        custom: []
+        name: reason
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: j
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      employee_id: 16
+      type: loan
+      principal: 16
+      months: 22
+      start_period: 6425-59
+      reason: j
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/loans/{id}'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/loans/{loan_id}/submit'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      loan_id:
+        custom: []
+        name: loan_id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      loan_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/loans/{loan_id}/plan-deduction'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Set (or clear) a one-time deduction for the coming run. amount=null → full balance.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      loan_id:
+        custom: []
+        name: loan_id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      loan_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      amount:
+        custom: []
+        name: amount
+        description: ''
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      amount: 16
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/loans/{loan_id}/clear-deduction'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      loan_id:
+        custom: []
+        name: loan_id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      loan_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/loans/{loan_id}/installment'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Permanently change the monthly installment on an active loan.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      loan_id:
+        custom: []
+        name: loan_id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      loan_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      amount:
+        custom: []
+        name: amount
+        description: ''
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      amount: 16
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/loans/{loan_id}/repayments'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      loan_id:
+        custom: []
+        name: loan_id
+        description: 'The ID of the loan.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      loan_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
     uri: 'api/v1/payroll-runs/{payrollRun_id}/variance'
     metadata:
       custom: []
@@ -7755,7 +10634,7 @@ endpoints:
         name: start_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -7766,7 +10645,7 @@ endpoints:
         name: end_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -7785,8 +10664,8 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       leave_type_id: 16
-      start_date: '2026-07-11'
-      end_date: '2026-07-11'
+      start_date: '2026-07-18'
+      end_date: '2026-07-18'
       reason: 'n'
     fileParameters: []
     responses: []
@@ -8158,7 +11037,7 @@ endpoints:
         name: target_start_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -8181,7 +11060,7 @@ endpoints:
       employment_type_id: 16
       title: 'n'
       headcount: 7
-      target_start_date: '2026-07-11'
+      target_start_date: '2026-07-18'
       reason: z
     fileParameters: []
     responses: []
@@ -8289,7 +11168,7 @@ endpoints:
         name: target_start_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -8312,7 +11191,7 @@ endpoints:
       employment_type_id: 16
       title: 'n'
       headcount: 7
-      target_start_date: '2026-07-11'
+      target_start_date: '2026-07-18'
       reason: z
     fileParameters: []
     responses: []
@@ -8579,7 +11458,7 @@ endpoints:
         name: opens_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -8590,11 +11469,24 @@ endpoints:
         name: closes_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>opens_at</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
+        deprecated: false
+      visibility:
+        custom: []
+        name: visibility
+        description: ''
+        required: false
+        example: public
+        type: string
+        enumValues:
+          - private
+          - public
+        exampleWasSpecified: false
+        nullable: false
         deprecated: false
     cleanBodyParameters:
       manpower_requisition_id: 16
@@ -8605,8 +11497,9 @@ endpoints:
       requirements: i
       location: k
       positions_available: 14
-      opens_at: '2026-07-11'
-      closes_at: '2052-08-03'
+      opens_at: '2026-07-18'
+      closes_at: '2052-08-10'
+      visibility: public
     fileParameters: []
     responses: []
     responseFields: []
@@ -8746,7 +11639,7 @@ endpoints:
         name: opens_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -8757,11 +11650,24 @@ endpoints:
         name: closes_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>opens_at</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
+        deprecated: false
+      visibility:
+        custom: []
+        name: visibility
+        description: ''
+        required: false
+        example: private
+        type: string
+        enumValues:
+          - private
+          - public
+        exampleWasSpecified: false
+        nullable: false
         deprecated: false
     cleanBodyParameters:
       manpower_requisition_id: 16
@@ -8772,8 +11678,9 @@ endpoints:
       requirements: i
       location: k
       positions_available: 14
-      opens_at: '2026-07-11'
-      closes_at: '2052-08-03'
+      opens_at: '2026-07-18'
+      closes_at: '2052-08-10'
+      visibility: private
     fileParameters: []
     responses: []
     responseFields: []
@@ -8836,6 +11743,100 @@ endpoints:
     httpMethods:
       - POST
     uri: 'api/v1/recruitment/vacancies/{vacancy_id}/close'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      vacancy_id:
+        custom: []
+        name: vacancy_id
+        description: 'The ID of the vacancy.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      vacancy_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/recruitment/vacancies/{vacancy_id}/publish'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      vacancy_id:
+        custom: []
+        name: vacancy_id
+        description: 'The ID of the vacancy.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      vacancy_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/recruitment/vacancies/{vacancy_id}/unpublish'
     metadata:
       custom: []
       groupName: Endpoints
@@ -9136,6 +12137,62 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - GET
+    uri: 'api/v1/recruitment/applications/{application_id}/resume'
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      application_id:
+        custom: []
+        name: application_id
+        description: 'The ID of the application.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      application_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          vary: Origin
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - POST
     uri: 'api/v1/recruitment/applications/{application_id}/move'
     metadata:
@@ -9174,7 +12231,7 @@ endpoints:
         name: stage
         description: ''
         required: true
-        example: applied
+        example: interviewed
         type: string
         enumValues:
           - applied
@@ -9201,7 +12258,7 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      stage: applied
+      stage: interviewed
       notes: b
     fileParameters: []
     responses: []
@@ -9254,7 +12311,7 @@ endpoints:
         name: type
         description: ''
         required: true
-        example: interview
+        example: second_interview
         type: string
         enumValues:
           - interview
@@ -9267,7 +12324,7 @@ endpoints:
         name: scheduled_at
         description: 'Must be a valid date.'
         required: true
-        example: '2026-07-11T16:56:36'
+        example: '2026-07-18T15:31:29'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -9319,8 +12376,8 @@ endpoints:
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      type: interview
-      scheduled_at: '2026-07-11T16:56:36'
+      type: second_interview
+      scheduled_at: '2026-07-18T15:31:29'
       location: b
       meeting_url: 'http://bailey.com/'
       panel_user_ids:
@@ -9471,7 +12528,7 @@ endpoints:
         name: start_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -9482,7 +12539,7 @@ endpoints:
         name: expires_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>start_date</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -9501,8 +12558,8 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       annual_salary: 27
-      start_date: '2026-07-11'
-      expires_at: '2052-08-03'
+      start_date: '2026-07-18'
+      expires_at: '2052-08-10'
       terms: 'n'
     fileParameters: []
     responses: []
@@ -9648,7 +12705,7 @@ endpoints:
         name: due_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -9668,7 +12725,7 @@ endpoints:
     cleanBodyParameters:
       title: b
       description: 'Et animi quos velit et fugiat.'
-      due_date: '2026-07-11'
+      due_date: '2026-07-18'
       assigned_to: 16
     fileParameters: []
     responses: []
@@ -9881,7 +12938,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -9890,7 +12947,7 @@ endpoints:
     cleanBodyParameters:
       name: b
       description: 'Et animi quos velit et fugiat.'
-      is_active: false
+      is_active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -10029,7 +13086,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -10041,7 +13098,7 @@ endpoints:
       description: 'Animi quos velit et fugiat.'
       measurement_unit: d
       target_description: l
-      is_active: false
+      is_active: true
     fileParameters: []
     responses: []
     responseFields: []
@@ -10147,7 +13204,7 @@ endpoints:
         name: is_active
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -10201,7 +13258,7 @@ endpoints:
     cleanBodyParameters:
       name: b
       description: 'Et animi quos velit et fugiat.'
-      is_active: false
+      is_active: true
       options:
         -
           label: b
@@ -10466,7 +13523,7 @@ endpoints:
         name: starts_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: true
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -10477,7 +13534,7 @@ endpoints:
         name: ends_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>starts_at</code>.'
         required: true
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -10488,7 +13545,7 @@ endpoints:
         name: review_starts_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -10499,7 +13556,7 @@ endpoints:
         name: review_ends_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>review_starts_at</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -10507,10 +13564,10 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       name: b
-      starts_at: '2026-07-11'
-      ends_at: '2052-08-03'
-      review_starts_at: '2026-07-11'
-      review_ends_at: '2052-08-03'
+      starts_at: '2026-07-18'
+      ends_at: '2052-08-10'
+      review_starts_at: '2026-07-18'
+      review_ends_at: '2052-08-10'
     fileParameters: []
     responses: []
     responseFields: []
@@ -10686,7 +13743,7 @@ endpoints:
         name: due_date
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -10720,7 +13777,7 @@ endpoints:
         name: 'reviewers[].reviewer_type'
         description: ''
         required: true
-        example: manager
+        example: peer
         type: string
         enumValues:
           - self
@@ -10746,11 +13803,11 @@ endpoints:
       appraisal_cycle_id: 16
       appraisal_template_id: 16
       employee_id: 16
-      due_date: '2026-07-11'
+      due_date: '2026-07-18'
       reviewers:
         -
           reviewer_user_id: 16
-          reviewer_type: manager
+          reviewer_type: peer
           weight: 2
     fileParameters: []
     responses: []
@@ -11083,7 +14140,7 @@ endpoints:
         name: level
         description: ''
         required: true
-        example: company
+        example: department
         type: string
         enumValues:
           - company
@@ -11233,7 +14290,7 @@ endpoints:
         name: starts_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -11244,14 +14301,14 @@ endpoints:
         name: due_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>starts_at</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      level: company
+      level: department
       title: b
       description: 'Et animi quos velit et fugiat.'
       department_id: 16
@@ -11264,8 +14321,8 @@ endpoints:
       measurement_unit: 'n'
       progress: 0
       status: draft
-      starts_at: '2026-07-11'
-      due_at: '2052-08-03'
+      starts_at: '2026-07-18'
+      due_at: '2052-08-10'
     fileParameters: []
     responses: []
     responseFields: []
@@ -11317,7 +14374,7 @@ endpoints:
         name: level
         description: ''
         required: true
-        example: company
+        example: individual
         type: string
         enumValues:
           - company
@@ -11467,7 +14524,7 @@ endpoints:
         name: starts_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>.'
         required: false
-        example: '2026-07-11'
+        example: '2026-07-18'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -11478,14 +14535,14 @@ endpoints:
         name: due_at
         description: 'Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>starts_at</code>.'
         required: false
-        example: '2052-08-03'
+        example: '2052-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      level: company
+      level: individual
       title: b
       description: 'Et animi quos velit et fugiat.'
       department_id: 16
@@ -11498,8 +14555,8 @@ endpoints:
       measurement_unit: 'n'
       progress: 0
       status: cancelled
-      starts_at: '2026-07-11'
-      due_at: '2052-08-03'
+      starts_at: '2026-07-18'
+      due_at: '2052-08-10'
     fileParameters: []
     responses: []
     responseFields: []
