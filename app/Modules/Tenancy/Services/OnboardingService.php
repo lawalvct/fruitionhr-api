@@ -16,11 +16,13 @@ class OnboardingService
         $tenant = $owner->tenant;
         $data = array_merge($tenant->onboarding_data ?? [], Arr::except($input, ['step']));
 
+        $isCompleted = $tenant->onboarding_status === Tenant::ONBOARDING_COMPLETED;
+
         $tenant->update([
             'name' => $data['company_name'] ?? $tenant->name,
             'phone' => $data['phone'] ?? $tenant->phone,
-            'onboarding_status' => Tenant::ONBOARDING_IN_PROGRESS,
-            'onboarding_step' => $input['step'],
+            'onboarding_status' => $isCompleted ? Tenant::ONBOARDING_COMPLETED : Tenant::ONBOARDING_IN_PROGRESS,
+            'onboarding_step' => $isCompleted ? 3 : $input['step'],
             'onboarding_data' => $data,
         ]);
 

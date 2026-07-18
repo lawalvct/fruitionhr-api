@@ -107,3 +107,23 @@ test('a skipped owner can return and complete onboarding later', function (): vo
 
     expect($this->tenant->fresh()->onboarding_completed_at)->not->toBeNull();
 });
+
+test('a completed owner can update onboarding preferences without reopening setup', function (): void {
+    $this->patchJson('/api/v1/onboarding', [
+        'step' => 3,
+        'company_name' => 'Fruition Services',
+    ])->assertOk();
+    $this->postJson('/api/v1/onboarding/complete')->assertOk();
+
+    $this->patchJson('/api/v1/onboarding', [
+        'step' => 3,
+        'phone' => '+234 800 000 0000',
+        'pay_frequency' => 'monthly',
+        'pay_day' => 28,
+    ])->assertOk()
+        ->assertJsonPath('data.status', Tenant::ONBOARDING_COMPLETED)
+        ->assertJsonPath('data.step', 3)
+        ->assertJsonPath('data.data.pay_day', 28);
+
+    expect($this->tenant->fresh()->onboarding_completed_at)->not->toBeNull();
+});
