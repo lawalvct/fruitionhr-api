@@ -2,6 +2,7 @@
 
 namespace App\Modules\Tenancy\Actions;
 
+use App\Core\Notifications\NotificationTemplates;
 use App\Core\Workflow\WorkflowProvisioner;
 use App\Models\User;
 use App\Modules\Payroll\Support\StatutoryProvisioner;
@@ -52,6 +53,13 @@ class RegisterTenant
 
             setPermissionsTeamId($tenant->id);
             $user->assignRole('owner');
+
+            // Greet the new owner with an in-app notification (database channel,
+            // sent synchronously so it's waiting in their bell on first login).
+            $user->notify(NotificationTemplates::make('welcome', [
+                'name' => Str::of($input['name'])->trim()->explode(' ')->first(),
+                'company' => $tenant->name,
+            ]));
 
             return $user;
         });

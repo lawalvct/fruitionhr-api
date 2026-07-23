@@ -155,6 +155,24 @@ test('employee numbers are unique per tenant sequence', function (): void {
         ->assertJsonPath('data.employee_number', 'EMP-0001');
 });
 
+test('auto-numbering skips existing numbers when the newest employee has a custom number', function (): void {
+    // Existing EMP-0001..EMP-0002, then imported/custom numbers as the newest rows.
+    Employee::factory()->create(['employee_number' => 'EMP-0001', 'hired_at' => '2026-01-01']);
+    Employee::factory()->create(['employee_number' => 'EMP-0002', 'hired_at' => '2026-01-01']);
+    Employee::factory()->create(['employee_number' => 'SAMPLE-001', 'hired_at' => '2026-01-01']);
+    Employee::factory()->create(['employee_number' => 'SAMPLE-002', 'hired_at' => '2026-01-01']);
+
+    // A soft-deleted EMP number still owns its slot in the unique index.
+    Employee::factory()->create(['employee_number' => 'EMP-0003', 'hired_at' => '2026-01-01'])->delete();
+
+    $this->postJson('/api/v1/employees', [
+        'first_name' => 'Next',
+        'last_name' => 'Hire',
+        'hired_at' => '2026-01-01',
+    ])->assertCreated()
+        ->assertJsonPath('data.employee_number', 'EMP-0004');
+});
+
 test('assignment history closes the old current record', function (): void {
     $departmentA = Department::factory()->create(['name' => 'Finance']);
     $departmentB = Department::factory()->create(['name' => 'Engineering']);

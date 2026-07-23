@@ -29,19 +29,30 @@ class CreateEmployee
     {
         $tenantId = app(CurrentTenant::class)->id();
 
-        $lastNumber = Employee::query()
+        // Include trashed rows: soft-deleted employees still hold their slot in
+        // the (tenant_id, employee_number) unique index. Scan every EMP-#### for
+        // the true maximum rather than parsing only the newest row — otherwise a
+        // custom/imported number (e.g. "SAMPLE-003") on the latest row resets the
+        // sequence back to EMP-0001 and collides with an existing employee.
+        $existing = Employee::withTrashed()
             ->where('tenant_id', $tenantId)
             ->lockForUpdate()
-            ->orderByDesc('id')
-            ->value('employee_number');
+            ->pluck('employee_number')
+            ->filter(fn ($number): bool => is_string($number));
 
-        $next = 1;
+        $highest = $existing
+            ->map(fn (string $number): int => preg_match('/^EMP-(\d+)$/', $number, $matches) ? (int) $matches[1] : 0)
+            ->max() ?? 0;
 
-        if (is_string($lastNumber) && preg_match('/EMP-(\d+)/', $lastNumber, $matches)) {
-            $next = ((int) $matches[1]) + 1;
-        }
+        $used = $existing->flip();
+        $next = $highest + 1;
 
-        return 'EMP-'.str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+        do {
+            $candidate = 'EMP-'.str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+            $next++;
+        } while ($used->has($candidate));
+
+        return $candidate;
     }
 
     private function relations(): array

@@ -30,6 +30,26 @@ test('a company can register and gets a tenant with an owner user', function () 
     $this->assertAuthenticatedAs($user, 'web');
 });
 
+test('registration creates a welcome in-app notification for the new owner', function () {
+    $this->postJson('/api/v1/register', [
+        'company_name' => 'Bright Labs',
+        'name' => 'Chidi Nwosu',
+        'email' => 'chidi@bright.test',
+        'password' => 'Sup3r-Secret!',
+        'password_confirmation' => 'Sup3r-Secret!',
+    ])->assertCreated();
+
+    $user = User::query()->where('email', 'chidi@bright.test')->firstOrFail();
+    $notification = $user->notifications()->first();
+
+    expect($user->notifications()->count())->toBe(1)
+        ->and($notification->data['title'])->toContain('Chidi')
+        ->and($notification->data['body'])->toContain('Bright Labs')
+        ->and($notification->data['type'])->toBe('success')
+        ->and($notification->data['action_url'])->toBe('/onboarding')
+        ->and($notification->read_at)->toBeNull();
+});
+
 test('registration rejects duplicate email', function () {
     User::factory()->create(['email' => 'taken@acme.test']);
 
