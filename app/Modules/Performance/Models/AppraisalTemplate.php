@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['rating_scale_id', 'name', 'description', 'is_active', 'created_by'])]
+#[Fillable(['rating_scale_id', 'name', 'department', 'target_role', 'min_passing_basis_points', 'description', 'is_active', 'created_by'])]
 class AppraisalTemplate extends Model
 {
     use BelongsToTenant, HasFactory, SoftDeletes;

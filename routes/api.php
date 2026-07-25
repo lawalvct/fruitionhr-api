@@ -2,6 +2,7 @@
 
 use App\Modules\Auth\Controllers\AuthController;
 use App\Modules\Auth\Controllers\EmailVerificationController;
+use App\Modules\Auth\Controllers\ProfileController;
 use App\Modules\Tenancy\Controllers\RegisterTenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,15 @@ Route::prefix('v1')->group(function (): void {
 Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('v1.logout');
     Route::get('/me', [AuthController::class, 'me'])->name('v1.me');
+
+    // Self-service account editing (any authenticated user, incl. super admins).
+    Route::put('/profile', [ProfileController::class, 'update'])->name('v1.profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
+        ->middleware('throttle:6,1')
+        ->name('v1.profile.password');
+    Route::get('/profile/avatar', [ProfileController::class, 'showAvatar'])->name('v1.profile.avatar.show');
+    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('v1.profile.avatar.upload');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('v1.profile.avatar.delete');
     Route::post('/email/verify', [EmailVerificationController::class, 'verify'])
         ->middleware('throttle:10,1')
         ->name('v1.email.verify');

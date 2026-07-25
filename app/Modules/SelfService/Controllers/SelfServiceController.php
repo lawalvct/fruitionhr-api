@@ -27,6 +27,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class SelfServiceController extends Controller
 {
@@ -218,14 +219,22 @@ class SelfServiceController extends Controller
         $items = $payslip->items;
         $earnings = $items->where('category', PayrollItem::CATEGORY_EARNING);
         $deductions = $items->whereIn('category', [PayrollItem::CATEGORY_STATUTORY, PayrollItem::CATEGORY_DEDUCTION]);
+        $employerContributions = $items->where('category', PayrollItem::CATEGORY_EMPLOYER);
+        $payDate = $payslip->run->locked_at ?? $payslip->run->approved_at ?? $payslip->run->submitted_at;
 
         $pdf = Pdf::loadView('payroll.payslip', [
             'company' => app(CurrentTenant::class)->get()?->name ?? 'Company',
+            'logoDataUri' => $this->tenantLogoDataUri(),
             'periodLabel' => Carbon::createFromFormat('Y-m', $payslip->run->period)->format('F Y'),
             'employee' => $payslip->snapshot['employee'] ?? ['name' => $employee->full_name, 'employee_number' => $employee->employee_number],
             'structure' => $payslip->snapshot['structure'] ?? null,
+            'status' => $payslip->run->status,
+            'reference' => "PR-{$payslip->run->id}-{$payslip->id}",
+            'payDateFormatted' => $payDate?->format('d M Y'),
+            'generatedAt' => now()->format('d M Y, H:i'),
             'earnings' => $earnings->map($this->payslipLine(...))->values(),
             'deductions' => $deductions->map($this->payslipLine(...))->values(),
+            'employerContributions' => $employerContributions->map($this->payslipLine(...))->values(),
             'grossFormatted' => Naira::format($payslip->gross),
             'deductionsFormatted' => Naira::format($payslip->total_deductions),
             'netFormatted' => Naira::format($payslip->net),
@@ -279,5 +288,19 @@ class SelfServiceController extends Controller
     private function payslipLine(PayrollItem $item): array
     {
         return ['name' => $item->name, 'formatted' => Naira::format($item->amount)];
+    }
+
+    private function tenantLogoDataUri(): ?string
+    {
+        $tenant = app(CurrentTenant::class)->get();
+        $disk = Storage::disk('local');
+
+        if (! $tenant?->logo_path || ! $disk->exists($tenant->logo_path)) {
+            return null;
+        }
+
+        $mime = $disk->mimeType($tenant->logo_path) ?: 'image/png';
+
+        return 'data:'.$mime.';base64,'.base64_encode($disk->get($tenant->logo_path));
     }
 }

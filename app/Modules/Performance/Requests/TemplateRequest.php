@@ -16,11 +16,15 @@ class TemplateRequest extends FormRequest
         return [
             'rating_scale_id' => ['required', 'integer', Rule::exists('rating_scales', 'id')->where('tenant_id', $tenantId)],
             'name' => ['required', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:100'],
+            'target_role' => ['nullable', 'string', 'max:100'],
+            'min_passing_basis_points' => ['nullable', 'integer', 'between:0,10000'],
             'description' => ['nullable', 'string', 'max:5000'],
             'is_active' => ['sometimes', 'boolean'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.performance_kpi_id' => ['required', 'distinct', 'integer', Rule::exists('performance_kpis', 'id')->where('tenant_id', $tenantId)],
             'items.*.weight' => ['required', 'integer', 'between:1,100'],
+            'items.*.is_mandatory' => ['sometimes', 'boolean'],
         ];
     }
 }

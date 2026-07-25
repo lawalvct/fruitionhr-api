@@ -3,13 +3,17 @@
 namespace App\Modules\Tenancy\Services;
 
 use App\Models\User;
+use App\Modules\Performance\Services\PerformanceDefaultsProvisioner;
 use App\Modules\Tenancy\Models\Tenant;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class OnboardingService
 {
-    public function __construct(private readonly StarterDataProvisioner $starterData) {}
+    public function __construct(
+        private readonly StarterDataProvisioner $starterData,
+        private readonly PerformanceDefaultsProvisioner $performanceDefaults,
+    ) {}
 
     public function save(User $owner, array $input): Tenant
     {
@@ -42,6 +46,12 @@ class OnboardingService
             }
 
             $this->starterData->provision($owner, $tenant->onboarding_data ?? []);
+
+            // Optional: seed the sample KPI library and appraisal templates
+            // when the company chose default performance data during setup.
+            if (($tenant->onboarding_data['seed_performance_defaults'] ?? false) === true) {
+                $this->performanceDefaults->provision($owner);
+            }
 
             $tenant->update([
                 'onboarding_status' => $skipped

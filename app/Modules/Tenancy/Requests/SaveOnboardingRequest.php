@@ -51,6 +51,7 @@ class SaveOnboardingRequest extends FormRequest
             'tax_state' => ['nullable', 'string', 'max:100'],
             'tin' => ['nullable', 'string', 'max:100'],
             'rc_number' => ['nullable', 'string', 'max:100'],
+            'seed_performance_defaults' => ['nullable', 'boolean'],
         ];
     }
 

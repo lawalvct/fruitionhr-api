@@ -59,6 +59,15 @@ class AppraisalController extends Controller
         return new AssignmentResource($this->performance->submitReview($reviewer, $request->validated()));
     }
 
+    /** Return a submitted review to its reviewer for revision (spec §5). */
+    public function returnReview(Request $request, AppraisalAssignment $assignment, AppraisalReviewer $reviewer): AssignmentResource
+    {
+        abort_unless($reviewer->appraisal_assignment_id === $assignment->id, 404);
+        abort_unless($request->user()->can(Permissions::PERFORMANCE_MANAGE), 403);
+
+        return new AssignmentResource($this->performance->returnReviewer($reviewer));
+    }
+
     public function addOutcome(Request $request, AppraisalResult $result): JsonResponse
     {
         abort_unless($request->user()->can(Permissions::PERFORMANCE_MANAGE), 403);
@@ -83,6 +92,6 @@ class AppraisalController extends Controller
 
     private function relations(): array
     {
-        return ['cycle', 'template.ratingScale.options', 'template.items.kpi.category', 'employee', 'reviewers.user', 'reviewers.review.scores', 'result.outcomes'];
+        return ['cycle', 'template.ratingScale.options', 'template.items.kpi.category', 'employee', 'reviewers.user', 'reviewers.review.scores', 'result.outcomes', 'result.appeals'];
     }
 }

@@ -91,6 +91,28 @@ test('skipping onboarding provisions editable starter data only once', function 
         ->and(SalaryComponent::query()->count())->toBe(4);
 });
 
+test('choosing default performance data at onboarding seeds the sample library', function (): void {
+    $this->patchJson('/api/v1/onboarding', [
+        'step' => 3,
+        'company_name' => 'Fruition Services',
+        'seed_performance_defaults' => true,
+    ])->assertOk();
+
+    $this->postJson('/api/v1/onboarding/complete')->assertOk();
+
+    expect(\App\Modules\Performance\Models\PerformanceKpi::query()->count())->toBeGreaterThanOrEqual(70)
+        ->and(\App\Modules\Performance\Models\AppraisalTemplate::query()->count())->toBe(3)
+        ->and(\App\Modules\Performance\Models\RatingScale::query()->count())->toBe(1);
+});
+
+test('onboarding without the performance toggle seeds no appraisal data', function (): void {
+    $this->patchJson('/api/v1/onboarding', ['step' => 3, 'company_name' => 'Fruition Lite'])->assertOk();
+    $this->postJson('/api/v1/onboarding/complete')->assertOk();
+
+    expect(\App\Modules\Performance\Models\PerformanceKpi::query()->count())->toBe(0)
+        ->and(\App\Modules\Performance\Models\AppraisalTemplate::query()->count())->toBe(0);
+});
+
 test('a skipped owner can return and complete onboarding later', function (): void {
     $this->postJson('/api/v1/onboarding/skip')->assertOk();
 

@@ -79,6 +79,7 @@ class EmployeeController extends Controller
         return Pdf::loadView('employees.export-pdf', [
             'employees' => $employees,
             'tenantName' => app(CurrentTenant::class)->get()?->name ?? 'Company',
+            'logoDataUri' => $this->tenantLogoDataUri(),
         ])->setPaper('a4', 'landscape')->download('employees.pdf');
     }
 
@@ -250,6 +251,20 @@ class EmployeeController extends Controller
             'bankAccounts',
             'statutoryDetails',
         ]);
+    }
+
+    private function tenantLogoDataUri(): ?string
+    {
+        $tenant = app(CurrentTenant::class)->get();
+        $disk = Storage::disk('local');
+
+        if (! $tenant?->logo_path || ! $disk->exists($tenant->logo_path)) {
+            return null;
+        }
+
+        $mime = $disk->mimeType($tenant->logo_path) ?: 'image/png';
+
+        return 'data:'.$mime.';base64,'.base64_encode($disk->get($tenant->logo_path));
     }
 
     private function exportQuery(Request $request): Builder

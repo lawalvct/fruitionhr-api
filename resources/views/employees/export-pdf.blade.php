@@ -8,6 +8,12 @@
         body { color: #172033; font-family: DejaVu Sans, sans-serif; font-size: 9px; }
         h1 { color: #14532d; font-size: 18px; margin: 0 0 4px; }
         p { color: #64748b; margin: 0 0 16px; }
+        table.brand { border-collapse: collapse; width: auto; margin-bottom: 12px; }
+        table.brand td { padding: 0; vertical-align: middle; border-bottom: none; }
+        table.brand .brand-mark { padding-right: 10px; }
+        table.brand .brand-mark img { height: 30px; width: auto; }
+        table.brand h1, table.brand p { margin: 0; }
+        table.brand p { margin-top: 2px; }
         table { border-collapse: collapse; width: 100%; }
         th { background: #14532d; color: white; font-size: 8px; padding: 7px 5px; text-align: left; }
         td { border-bottom: 1px solid #e2e8f0; padding: 6px 5px; vertical-align: top; }
@@ -16,8 +22,20 @@
     </style>
 </head>
 <body>
-    <h1>{{ $tenantName }} employee directory</h1>
-    <p>Generated {{ now()->format('Y-m-d H:i') }} · {{ $employees->count() }} employee(s)</p>
+    @if (!empty($logoDataUri))
+        <table class="brand">
+            <tr>
+                <td class="brand-mark"><img src="{{ $logoDataUri }}" alt=""></td>
+                <td>
+                    <h1>{{ $tenantName }} employee directory</h1>
+                    <p>Generated {{ now()->format('Y-m-d H:i') }} · {{ $employees->count() }} employee(s)</p>
+                </td>
+            </tr>
+        </table>
+    @else
+        <h1>{{ $tenantName }} employee directory</h1>
+        <p>Generated {{ now()->format('Y-m-d H:i') }} · {{ $employees->count() }} employee(s)</p>
+    @endif
     <table>
         <thead>
         <tr>

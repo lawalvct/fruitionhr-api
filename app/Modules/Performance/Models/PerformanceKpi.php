@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['performance_category_id', 'name', 'description', 'measurement_unit', 'target_description', 'is_active', 'created_by'])]
+#[Fillable(['performance_category_id', 'name', 'department', 'type', 'description', 'measurement_unit', 'target_description', 'descriptor_low', 'descriptor_mid', 'descriptor_high', 'is_mandatory', 'is_active', 'created_by'])]
 class PerformanceKpi extends Model
 {
     use BelongsToTenant, HasFactory, SoftDeletes;
     protected static string $factory = PerformanceKpiFactory::class;
-    protected function casts(): array { return ['is_active' => 'boolean']; }
+    protected function casts(): array { return ['is_active' => 'boolean', 'is_mandatory' => 'boolean']; }
     public function category(): BelongsTo { return $this->belongsTo(PerformanceCategory::class, 'performance_category_id'); }
 }

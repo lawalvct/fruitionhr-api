@@ -17,6 +17,7 @@ use App\Modules\Performance\Resources\CycleResource;
 use App\Modules\Performance\Resources\KpiResource;
 use App\Modules\Performance\Resources\RatingScaleResource;
 use App\Modules\Performance\Resources\TemplateResource;
+use App\Modules\Performance\Services\PerformanceDefaultsProvisioner;
 use App\Modules\Performance\Services\PerformanceService;
 use App\Support\Authorization\Permissions;
 use Illuminate\Http\JsonResponse;
@@ -27,6 +28,14 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 class PerformanceSetupController extends Controller
 {
     public function __construct(private readonly PerformanceService $performance) {}
+
+    /** Seed the sample KPI library, scale and templates (idempotent). */
+    public function seedDefaults(Request $request, PerformanceDefaultsProvisioner $provisioner): JsonResponse
+    {
+        abort_unless($request->user()->can(Permissions::PERFORMANCE_MANAGE), 403);
+
+        return response()->json(['data' => $provisioner->provision($request->user())]);
+    }
 
     public function categories(Request $request): mixed
     {
@@ -52,6 +61,14 @@ class PerformanceSetupController extends Controller
         return (new KpiResource($kpi->load('category')))->response()->setStatusCode(201);
     }
 
+    /** HR maintains the KPI library in-app: definitions, descriptors, activation. */
+    public function updateKpi(KpiRequest $request, PerformanceKpi $kpi): KpiResource
+    {
+        $kpi->update($request->validated());
+
+        return new KpiResource($kpi->refresh()->load('category'));
+    }
+
     public function ratingScales(Request $request): mixed
     {
         $this->view($request);
@@ -73,6 +90,15 @@ class PerformanceSetupController extends Controller
     public function storeTemplate(TemplateRequest $request): JsonResponse
     {
         return (new TemplateResource($this->performance->createTemplate($request->validated(), $request->user())))
+            ->response()->setStatusCode(201);
+    }
+
+    /** Templates are immutable once created — clone to iterate (spec §6). */
+    public function cloneTemplate(Request $request, AppraisalTemplate $template): JsonResponse
+    {
+        abort_unless($request->user()->can(Permissions::PERFORMANCE_MANAGE), 403);
+
+        return (new TemplateResource($this->performance->cloneTemplate($template, $request->user())))
             ->response()->setStatusCode(201);
     }
 
