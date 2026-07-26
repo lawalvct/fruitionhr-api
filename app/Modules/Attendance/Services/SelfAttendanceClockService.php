@@ -6,6 +6,7 @@ use App\Modules\Attendance\Models\AttendanceLog;
 use App\Modules\Attendance\Models\Shift;
 use App\Modules\Attendance\Support\AttendanceCalculator;
 use App\Modules\Employee\Models\Employee;
+use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +28,7 @@ class SelfAttendanceClockService
     public function __construct(
         private readonly AttendanceService $attendance,
         private readonly AttendanceCalculator $calculator,
+        private readonly CurrentTenant $tenant,
     ) {
     }
 
@@ -38,11 +40,12 @@ class SelfAttendanceClockService
         return $this->present($employee, $date, $log);
     }
 
-    public function clockIn(Employee $employee, int $actingUserId): array
+    public function clockIn(Employee $employee, int $actingUserId, ?int $kioskId = null): array
     {
         $now = $this->now();
 
-        return DB::transaction(function () use ($employee, $actingUserId, $now) {
+        return DB::transaction(function () use ($employee, $actingUserId, $now, $kioskId) {
+            $this->guardSelfClockEnabled();
             $this->guardOpenPeriod($now->format('Y-m'));
 
             $log = AttendanceLog::query()
@@ -68,6 +71,7 @@ class SelfAttendanceClockService
                 [
                     'clock_in' => $now->format('H:i:s'),
                     'source' => AttendanceLog::SOURCE_SELF,
+                    'kiosk_id' => $kioskId,
                     'created_by' => $actingUserId,
                 ],
             );
@@ -81,6 +85,7 @@ class SelfAttendanceClockService
         $now = $this->now();
 
         return DB::transaction(function () use ($employee, $actingUserId, $now) {
+            $this->guardSelfClockEnabled();
             $this->guardOpenPeriod($now->format('Y-m'));
 
             $today = AttendanceLog::query()
@@ -136,6 +141,15 @@ class SelfAttendanceClockService
         if ($log->clock_out !== null) {
             throw ValidationException::withMessages([
                 'clock' => ['You already clocked out today.'],
+            ]);
+        }
+    }
+
+    private function guardSelfClockEnabled(): void
+    {
+        if (! $this->tenant->get()->attendanceSelfClockEnabled()) {
+            throw ValidationException::withMessages([
+                'clock' => ['Self clock-in is disabled for your organisation. Contact HR.'],
             ]);
         }
     }
@@ -209,6 +223,9 @@ class SelfAttendanceClockService
             'status' => $day->status,
             'late_minutes' => $day->lateMinutes,
             'overtime_minutes' => $day->overtimeMinutes,
+            'kiosk' => $log?->loadMissing('kiosk')->kiosk?->name,
+            'self_clock_enabled' => $this->tenant->get()->attendanceSelfClockEnabled(),
+            'kiosk_scanning_enabled' => $this->tenant->get()->attendanceKioskEnabled(),
         ];
     }
 

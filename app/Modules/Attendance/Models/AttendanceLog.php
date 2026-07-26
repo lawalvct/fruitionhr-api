@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['employee_id', 'date', 'clock_in', 'clock_out', 'source', 'note', 'created_by'])]
+#[Fillable(['employee_id', 'date', 'clock_in', 'clock_out', 'source', 'note', 'kiosk_id', 'created_by'])]
 class AttendanceLog extends Model
 {
     use BelongsToTenant, HasFactory;
@@ -31,5 +31,10 @@ class AttendanceLog extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function kiosk(): BelongsTo
+    {
+        return $this->belongsTo(AttendanceKiosk::class);
     }
 }

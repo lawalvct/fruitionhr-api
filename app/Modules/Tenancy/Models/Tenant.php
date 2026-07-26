@@ -54,4 +54,16 @@ class Tenant extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /** Whether employees may clock themselves in/out (ESS + kiosk). Defaults to enabled. */
+    public function attendanceSelfClockEnabled(): bool
+    {
+        return (bool) ($this->settings['attendance']['self_clock_enabled'] ?? true);
+    }
+
+    /** Whether the shared QR kiosk mechanism is available. Defaults to enabled. */
+    public function attendanceKioskEnabled(): bool
+    {
+        return (bool) ($this->settings['attendance']['kiosk_enabled'] ?? true);
+    }
 }

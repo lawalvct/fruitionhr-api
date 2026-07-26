@@ -5,6 +5,7 @@ namespace App\Modules\SelfService\Controllers;
 use App\Modules\Attendance\Models\AttendanceSummary;
 use App\Modules\Attendance\Services\AttendanceService;
 use App\Modules\Attendance\Services\SelfAttendanceClockService;
+use App\Modules\Attendance\Support\KioskToken;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Employee\Resources\EmployeeResource;
 use App\Modules\Leave\Models\LeaveBalance;
@@ -199,13 +200,17 @@ class SelfServiceController extends Controller
         return response()->json(['data' => $clock->today($employee)]);
     }
 
-    public function clockIn(Request $request, SelfAttendanceClockService $clock)
+    public function clockIn(Request $request, SelfAttendanceClockService $clock, CurrentTenant $tenant)
     {
         abort_unless($request->user()->can(Permissions::ESS_ATTENDANCE_CLOCK), 403);
 
         $employee = $this->employeeFor($request, withProfile: false);
 
-        return response()->json(['data' => $clock->clockIn($employee, $request->user()->id)], 201);
+        $kioskId = $request->filled('kiosk_token')
+            ? KioskToken::consume($request->string('kiosk_token')->toString(), $tenant->id())
+            : null;
+
+        return response()->json(['data' => $clock->clockIn($employee, $request->user()->id, $kioskId)], 201);
     }
 
     public function clockOut(Request $request, SelfAttendanceClockService $clock)
