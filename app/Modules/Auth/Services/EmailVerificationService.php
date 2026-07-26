@@ -5,6 +5,7 @@ namespace App\Modules\Auth\Services;
 use App\Models\User;
 use App\Modules\Auth\Models\EmailVerificationCode;
 use App\Modules\Auth\Notifications\EmailVerificationCodeNotification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -15,6 +16,15 @@ class EmailVerificationService
     public const RESEND_AFTER_SECONDS = 60;
 
     public const MAX_ATTEMPTS = 5;
+
+    /**
+     * Non-production only: lets the tester debug page recover the plaintext
+     * code, since code_hash is a one-way bcrypt hash and can't be read back.
+     */
+    public static function debugCacheKey(string $email): string
+    {
+        return 'email-verification-debug-code:'.strtolower($email);
+    }
 
     public function send(User $user, bool $enforceCooldown = false): void
     {
@@ -41,6 +51,10 @@ class EmailVerificationService
                 'sent_at' => now(),
             ],
         );
+
+        if (! app()->environment('production')) {
+            Cache::put(self::debugCacheKey($user->email), $code, now()->addMinutes(self::CODE_TTL_MINUTES));
+        }
 
         $user->notifyNow(new EmailVerificationCodeNotification($code));
     }
@@ -75,5 +89,6 @@ class EmailVerificationService
 
         $user->forceFill(['email_verified_at' => now()])->save();
         $record->delete();
+        Cache::forget(self::debugCacheKey($user->email));
     }
 }
