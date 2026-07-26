@@ -61,6 +61,7 @@ class Permissions
     public const ESS_LEAVE_VIEW = 'ess.leave.view';
     public const ESS_LEAVE_APPLY = 'ess.leave.apply';
     public const ESS_ATTENDANCE_VIEW = 'ess.attendance.view';
+    public const ESS_ATTENDANCE_CLOCK = 'ess.attendance.clock';
     public const ESS_PAYSLIPS_VIEW = 'ess.payslips.view';
 
     // Manager self-service (MSS)
@@ -120,6 +121,7 @@ class Permissions
             self::ESS_LEAVE_VIEW,
             self::ESS_LEAVE_APPLY,
             self::ESS_ATTENDANCE_VIEW,
+            self::ESS_ATTENDANCE_CLOCK,
             self::ESS_PAYSLIPS_VIEW,
             self::MSS_APPROVALS_VIEW,
             self::MSS_TEAM_VIEW,
@@ -174,6 +176,7 @@ class Permissions
                 self::ESS_LEAVE_VIEW,
                 self::ESS_LEAVE_APPLY,
                 self::ESS_ATTENDANCE_VIEW,
+                self::ESS_ATTENDANCE_CLOCK,
                 self::ESS_PAYSLIPS_VIEW,
                 self::MSS_APPROVALS_VIEW,
                 self::MSS_TEAM_VIEW,
@@ -202,6 +205,7 @@ class Permissions
                 self::ESS_LEAVE_VIEW,
                 self::ESS_LEAVE_APPLY,
                 self::ESS_ATTENDANCE_VIEW,
+                self::ESS_ATTENDANCE_CLOCK,
                 self::ESS_PAYSLIPS_VIEW,
                 self::MSS_APPROVALS_VIEW,
                 self::MSS_TEAM_VIEW,
@@ -219,6 +223,7 @@ class Permissions
                 self::ESS_LEAVE_VIEW,
                 self::ESS_LEAVE_APPLY,
                 self::ESS_ATTENDANCE_VIEW,
+                self::ESS_ATTENDANCE_CLOCK,
                 self::ESS_PAYSLIPS_VIEW,
                 self::PERFORMANCE_REVIEW,
                 self::GOALS_VIEW,

@@ -14,6 +14,9 @@ Route::prefix('self')->name('v1.self.')->group(function (): void {
     Route::get('leave-balances', [SelfServiceController::class, 'leaveBalances'])->name('leave-balances.index');
 
     Route::get('attendance', [SelfServiceController::class, 'attendance'])->name('attendance.show');
+    Route::get('attendance/today', [SelfServiceController::class, 'todayAttendance'])->name('attendance.today');
+    Route::post('attendance/clock-in', [SelfServiceController::class, 'clockIn'])->name('attendance.clock-in');
+    Route::post('attendance/clock-out', [SelfServiceController::class, 'clockOut'])->name('attendance.clock-out');
 
     Route::get('payslips', [SelfServiceController::class, 'payslips'])->name('payslips.index');
     Route::get('payslips/{payslip}/download', [SelfServiceController::class, 'downloadPayslip'])->name('payslips.download');

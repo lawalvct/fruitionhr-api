@@ -4,6 +4,7 @@ namespace App\Modules\SelfService\Controllers;
 
 use App\Modules\Attendance\Models\AttendanceSummary;
 use App\Modules\Attendance\Services\AttendanceService;
+use App\Modules\Attendance\Services\SelfAttendanceClockService;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Employee\Resources\EmployeeResource;
 use App\Modules\Leave\Models\LeaveBalance;
@@ -187,6 +188,33 @@ class SelfServiceController extends Controller
                 ] : null,
             ],
         ]);
+    }
+
+    public function todayAttendance(Request $request, SelfAttendanceClockService $clock)
+    {
+        abort_unless($request->user()->can(Permissions::ESS_ATTENDANCE_VIEW), 403);
+
+        $employee = $this->employeeFor($request, withProfile: false);
+
+        return response()->json(['data' => $clock->today($employee)]);
+    }
+
+    public function clockIn(Request $request, SelfAttendanceClockService $clock)
+    {
+        abort_unless($request->user()->can(Permissions::ESS_ATTENDANCE_CLOCK), 403);
+
+        $employee = $this->employeeFor($request, withProfile: false);
+
+        return response()->json(['data' => $clock->clockIn($employee, $request->user()->id)], 201);
+    }
+
+    public function clockOut(Request $request, SelfAttendanceClockService $clock)
+    {
+        abort_unless($request->user()->can(Permissions::ESS_ATTENDANCE_CLOCK), 403);
+
+        $employee = $this->employeeFor($request, withProfile: false);
+
+        return response()->json(['data' => $clock->clockOut($employee, $request->user()->id)]);
     }
 
     public function payslips(Request $request)

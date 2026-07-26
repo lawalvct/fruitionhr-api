@@ -123,6 +123,32 @@ class AttendanceService
             ->exists();
     }
 
+    /**
+     * The shift in effect for one employee on one date — same assignment
+     * lookup and single-active-shift fallback `daysFor()` uses per day.
+     */
+    public function shiftFor(Employee $employee, Carbon $date): ?Shift
+    {
+        $assignment = ShiftAssignment::query()
+            ->with('shift')
+            ->where('employee_id', $employee->id)
+            ->whereDate('effective_from', '<=', $date->toDateString())
+            ->where(function ($query) use ($date): void {
+                $query->whereNull('effective_to')
+                    ->orWhereDate('effective_to', '>=', $date->toDateString());
+            })
+            ->orderByDesc('effective_from')
+            ->first();
+
+        if ($assignment !== null) {
+            return $assignment->shift;
+        }
+
+        $active = Shift::query()->where('is_active', true)->get();
+
+        return $active->count() === 1 ? $active->first() : null;
+    }
+
     private function currentShift(int $employeeId): ?Shift
     {
         $assignment = ShiftAssignment::query()
