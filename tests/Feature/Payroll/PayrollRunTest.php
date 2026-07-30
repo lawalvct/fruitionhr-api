@@ -1,18 +1,17 @@
 <?php
 
 use App\Core\Workflow\Models\WorkflowRequest;
-use App\Core\Workflow\WorkflowProvisioner;
 use App\Core\Workflow\WorkflowService;
 use App\Models\User;
-use App\Modules\Attendance\Services\AttendanceService;
-use App\Modules\Employee\Models\Employee;
+use App\Modules\Payroll\Models\EmployeeSalary;
 use App\Modules\Payroll\Models\PayrollRun;
+use App\Modules\Payroll\Models\PayrollRunEmployee;
 use App\Modules\Payroll\Models\SalaryComponent;
-use App\Modules\Payroll\Models\SalaryStructure;
-use App\Modules\Payroll\Support\StatutoryProvisioner;
+use App\Modules\Payroll\Services\PayrollRunService;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 // payrollScenario() is defined in tests/Support/PayrollScenario.php.
 
@@ -53,6 +52,97 @@ test('the employee payslip breakdown itemises earnings and statutory lines', fun
         ->and($lines->json('data.net'))->toBe(39_119_533);
 });
 
+test('configured employer contributions increase employer cost without changing employee pay', function () {
+    $component = SalaryComponent::factory()->percentOfBasic(10)->create([
+        'name' => 'Company Pension',
+        'code' => 'CP001',
+        'type' => SalaryComponent::TYPE_EMPLOYER_CONTRIBUTOR,
+        'is_taxable' => false,
+        'is_pensionable' => false,
+    ]);
+
+    $salary = EmployeeSalary::query()
+        ->where('employee_id', $this->employee->id)
+        ->firstOrFail();
+    $salary->structure->components()->create(['salary_component_id' => $component->id]);
+
+    $run = $this->postJson('/api/v1/payroll-runs', ['period' => '2026-07'])->assertCreated();
+    $detail = $this->getJson('/api/v1/payroll-runs/'.$run->json('data.id'))->assertOk();
+
+    expect($detail->json('data.total_gross'))->toBe(50_000_000)
+        ->and($detail->json('data.total_net'))->toBe(39_119_533)
+        ->and($detail->json('data.total_employer_cost'))->toBe(7_500_000);
+
+    $runEmployeeId = $detail->json('data.employees.0.id');
+    $items = $this->getJson("/api/v1/payroll-runs/{$run->json('data.id')}/employees/{$runEmployeeId}")
+        ->assertOk()
+        ->json('data.items');
+    $companyPension = collect($items)->firstWhere('code', 'CP001');
+
+    expect($companyPension['category'])->toBe('employer')
+        ->and($companyPension['amount'])->toBe(2_500_000);
+});
+
+test('payroll uses employee component overrides additions and exclusions', function () {
+    $salary = EmployeeSalary::query()
+        ->where('employee_id', $this->employee->id)
+        ->firstOrFail();
+    $transport = SalaryComponent::query()->where('code', 'TRA')->firstOrFail();
+    $meal = SalaryComponent::query()->where('code', 'MEAL')->firstOrFail();
+    $special = SalaryComponent::factory()->create(['name' => 'Special Allowance', 'code' => 'SPECIAL']);
+
+    $salary->componentOverrides()->createMany([
+        ['salary_component_id' => $transport->id, 'mode' => 'override', 'amount' => 8_500_000],
+        ['salary_component_id' => $meal->id, 'mode' => 'excluded'],
+        ['salary_component_id' => $special->id, 'mode' => 'additional', 'amount' => 1_000_000],
+    ]);
+
+    $run = $this->postJson('/api/v1/payroll-runs', ['period' => '2026-07'])->assertCreated();
+    $detail = $this->getJson('/api/v1/payroll-runs/'.$run->json('data.id'))->assertOk();
+    $runEmployeeId = $detail->json('data.employees.0.id');
+    $items = collect($this->getJson("/api/v1/payroll-runs/{$run->json('data.id')}/employees/{$runEmployeeId}")
+        ->assertOk()
+        ->json('data.items'));
+
+    expect($detail->json('data.total_gross'))->toBe(47_000_000)
+        ->and($items->firstWhere('code', 'TRA')['amount'])->toBe(8_500_000)
+        ->and($items->contains('code', 'MEAL'))->toBeFalse()
+        ->and($items->firstWhere('code', 'SPECIAL')['amount'])->toBe(1_000_000);
+});
+
+test('fringe benefits increase taxable pay but not cash gross or pensionable pay', function () {
+    $component = SalaryComponent::factory()->create([
+        'name' => 'Company Car',
+        'code' => 'CAR',
+        'type' => SalaryComponent::TYPE_FRINGE_BENEFIT,
+        'is_taxable' => true,
+        'is_pensionable' => false,
+    ]);
+
+    $salary = EmployeeSalary::query()
+        ->where('employee_id', $this->employee->id)
+        ->firstOrFail();
+    $salary->structure->components()->create([
+        'salary_component_id' => $component->id,
+        'amount' => 5_000_000,
+    ]);
+
+    $run = $this->postJson('/api/v1/payroll-runs', ['period' => '2026-07'])->assertCreated();
+    $detail = $this->getJson('/api/v1/payroll-runs/'.$run->json('data.id'))->assertOk();
+    $payrollLine = PayrollRunEmployee::query()
+        ->where('employee_id', $this->employee->id)
+        ->firstOrFail();
+
+    expect($detail->json('data.total_gross'))->toBe(50_000_000)
+        ->and($payrollLine->taxable_pay)->toBe(55_000_000)
+        ->and($payrollLine->pensionable_pay)->toBe(45_000_000)
+        ->and($detail->json('data.total_net'))->toBeLessThan(39_119_533);
+
+    $item = $payrollLine->items()->where('code', 'CAR')->firstOrFail();
+    expect($item->category)->toBe('fringe_benefit')
+        ->and($item->amount)->toBe(5_000_000);
+});
+
 test('full flow: run, submit, approve via workflow, lock; locked run is immutable', function () {
     $run = $this->postJson('/api/v1/payroll-runs', ['period' => '2026-07'])->assertCreated();
     $runId = $run->json('data.id');
@@ -75,8 +165,8 @@ test('full flow: run, submit, approve via workflow, lock; locked run is immutabl
         ->assertOk()->assertJsonPath('data.status', PayrollRun::STATUS_LOCKED);
 
     // A locked run cannot be recalculated or resubmitted.
-    expect(fn () => app(\App\Modules\Payroll\Services\PayrollRunService::class)->process($run->refresh()))
-        ->toThrow(Symfony\Component\HttpKernel\Exception\ConflictHttpException::class);
+    expect(fn () => app(PayrollRunService::class)->process($run->refresh()))
+        ->toThrow(ConflictHttpException::class);
 
     $this->postJson("/api/v1/payroll-runs/{$runId}/submit")->assertStatus(409);
 });

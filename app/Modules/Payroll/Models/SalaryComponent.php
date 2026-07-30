@@ -23,6 +23,12 @@ class SalaryComponent extends Model
 
     public const TYPE_DEDUCTION = 'deduction';
 
+    public const TYPE_EMPLOYER_CONTRIBUTOR = 'employer_contributor';
+
+    public const TYPE_FRINGE_BENEFIT = 'fringe_benefit';
+
+    public const RESERVED_BASIC_CODE = 'BASIC';
+
     public const CALC_FIXED = 'fixed';
 
     public const CALC_PERCENT = 'percent_of_basic';
@@ -35,5 +41,16 @@ class SalaryComponent extends Model
             'is_pensionable' => 'boolean',
             'is_active' => 'boolean',
         ];
+    }
+
+    public static function isReservedBasicSalary(?string $name, ?string $code): bool
+    {
+        return strtoupper(trim((string) $code)) === self::RESERVED_BASIC_CODE
+            || strcasecmp(trim((string) $name), 'Basic Salary') === 0;
+    }
+
+    public function isReservedBasicSalaryComponent(): bool
+    {
+        return self::isReservedBasicSalary($this->name, $this->code);
     }
 }

@@ -14,6 +14,7 @@ use App\Modules\Employee\Requests\UpdateEmployeeRequest;
 use App\Modules\Employee\Resources\EmployeeAssignmentResource;
 use App\Modules\Employee\Resources\EmployeeResource;
 use App\Support\Tenancy\CurrentTenant;
+use App\Support\Authorization\Permissions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,8 +33,13 @@ class EmployeeController extends Controller
     {
         Gate::authorize('viewAny', Employee::class);
 
+        $relationships = ['currentAssignment.department', 'currentAssignment.position'];
+        if ($request->user()->can(Permissions::EMPLOYEES_VIEW_SALARY)) {
+            $relationships[] = 'currentSalary';
+        }
+
         $query = QueryBuilder::for(Employee::query())
-            ->with(['currentAssignment.department', 'currentAssignment.position'])
+            ->with($relationships)
             ->allowedFilters(
                 AllowedFilter::callback('search', function (Builder $query, mixed $value): void {
                     $search = trim((string) $value);

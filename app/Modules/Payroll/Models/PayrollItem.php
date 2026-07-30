@@ -20,6 +20,8 @@ class PayrollItem extends Model
 
     public const CATEGORY_EMPLOYER = 'employer';
 
+    public const CATEGORY_FRINGE_BENEFIT = 'fringe_benefit';
+
     protected function casts(): array
     {
         return ['amount' => 'integer'];

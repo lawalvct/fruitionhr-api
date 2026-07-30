@@ -2,10 +2,12 @@
 
 namespace App\Modules\Payroll\Requests;
 
+use App\Modules\Payroll\Models\SalaryComponent;
 use App\Support\Authorization\Permissions;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class SalaryStructureRequest extends FormRequest
 {
@@ -30,5 +32,32 @@ class SalaryStructureRequest extends FormRequest
             'components.*.amount' => ['nullable', 'integer', 'min:0'], // kobo
             'components.*.percent' => ['nullable', 'integer', 'min:0', 'max:100'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $componentIds = collect($this->input('components', []))
+                ->pluck('salary_component_id')
+                ->filter(fn ($id) => is_numeric($id))
+                ->map(fn ($id) => (int) $id)
+                ->unique();
+
+            if ($componentIds->isEmpty()) {
+                return;
+            }
+
+            $hasBasicSalary = SalaryComponent::query()
+                ->whereIn('id', $componentIds)
+                ->get(['name', 'code'])
+                ->contains(fn (SalaryComponent $component) => $component->isReservedBasicSalaryComponent());
+
+            if ($hasBasicSalary) {
+                $validator->errors()->add(
+                    'components',
+                    'Basic Salary cannot be included in a salary structure; enter it per employee in Compensation.',
+                );
+            }
+        });
     }
 }

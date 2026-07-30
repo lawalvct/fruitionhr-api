@@ -2,11 +2,14 @@
 
 namespace App\Modules\Payroll\Controllers;
 
+use App\Modules\Payroll\Models\EmployeeSalaryComponentOverride;
 use App\Modules\Payroll\Models\SalaryComponent;
+use App\Modules\Payroll\Models\SalaryStructureComponent;
 use App\Modules\Payroll\Requests\SalaryComponentRequest;
 use App\Support\Authorization\Permissions;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
 
 class SalaryComponentController extends Controller
 {
@@ -39,6 +42,13 @@ class SalaryComponentController extends Controller
     public function destroy(Request $request, SalaryComponent $salaryComponent)
     {
         abort_unless($request->user()->can(Permissions::EMPLOYEES_MANAGE_SALARY), 403);
+
+        if (SalaryStructureComponent::query()->where('salary_component_id', $salaryComponent->id)->exists()
+            || EmployeeSalaryComponentOverride::query()->where('salary_component_id', $salaryComponent->id)->exists()) {
+            throw ValidationException::withMessages([
+                'component' => 'This component is used by a salary structure. Set it inactive instead of deleting it.',
+            ]);
+        }
 
         $salaryComponent->delete();
 

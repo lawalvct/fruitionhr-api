@@ -11,6 +11,7 @@ use App\Modules\Payroll\Models\PayrollRunEmployee;
 use App\Modules\Payroll\Support\SalaryBreakdown;
 use App\Modules\Payroll\Support\SalaryResolver;
 use App\Modules\Payroll\Support\StatutoryCalculator;
+use Illuminate\Support\Carbon;
 
 /**
  * Computes and persists one employee's payroll line for a run. All money in
@@ -28,15 +29,15 @@ class PayrollCalculationService
         private readonly StatutoryCalculator $statutory,
         private readonly OvertimeService $overtime,
         private readonly LoanService $loans,
-    ) {
-    }
+    ) {}
 
     public function calculateFor(PayrollRun $run, Employee $employee): ?PayrollRunEmployee
     {
         $salary = EmployeeSalary::query()
             ->where('employee_id', $employee->id)
-            ->where('is_current', true)
-            ->with('structure.components.component')
+            ->effectiveOn(Carbon::createFromFormat('Y-m', $run->period)->startOfMonth())
+            ->orderByDesc('effective_from')
+            ->with(['structure.components.component', 'componentOverrides.component'])
             ->first();
 
         if ($salary === null) {
@@ -46,6 +47,7 @@ class PayrollCalculationService
         $breakdown = $this->resolver->resolve(
             $salary->basic_salary,
             $salary->structure?->components ?? collect(),
+            $salary->componentOverrides,
         );
 
         // Approved in-payroll overtime rides this run as a taxable, non-pensionable
@@ -80,6 +82,7 @@ class PayrollCalculationService
             'net' => $net,
             'pension_employer' => $statutory->pensionEmployer,
             'nsitf' => $statutory->nsitf,
+            'employer_contributions' => $breakdown->employerContributionTotal(),
         ]);
 
         $this->writeItems($runEmployee, $breakdown, $statutory, $componentDeductions, $absence, $recoveries);
@@ -108,6 +111,8 @@ class PayrollCalculationService
                 ['code' => 'OVERTIME', 'name' => 'Overtime', 'amount' => $amount, 'is_taxable' => true, 'is_pensionable' => false],
             ],
             $breakdown->deductions,
+            $breakdown->employerContributions,
+            $breakdown->fringeBenefits,
         );
     }
 
@@ -142,6 +147,10 @@ class PayrollCalculationService
             $items[] = ['category' => PayrollItem::CATEGORY_EARNING, 'code' => $e['code'], 'name' => $e['name'], 'amount' => $e['amount']];
         }
 
+        foreach ($breakdown->fringeBenefits as $benefit) {
+            $items[] = ['category' => PayrollItem::CATEGORY_FRINGE_BENEFIT, 'code' => $benefit['code'], 'name' => $benefit['name'], 'amount' => $benefit['amount']];
+        }
+
         $items[] = ['category' => PayrollItem::CATEGORY_STATUTORY, 'code' => 'PAYE', 'name' => 'PAYE Tax', 'amount' => $statutory->paye];
         $items[] = ['category' => PayrollItem::CATEGORY_STATUTORY, 'code' => 'PENSION', 'name' => 'Pension (Employee)', 'amount' => $statutory->pensionEmployee];
         $items[] = ['category' => PayrollItem::CATEGORY_STATUTORY, 'code' => 'NHF', 'name' => 'NHF', 'amount' => $statutory->nhf];
@@ -159,6 +168,9 @@ class PayrollCalculationService
         }
 
         // Employer costs (not deducted from net; shown for reporting)
+        foreach ($breakdown->employerContributions as $contribution) {
+            $items[] = ['category' => PayrollItem::CATEGORY_EMPLOYER, 'code' => $contribution['code'], 'name' => $contribution['name'], 'amount' => $contribution['amount']];
+        }
         $items[] = ['category' => PayrollItem::CATEGORY_EMPLOYER, 'code' => 'PENSION_ER', 'name' => 'Pension (Employer)', 'amount' => $statutory->pensionEmployer];
         $items[] = ['category' => PayrollItem::CATEGORY_EMPLOYER, 'code' => 'NSITF', 'name' => 'NSITF (Employer)', 'amount' => $statutory->nsitf];
 
@@ -177,6 +189,8 @@ class PayrollCalculationService
             'structure' => $salary->structure?->name,
             'earnings' => $breakdown->earnings,
             'component_deductions' => $breakdown->deductions,
+            'employer_contributions' => $breakdown->employerContributions,
+            'fringe_benefits' => $breakdown->fringeBenefits,
             'statutory' => [
                 'paye' => $statutory->paye,
                 'pension_employee' => $statutory->pensionEmployee,

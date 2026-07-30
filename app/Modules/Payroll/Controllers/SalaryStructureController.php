@@ -2,12 +2,14 @@
 
 namespace App\Modules\Payroll\Controllers;
 
+use App\Modules\Payroll\Models\EmployeeSalary;
 use App\Modules\Payroll\Models\SalaryStructure;
 use App\Modules\Payroll\Requests\SalaryStructureRequest;
 use App\Support\Authorization\Permissions;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class SalaryStructureController extends Controller
 {
@@ -63,6 +65,12 @@ class SalaryStructureController extends Controller
     public function destroy(Request $request, SalaryStructure $salaryStructure)
     {
         abort_unless($request->user()->can(Permissions::EMPLOYEES_MANAGE_SALARY), 403);
+
+        if (EmployeeSalary::query()->where('salary_structure_id', $salaryStructure->id)->exists()) {
+            throw ValidationException::withMessages([
+                'structure' => 'This structure is assigned to an employee. Set it inactive instead of deleting it.',
+            ]);
+        }
 
         $salaryStructure->delete();
 

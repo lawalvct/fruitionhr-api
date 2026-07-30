@@ -34,6 +34,7 @@ class EmployeeResource extends JsonResource
             'hired_at' => $this->hired_at?->format('Y-m-d'),
             'exited_at' => $this->exited_at?->format('Y-m-d'),
             'current_assignment' => new EmployeeAssignmentResource($this->whenLoaded('currentAssignment')),
+            'current_basic_salary' => $this->whenLoaded('currentSalary', fn () => $this->currentSalary?->basic_salary),
             'employment_records' => EmployeeAssignmentResource::collection($this->whenLoaded('employmentRecords')),
             'contacts' => EmployeeContactResource::collection($this->whenLoaded('contacts')),
             'bank_accounts' => EmployeeBankAccountResource::collection($this->whenLoaded('bankAccounts')),

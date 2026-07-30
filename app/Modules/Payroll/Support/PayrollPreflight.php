@@ -25,7 +25,7 @@ class PayrollPreflight
         return [
             $this->attendanceFinalized($period),
             $this->leaveProcessed($period),
-            $this->salariesAssigned(),
+            $this->salariesAssigned($period),
             $this->statutoryConfigured($period),
         ];
     }
@@ -68,14 +68,14 @@ class PayrollPreflight
         ];
     }
 
-    private function salariesAssigned(): array
+    private function salariesAssigned(string $period): array
     {
         $activeEmployees = Employee::query()
             ->where('employment_status', Employee::STATUS_ACTIVE)
             ->pluck('id');
 
         $withSalary = EmployeeSalary::query()
-            ->where('is_current', true)
+            ->effectiveOn(Carbon::createFromFormat('Y-m', $period)->startOfMonth())
             ->whereIn('employee_id', $activeEmployees)
             ->pluck('employee_id');
 

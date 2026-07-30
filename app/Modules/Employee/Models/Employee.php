@@ -3,6 +3,7 @@
 namespace App\Modules\Employee\Models;
 
 use App\Models\User;
+use App\Modules\Payroll\Models\EmployeeSalary;
 use App\Support\Tenancy\BelongsToTenant;
 use Database\Factories\EmployeeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -86,6 +87,18 @@ class Employee extends Model
     public function statutoryDetails(): HasOne
     {
         return $this->hasOne(EmployeeStatutoryDetail::class);
+    }
+
+    public function currentSalary(): HasOne
+    {
+        $today = today()->toDateString();
+
+        return $this->hasOne(EmployeeSalary::class)
+            ->whereDate('effective_from', '<=', $today)
+            ->where(function ($query) use ($today): void {
+                $query->whereNull('effective_to')->orWhereDate('effective_to', '>=', $today);
+            })
+            ->orderByDesc('effective_from');
     }
 
     public function getFullNameAttribute(): string

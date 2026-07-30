@@ -2,8 +2,8 @@
 
 namespace App\Modules\Payroll\Support;
 
+use App\Modules\Payroll\Models\EmployeeSalaryComponentOverride;
 use App\Modules\Payroll\Models\SalaryComponent;
-use App\Modules\Payroll\Models\SalaryStructure;
 
 /**
  * Turns a basic salary + structure into a concrete kobo breakdown. Pure and
@@ -14,15 +14,53 @@ class SalaryResolver
     /**
      * @param  int  $basic  monthly basic salary in kobo
      * @param  iterable<object{amount:?int,percent:?int,component:SalaryComponent}>  $structureComponents
-     *         each having ->amount (kobo|null), ->percent (int|null), ->component (SalaryComponent)
+     *                                                                                                     each having ->amount (kobo|null), ->percent (int|null), ->component (SalaryComponent)
+     * @param  iterable<EmployeeSalaryComponentOverride>  $componentOverrides
      */
-    public function resolve(int $basic, iterable $structureComponents): SalaryBreakdown
+    public function resolve(int $basic, iterable $structureComponents, iterable $componentOverrides = []): SalaryBreakdown
     {
         $earnings = [];
         $deductions = [];
+        $employerContributions = [];
+        $fringeBenefits = [];
+        $effectiveLines = [];
 
         foreach ($structureComponents as $line) {
+            if ($line->component === null) {
+                continue;
+            }
+
+            $effectiveLines[$this->componentKey($line->component)] = $line;
+        }
+
+        foreach ($componentOverrides as $override) {
+            if ($override->component === null || $override->component->isReservedBasicSalaryComponent()) {
+                continue;
+            }
+
+            $key = $this->componentKey($override->component);
+            if ($override->mode === EmployeeSalaryComponentOverride::MODE_EXCLUDED) {
+                unset($effectiveLines[$key]);
+
+                continue;
+            }
+
+            $effectiveLines[$key] = (object) [
+                'amount' => $override->amount,
+                'percent' => $override->percent,
+                'component' => $override->component,
+            ];
+        }
+
+        foreach ($effectiveLines as $line) {
             $component = $line->component;
+
+            // Basic salary is the canonical employee-level value. Ignore any
+            // legacy structure component that would otherwise count it twice.
+            if ($component->isReservedBasicSalaryComponent()) {
+                continue;
+            }
+
             $amount = $this->lineAmount($basic, $line, $component);
 
             if ($component->type === SalaryComponent::TYPE_DEDUCTION) {
@@ -30,6 +68,28 @@ class SalaryResolver
                     'code' => $component->code,
                     'name' => $component->name,
                     'amount' => $amount,
+                ];
+
+                continue;
+            }
+
+            if ($component->type === SalaryComponent::TYPE_EMPLOYER_CONTRIBUTOR) {
+                $employerContributions[] = [
+                    'code' => $component->code,
+                    'name' => $component->name,
+                    'amount' => $amount,
+                ];
+
+                continue;
+            }
+
+            if ($component->type === SalaryComponent::TYPE_FRINGE_BENEFIT) {
+                $fringeBenefits[] = [
+                    'code' => $component->code,
+                    'name' => $component->name,
+                    'amount' => $amount,
+                    'is_taxable' => (bool) $component->is_taxable,
+                    'is_pensionable' => (bool) $component->is_pensionable,
                 ];
 
                 continue;
@@ -44,7 +104,7 @@ class SalaryResolver
             ];
         }
 
-        return new SalaryBreakdown($basic, $earnings, $deductions);
+        return new SalaryBreakdown($basic, $earnings, $deductions, $employerContributions, $fringeBenefits);
     }
 
     /**
@@ -74,5 +134,12 @@ class SalaryResolver
     private function percentOfBasic(int $basic, int $percent): int
     {
         return (int) round($basic * $percent / 100);
+    }
+
+    private function componentKey(SalaryComponent $component): string
+    {
+        return $component->getKey() !== null
+            ? 'id:'.$component->getKey()
+            : 'code:'.strtoupper($component->code);
     }
 }

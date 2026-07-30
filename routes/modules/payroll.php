@@ -25,6 +25,8 @@ Route::delete('salary-structures/{salaryStructure}', [SalaryStructureController:
 // Employee salary (history + resolved breakdown)
 Route::get('employees/{employee}/salary', [EmployeeSalaryController::class, 'show'])->name('v1.employees.salary.show');
 Route::post('employees/{employee}/salary', [EmployeeSalaryController::class, 'store'])->name('v1.employees.salary.store');
+Route::get('employees/{employee}/salary-history', [EmployeeSalaryController::class, 'history'])->name('v1.employees.salary.history');
+Route::post('employees/{employee}/salary/increase', [EmployeeSalaryController::class, 'increase'])->name('v1.employees.salary.increase');
 
 // Payroll runs
 Route::get('payroll/preflight', [PayrollRunController::class, 'preflight'])->name('v1.payroll.preflight');

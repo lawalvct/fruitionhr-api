@@ -16,11 +16,11 @@ use App\Modules\Leave\Services\LeaveService;
 use App\Modules\Payroll\Models\PayrollItem;
 use App\Modules\Payroll\Models\PayrollRun;
 use App\Modules\Payroll\Models\PayrollRunEmployee;
+use App\Modules\SelfService\Models\ProfileUpdateRequest;
 use App\Modules\SelfService\Requests\StoreProfileUpdateRequest;
 use App\Modules\SelfService\Requests\StoreSelfLeaveRequest;
 use App\Modules\SelfService\Resources\PayslipResource;
 use App\Modules\SelfService\Resources\ProfileUpdateRequestResource;
-use App\Modules\SelfService\Models\ProfileUpdateRequest;
 use App\Modules\SelfService\Services\ProfileUpdateService;
 use App\Support\Authorization\Permissions;
 use App\Support\Money\Naira;
@@ -253,6 +253,7 @@ class SelfServiceController extends Controller
         $earnings = $items->where('category', PayrollItem::CATEGORY_EARNING);
         $deductions = $items->whereIn('category', [PayrollItem::CATEGORY_STATUTORY, PayrollItem::CATEGORY_DEDUCTION]);
         $employerContributions = $items->where('category', PayrollItem::CATEGORY_EMPLOYER);
+        $fringeBenefits = $items->where('category', PayrollItem::CATEGORY_FRINGE_BENEFIT);
         $payDate = $payslip->run->locked_at ?? $payslip->run->approved_at ?? $payslip->run->submitted_at;
 
         $pdf = Pdf::loadView('payroll.payslip', [
@@ -268,6 +269,7 @@ class SelfServiceController extends Controller
             'earnings' => $earnings->map($this->payslipLine(...))->values(),
             'deductions' => $deductions->map($this->payslipLine(...))->values(),
             'employerContributions' => $employerContributions->map($this->payslipLine(...))->values(),
+            'fringeBenefits' => $fringeBenefits->map($this->payslipLine(...))->values(),
             'grossFormatted' => Naira::format($payslip->gross),
             'deductionsFormatted' => Naira::format($payslip->total_deductions),
             'netFormatted' => Naira::format($payslip->net),

@@ -157,6 +157,13 @@
         </tr>
     </table>
 
+    @if (!empty($fringeBenefits) && count($fringeBenefits))
+        <div class="employer-note">
+            <strong>Fringe benefits (non-cash)</strong> (taxable benefit in kind; not included in cash gross or net pay):
+            {{ collect($fringeBenefits)->map(fn ($item) => "{$item['name']}: {$item['formatted']}")->implode('  ·  ') }}
+        </div>
+    @endif
+
     @if (!empty($employerContributions) && count($employerContributions))
         <div class="employer-note">
             <strong>Employer contributions</strong> (informational — does not affect net pay):

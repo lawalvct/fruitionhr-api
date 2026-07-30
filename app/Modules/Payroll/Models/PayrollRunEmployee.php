@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'payroll_run_id', 'employee_id', 'snapshot', 'gross', 'taxable_pay',
     'pensionable_pay', 'total_statutory', 'total_deductions', 'net',
-    'pension_employer', 'nsitf',
+    'pension_employer', 'nsitf', 'employer_contributions',
 ])]
 class PayrollRunEmployee extends Model
 {
@@ -30,6 +30,7 @@ class PayrollRunEmployee extends Model
             'net' => 'integer',
             'pension_employer' => 'integer',
             'nsitf' => 'integer',
+            'employer_contributions' => 'integer',
         ];
     }
 

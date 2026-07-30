@@ -21,8 +21,7 @@ class ReversePayrollRun
         private readonly PayrollRunState $state,
         private readonly OvertimeService $overtime,
         private readonly LoanService $loans,
-    ) {
-    }
+    ) {}
 
     public function execute(PayrollRun $run, User $user, string $reason): PayrollRun
     {
@@ -65,6 +64,7 @@ class ReversePayrollRun
                     'net' => -$line->net,
                     'pension_employer' => -$line->pension_employer,
                     'nsitf' => -$line->nsitf,
+                    'employer_contributions' => -$line->employer_contributions,
                 ]);
 
                 $mirror->items()->createMany(

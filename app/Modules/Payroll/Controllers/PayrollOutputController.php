@@ -36,6 +36,7 @@ class PayrollOutputController extends Controller
         $earnings = $items->where('category', PayrollItem::CATEGORY_EARNING);
         $deductions = $items->whereIn('category', [PayrollItem::CATEGORY_STATUTORY, PayrollItem::CATEGORY_DEDUCTION]);
         $employerContributions = $items->where('category', PayrollItem::CATEGORY_EMPLOYER);
+        $fringeBenefits = $items->where('category', PayrollItem::CATEGORY_FRINGE_BENEFIT);
         $payDate = $payrollRun->locked_at ?? $payrollRun->approved_at ?? $payrollRun->submitted_at;
 
         $pdf = Pdf::loadView('payroll.payslip', [
@@ -51,6 +52,7 @@ class PayrollOutputController extends Controller
             'earnings' => $earnings->map($this->line(...))->values(),
             'deductions' => $deductions->map($this->line(...))->values(),
             'employerContributions' => $employerContributions->map($this->line(...))->values(),
+            'fringeBenefits' => $fringeBenefits->map($this->line(...))->values(),
             'grossFormatted' => Naira::format($runEmployee->gross),
             'deductionsFormatted' => Naira::format($runEmployee->total_deductions),
             'netFormatted' => Naira::format($runEmployee->net),

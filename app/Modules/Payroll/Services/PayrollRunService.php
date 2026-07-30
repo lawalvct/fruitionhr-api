@@ -23,8 +23,7 @@ class PayrollRunService
         private readonly WorkflowService $workflow,
         private readonly OvertimeService $overtime,
         private readonly LoanService $loans,
-    ) {
-    }
+    ) {}
 
     /**
      * Create a run for the period (preflight must pass) and dispatch the
@@ -103,7 +102,7 @@ class PayrollRunService
                         $totals['total_statutory'] += $line->total_statutory;
                         $totals['total_deductions'] += $line->total_deductions;
                         $totals['total_net'] += $line->net;
-                        $totals['total_employer_cost'] += $line->pension_employer + $line->nsitf;
+                        $totals['total_employer_cost'] += $line->pension_employer + $line->nsitf + $line->employer_contributions;
                     }
                 });
 

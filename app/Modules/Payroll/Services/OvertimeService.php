@@ -10,6 +10,7 @@ use App\Modules\Payroll\Models\EmployeeSalary;
 use App\Modules\Payroll\Models\OvertimePayment;
 use App\Modules\Payroll\Models\PayrollRun;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
@@ -36,11 +37,15 @@ class OvertimeService
     /**
      * Derived hourly rate (kobo) from the employee's current basic salary.
      */
-    public function hourlyRateFor(Employee $employee): int
+    public function hourlyRateFor(Employee $employee, ?string $period = null): int
     {
+        $effectiveDate = $period
+            ? Carbon::createFromFormat('Y-m', $period)->startOfMonth()
+            : today();
         $salary = EmployeeSalary::query()
             ->where('employee_id', $employee->id)
-            ->where('is_current', true)
+            ->effectiveOn($effectiveDate)
+            ->orderByDesc('effective_from')
             ->first();
 
         if ($salary === null) {
@@ -67,7 +72,7 @@ class OvertimeService
         $hourlyRate = null;
 
         if ($payType === OvertimePayment::PAY_TYPE_HOURLY) {
-            $hourlyRate = $this->hourlyRateFor($employee);
+            $hourlyRate = $this->hourlyRateFor($employee, $data['period']);
             $amount = $this->priceHourly($hours ?? 0, $hourlyRate, $multiplier);
         } else {
             $multiplier = 1;
@@ -105,7 +110,7 @@ class OvertimeService
     ): OvertimePayment {
         $employee = $summary->employee()->firstOrFail();
         $hours = round($summary->overtime_minutes / 60, 2);
-        $hourlyRate = $this->hourlyRateFor($employee);
+        $hourlyRate = $this->hourlyRateFor($employee, $summary->period);
 
         return OvertimePayment::query()->create([
             'employee_id' => $employee->id,
@@ -141,7 +146,10 @@ class OvertimeService
         $hours = array_key_exists('hours', $data) ? (float) $data['hours'] : $overtime->hours;
 
         if ($payType === OvertimePayment::PAY_TYPE_HOURLY) {
-            $hourlyRate = $this->hourlyRateFor($overtime->employee()->firstOrFail());
+            $hourlyRate = $this->hourlyRateFor(
+                $overtime->employee()->firstOrFail(),
+                $data['period'] ?? $overtime->period,
+            );
             $amount = $this->priceHourly($hours ?? 0, $hourlyRate, $multiplier);
             $overtime->fill(['hours' => $hours, 'multiplier' => $multiplier, 'hourly_rate' => $hourlyRate, 'amount' => $amount]);
         } else {
