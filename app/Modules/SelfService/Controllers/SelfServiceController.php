@@ -16,6 +16,9 @@ use App\Modules\Leave\Services\LeaveService;
 use App\Modules\Payroll\Models\PayrollItem;
 use App\Modules\Payroll\Models\PayrollRun;
 use App\Modules\Payroll\Models\PayrollRunEmployee;
+use App\Modules\Payroll\Models\StaffLoan;
+use App\Modules\Payroll\Resources\StaffLoanResource;
+use App\Modules\Payroll\Services\LoanService;
 use App\Modules\SelfService\Models\ProfileUpdateRequest;
 use App\Modules\SelfService\Requests\StoreProfileUpdateRequest;
 use App\Modules\SelfService\Requests\StoreSelfLeaveRequest;
@@ -30,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class SelfServiceController extends Controller
 {
@@ -236,6 +240,35 @@ class SelfServiceController extends Controller
             ->get();
 
         return PayslipResource::collection($payslips);
+    }
+
+    public function loanRequests(Request $request)
+    {
+        abort_unless($request->user()->can(Permissions::ESS_LOANS_VIEW), 403);
+        $employee = $this->employeeFor($request, withProfile: false);
+
+        return StaffLoanResource::collection(StaffLoan::query()
+            ->where('employee_id', $employee->id)
+            ->latest('id')
+            ->get());
+    }
+
+    public function storeLoanRequest(Request $request, LoanService $loans)
+    {
+        abort_unless($request->user()->can(Permissions::ESS_LOANS_REQUEST), 403);
+        $employee = $this->employeeFor($request, withProfile: false);
+        $data = $request->validate([
+            'type' => ['required', Rule::in([StaffLoan::TYPE_ADVANCE, StaffLoan::TYPE_LOAN])],
+            'principal' => ['required', 'integer', 'gt:0'],
+            'months' => ['required_if:type,'.StaffLoan::TYPE_LOAN, 'nullable', 'integer', 'min:1', 'max:60'],
+            'start_period' => ['required', 'date_format:Y-m'],
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $loan = $loans->create([...$data, 'employee_id' => $employee->id], $request->user());
+        $loans->submit($loan, $request->user());
+
+        return (new StaffLoanResource($loan->refresh()))->response()->setStatusCode(201);
     }
 
     public function downloadPayslip(Request $request, PayrollRunEmployee $payslip)

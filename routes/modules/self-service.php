@@ -20,4 +20,9 @@ Route::prefix('self')->name('v1.self.')->group(function (): void {
 
     Route::get('payslips', [SelfServiceController::class, 'payslips'])->name('payslips.index');
     Route::get('payslips/{payslip}/download', [SelfServiceController::class, 'downloadPayslip'])->name('payslips.download');
+
+    Route::get('loan-requests', [SelfServiceController::class, 'loanRequests'])->name('loan-requests.index');
+    Route::post('loan-requests', [SelfServiceController::class, 'storeLoanRequest'])
+        ->middleware('throttle:6,1')
+        ->name('loan-requests.store');
 });

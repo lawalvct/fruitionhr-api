@@ -10,6 +10,7 @@ use App\Core\Workflow\Models\WorkflowRequest;
 use App\Core\Workflow\Models\WorkflowStep;
 use App\Models\User;
 use App\Support\Tenancy\CurrentTenant;
+use App\Support\Authorization\Permissions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -124,10 +125,16 @@ class WorkflowService
             'completed_at' => now(),
         ]);
 
+        $requesterActionUrl = $request->module === 'loan'
+            && $request->requester->can(Permissions::ESS_LOANS_VIEW)
+            && ! $request->requester->can(Permissions::LOANS_VIEW)
+                ? '/self-service/loans'
+                : '/approvals';
+
         $request->requester->notify(new SystemNotification(
             title: ucfirst($request->module).' request '.$status,
             body: "Your {$request->module} request has been {$status}.",
-            actionUrl: '/approvals',
+            actionUrl: $requesterActionUrl,
             type: $status === WorkflowRequest::STATUS_APPROVED ? 'success' : 'warning',
         ));
 
@@ -145,7 +152,11 @@ class WorkflowService
 
         $approvers = User::query()
             ->where('tenant_id', $tenantId)
-            ->role($step->approver_role)
+            ->when(
+                $request->module === 'loan',
+                fn ($query) => $query->permission(Permissions::LOANS_APPROVE),
+                fn ($query) => $query->role($step->approver_role),
+            )
             ->get();
 
         Notification::send($approvers, new SystemNotification(

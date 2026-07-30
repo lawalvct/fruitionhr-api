@@ -7,6 +7,7 @@ use App\Core\Workflow\Resources\WorkflowRequestResource;
 use App\Core\Workflow\WorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use App\Modules\Payroll\Models\StaffLoan;
 
 class ApprovalController extends Controller
 {
@@ -31,6 +32,7 @@ class ApprovalController extends Controller
             ->with(['currentStep', 'requester', 'record', 'actions.actor'])
             ->latest('submitted_at')
             ->get();
+        $pendingForMe->loadMorph('record', [StaffLoan::class => ['employee']]);
 
         $mine = WorkflowRequest::query()
             ->where('requested_by', $user->id)
@@ -38,6 +40,7 @@ class ApprovalController extends Controller
             ->latest('submitted_at')
             ->limit(30)
             ->get();
+        $mine->loadMorph('record', [StaffLoan::class => ['employee']]);
 
         return response()->json([
             'data' => [

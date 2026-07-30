@@ -63,6 +63,8 @@ class Permissions
     public const ESS_ATTENDANCE_VIEW = 'ess.attendance.view';
     public const ESS_ATTENDANCE_CLOCK = 'ess.attendance.clock';
     public const ESS_PAYSLIPS_VIEW = 'ess.payslips.view';
+    public const ESS_LOANS_VIEW = 'ess.loans.view';
+    public const ESS_LOANS_REQUEST = 'ess.loans.request';
 
     // Manager self-service (MSS)
     public const MSS_APPROVALS_VIEW = 'mss.approvals.view';
@@ -123,6 +125,8 @@ class Permissions
             self::ESS_ATTENDANCE_VIEW,
             self::ESS_ATTENDANCE_CLOCK,
             self::ESS_PAYSLIPS_VIEW,
+            self::ESS_LOANS_VIEW,
+            self::ESS_LOANS_REQUEST,
             self::MSS_APPROVALS_VIEW,
             self::MSS_TEAM_VIEW,
             self::RECRUITMENT_VIEW,
@@ -178,6 +182,8 @@ class Permissions
                 self::ESS_ATTENDANCE_VIEW,
                 self::ESS_ATTENDANCE_CLOCK,
                 self::ESS_PAYSLIPS_VIEW,
+                self::ESS_LOANS_VIEW,
+                self::ESS_LOANS_REQUEST,
                 self::MSS_APPROVALS_VIEW,
                 self::MSS_TEAM_VIEW,
                 self::RECRUITMENT_VIEW,
@@ -207,6 +213,8 @@ class Permissions
                 self::ESS_ATTENDANCE_VIEW,
                 self::ESS_ATTENDANCE_CLOCK,
                 self::ESS_PAYSLIPS_VIEW,
+                self::ESS_LOANS_VIEW,
+                self::ESS_LOANS_REQUEST,
                 self::MSS_APPROVALS_VIEW,
                 self::MSS_TEAM_VIEW,
                 self::RECRUITMENT_VIEW,
@@ -225,6 +233,8 @@ class Permissions
                 self::ESS_ATTENDANCE_VIEW,
                 self::ESS_ATTENDANCE_CLOCK,
                 self::ESS_PAYSLIPS_VIEW,
+                self::ESS_LOANS_VIEW,
+                self::ESS_LOANS_REQUEST,
                 self::PERFORMANCE_REVIEW,
                 self::GOALS_VIEW,
                 self::GOALS_MANAGE,

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Leave\Models\LeavePolicy;
 use App\Modules\Leave\Models\LeaveType;
+use App\Modules\Payroll\Models\StaffLoan;
 use App\Modules\SelfService\Models\ProfileUpdateRequest;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
@@ -53,7 +54,54 @@ beforeEach(function (): void {
 test('employee role receives self service permissions by default', function (): void {
     expect($this->employeeUser->can(Permissions::ESS_PROFILE_VIEW))->toBeTrue()
         ->and($this->employeeUser->can(Permissions::ESS_LEAVE_APPLY))->toBeTrue()
+        ->and($this->employeeUser->can(Permissions::ESS_LOANS_REQUEST))->toBeTrue()
         ->and($this->employeeUser->can(Permissions::PAYROLL_VIEW))->toBeFalse();
+});
+
+test('employee can request an IOU or loan and receives the approval decision notification', function (): void {
+    $manager = User::factory()->create(['tenant_id' => $this->tenant->id, 'status' => User::STATUS_ACTIVE]);
+    $manager->assignRole('manager');
+    $owner = User::factory()->create(['tenant_id' => $this->tenant->id, 'status' => User::STATUS_ACTIVE]);
+    $owner->assignRole('owner');
+
+    $this->postJson('/api/v1/self/loan-requests', [
+        'type' => StaffLoan::TYPE_ADVANCE,
+        'principal' => 5_000_000,
+        'start_period' => '2026-08',
+        'reason' => 'Emergency household expense',
+    ])->assertCreated()
+        ->assertJsonPath('data.employee_id', $this->employee->id)
+        ->assertJsonPath('data.status', StaffLoan::STATUS_PENDING)
+        ->assertJsonPath('data.months', 1);
+
+    expect($manager->unreadNotifications()->count())->toBe(1)
+        ->and($this->hr->unreadNotifications()->count())->toBe(1)
+        ->and($owner->unreadNotifications()->count())->toBe(1)
+        ->and($owner->unreadNotifications()->firstOrFail()->data['action_url'])->toBe('/approvals');
+
+    $this->actingAs($manager)->getJson('/api/v1/approvals')
+        ->assertOk()
+        ->assertJsonPath('data.pending_for_me.0.record_details.kind', 'money_request')
+        ->assertJsonPath('data.pending_for_me.0.record_details.principal', 5_000_000)
+        ->assertJsonPath('data.pending_for_me.0.record_details.monthly_installment', 5_000_000)
+        ->assertJsonPath('data.pending_for_me.0.record_details.reason', 'Emergency household expense')
+        ->assertJsonPath('data.pending_for_me.0.record_details.employee.number', 'EMP-0001');
+
+    $this->actingAs($this->employeeUser);
+
+    $this->getJson('/api/v1/self/loan-requests')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.principal', 5_000_000);
+
+    $workflow = WorkflowRequest::query()->where('module', 'loan')->firstOrFail();
+    app(WorkflowService::class)->act($workflow, $manager, 'approve');
+    app(WorkflowService::class)->act($workflow->refresh(), $this->hr, 'approve');
+
+    expect(StaffLoan::query()->firstOrFail()->status)->toBe(StaffLoan::STATUS_ACTIVE)
+        ->and($this->employeeUser->unreadNotifications()->count())->toBeGreaterThan(0)
+        ->and($this->employeeUser->notifications()->latest()->firstOrFail()->data['title'])->toContain('approved')
+        ->and($this->employeeUser->notifications()->latest()->firstOrFail()->data['action_url'])->toBe('/self-service/loans');
 });
 
 test('employee can view their linked profile only', function (): void {
