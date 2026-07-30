@@ -13,6 +13,10 @@ class EmployeeResource extends JsonResource
             'id' => $this->id,
             'employee_number' => $this->employee_number,
             'user_id' => $this->user_id,
+            'ess_account' => $this->whenLoaded('user', fn () => $this->user ? [
+                'email' => $this->user->email,
+                'status' => $this->user->status,
+            ] : null),
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,

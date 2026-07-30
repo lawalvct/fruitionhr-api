@@ -13,6 +13,9 @@ Route::apiResource('employees', EmployeeController::class);
 Route::post('employees/{employee}/assignments', [EmployeeController::class, 'assign']);
 Route::get('employees/{employee}/photo', [EmployeeController::class, 'showPhoto'])->name('employees.photo.show');
 Route::post('employees/{employee}/photo', [EmployeeController::class, 'uploadPhoto']);
+Route::post('employees/{employee}/ess-access', [EmployeeController::class, 'provisionEss'])
+    ->middleware('throttle:6,1')
+    ->name('employees.ess-access');
 
 Route::post('employees/{employee}/contacts', [EmployeeContactController::class, 'store']);
 Route::put('employees/{employee}/contacts/{contact}', [EmployeeContactController::class, 'update']);

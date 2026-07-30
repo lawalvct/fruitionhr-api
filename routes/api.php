@@ -2,6 +2,7 @@
 
 use App\Modules\Auth\Controllers\AuthController;
 use App\Modules\Auth\Controllers\EmailVerificationController;
+use App\Modules\Auth\Controllers\EssInvitationController;
 use App\Modules\Auth\Controllers\ProfileController;
 use App\Modules\Tenancy\Controllers\RegisterTenantController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,10 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/login', [AuthController::class, 'login'])
         ->middleware('throttle:10,1')
         ->name('v1.login');
+
+    Route::post('/ess-invitations/accept', [EssInvitationController::class, 'accept'])
+        ->middleware('throttle:10,1')
+        ->name('v1.ess-invitations.accept');
 
     require __DIR__.'/modules/reference.php';
     require __DIR__.'/modules/public-recruitment.php';

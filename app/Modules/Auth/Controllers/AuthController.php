@@ -55,7 +55,9 @@ class AuthController extends Controller
             Auth::guard('web')->logout();
 
             throw ValidationException::withMessages([
-                'email' => ['This account is disabled.'],
+                'email' => [$user->status === User::STATUS_INVITED
+                    ? 'Finish setting up your employee account using the invitation sent by HR.'
+                    : 'This account is disabled.'],
             ]);
         }
 

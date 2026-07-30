@@ -4,6 +4,7 @@ namespace App\Modules\Employee\Controllers;
 
 use App\Modules\Employee\Actions\AssignEmployee;
 use App\Modules\Employee\Actions\CreateEmployee;
+use App\Modules\Employee\Actions\ProvisionEssAccess;
 use App\Modules\Employee\Exports\EmployeesExport;
 use App\Modules\Employee\Exports\EmployeeImportTemplateExport;
 use App\Modules\Employee\Imports\EmployeesImport;
@@ -26,7 +27,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-
 class EmployeeController extends Controller
 {
     public function index(Request $request): mixed
@@ -153,6 +153,21 @@ class EmployeeController extends Controller
         return new EmployeeResource($this->loadProfile($employee));
     }
 
+    public function provisionEss(Request $request, Employee $employee, ProvisionEssAccess $provision): JsonResponse
+    {
+        abort_unless($request->user()->can(Permissions::USERS_MANAGE), 403);
+
+        $user = $provision->execute($employee);
+
+        return response()->json(['data' => [
+            'email' => $user->email,
+            'status' => $user->status,
+            'message' => $user->status === \App\Models\User::STATUS_INVITED
+                ? 'ESS invitation sent.'
+                : 'ESS access is already active.',
+        ]]);
+    }
+
     public function update(UpdateEmployeeRequest $request, Employee $employee, AssignEmployee $assignEmployee): EmployeeResource
     {
         Gate::authorize('update', $employee);
@@ -256,6 +271,7 @@ class EmployeeController extends Controller
             'contacts',
             'bankAccounts',
             'statutoryDetails',
+            'user',
         ]);
     }
 

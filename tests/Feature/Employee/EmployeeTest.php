@@ -12,6 +12,9 @@ use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Http\UploadedFile;
+use App\Modules\Auth\Notifications\EssInvitationNotification;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 
 function actingAsEmployeeOwner(): array
 {
@@ -33,6 +36,52 @@ function actingAsEmployeeOwner(): array
 
 beforeEach(function (): void {
     [$this->tenant, $this->user] = actingAsEmployeeOwner();
+});
+
+test('admin can invite an employee to ESS and employee can set a password', function (): void {
+    Notification::fake();
+    $employee = Employee::factory()->create([
+        'first_name' => 'Ada',
+        'last_name' => 'Okafor',
+        'official_email' => 'ada.ess@example.test',
+        'user_id' => null,
+    ]);
+
+    $this->postJson("/api/v1/employees/{$employee->id}/ess-access")
+        ->assertOk()
+        ->assertJsonPath('data.status', User::STATUS_INVITED)
+        ->assertJsonPath('data.email', 'ada.ess@example.test');
+
+    $employee->refresh();
+    $essUser = User::query()->findOrFail($employee->user_id);
+    expect($essUser->hasRole('employee'))->toBeTrue();
+
+    $token = null;
+    Notification::assertSentTo($essUser, EssInvitationNotification::class, function (EssInvitationNotification $notification) use (&$token): bool {
+        parse_str((string) parse_url($notification->setupUrl, PHP_URL_QUERY), $query);
+        $token = $query['token'] ?? null;
+        return ($query['email'] ?? null) === 'ada.ess@example.test' && is_string($token);
+    });
+
+    $this->postJson('/api/v1/ess-invitations/accept', [
+        'email' => $essUser->email,
+        'token' => $token,
+        'password' => 'SecurePass123!',
+        'password_confirmation' => 'SecurePass123!',
+    ])->assertOk();
+
+    $essUser->refresh();
+    expect($essUser->status)->toBe(User::STATUS_ACTIVE)
+        ->and($essUser->email_verified_at)->not->toBeNull()
+        ->and(Hash::check('SecurePass123!', $essUser->password))->toBeTrue();
+});
+
+test('employee email is required before ESS access can be enabled', function (): void {
+    $employee = Employee::factory()->create(['official_email' => null, 'personal_email' => null]);
+
+    $this->postJson("/api/v1/employees/{$employee->id}/ess-access")
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('email');
 });
 
 test('employees can be created listed shown updated and deleted', function (): void {
