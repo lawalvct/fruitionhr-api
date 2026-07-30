@@ -45,7 +45,7 @@ class SelfAttendanceClockService
         $now = $this->now();
 
         return DB::transaction(function () use ($employee, $actingUserId, $now, $kioskId) {
-            $this->guardSelfClockEnabled();
+            $this->guardClockMethodEnabled($kioskId);
             $this->guardOpenPeriod($now->format('Y-m'));
 
             $log = AttendanceLog::query()
@@ -80,12 +80,12 @@ class SelfAttendanceClockService
         });
     }
 
-    public function clockOut(Employee $employee, int $actingUserId): array
+    public function clockOut(Employee $employee, int $actingUserId, ?int $kioskId = null): array
     {
         $now = $this->now();
 
-        return DB::transaction(function () use ($employee, $actingUserId, $now) {
-            $this->guardSelfClockEnabled();
+        return DB::transaction(function () use ($employee, $actingUserId, $now, $kioskId) {
+            $this->guardClockMethodEnabled($kioskId);
             $this->guardOpenPeriod($now->format('Y-m'));
 
             $today = AttendanceLog::query()
@@ -97,7 +97,7 @@ class SelfAttendanceClockService
             if ($today !== null && $today->source === AttendanceLog::SOURCE_SELF && $today->clock_in !== null) {
                 $this->assertNotAlreadyOut($today);
 
-                $today->update(['clock_out' => $now->format('H:i:s')]);
+                $today->update(['clock_out' => $now->format('H:i:s'), 'kiosk_id' => $kioskId ?? $today->kiosk_id]);
 
                 return $this->present($employee, $now, $today->fresh());
             }
@@ -118,7 +118,7 @@ class SelfAttendanceClockService
                 if ($previous !== null && $previous->source === AttendanceLog::SOURCE_SELF && $previous->clock_in !== null) {
                     $this->assertNotAlreadyOut($previous);
 
-                    $previous->update(['clock_out' => $now->format('H:i:s')]);
+                    $previous->update(['clock_out' => $now->format('H:i:s'), 'kiosk_id' => $kioskId ?? $previous->kiosk_id]);
 
                     return $this->present($employee, $yesterday, $previous->fresh());
                 }
@@ -145,9 +145,17 @@ class SelfAttendanceClockService
         }
     }
 
-    private function guardSelfClockEnabled(): void
+    private function guardClockMethodEnabled(?int $kioskId): void
     {
-        if (! $this->tenant->get()->attendanceSelfClockEnabled()) {
+        $tenant = $this->tenant->get();
+
+        if ($kioskId !== null && ! $tenant->attendanceKioskEnabled()) {
+            throw ValidationException::withMessages([
+                'clock' => ['QR kiosk scanning is disabled for your organisation. Contact HR.'],
+            ]);
+        }
+
+        if ($kioskId === null && ! $tenant->attendanceSelfClockEnabled()) {
             throw ValidationException::withMessages([
                 'clock' => ['Self clock-in is disabled for your organisation. Contact HR.'],
             ]);

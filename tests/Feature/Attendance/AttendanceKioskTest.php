@@ -103,8 +103,8 @@ test('clocking in with a valid kiosk token stamps the kiosk on the log', functio
     $log = AttendanceLog::query()->where('employee_id', $employee->id)->sole();
     expect($log->kiosk_id)->toBe($kiosk->id);
 
-    // Single-use: the same token can't be reused by a second clock-in.
-    expect(KioskToken::consume($token, $this->tenant->id))->toBeNull();
+    // A displayed kiosk code remains usable by other employees until expiry.
+    expect(KioskToken::consume($token, $this->tenant->id))->toBe($kiosk->id);
 });
 
 test('clocking in without a kiosk token still works and has no kiosk attribution', function (): void {

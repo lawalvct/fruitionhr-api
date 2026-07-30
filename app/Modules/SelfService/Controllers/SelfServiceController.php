@@ -217,13 +217,43 @@ class SelfServiceController extends Controller
         return response()->json(['data' => $clock->clockIn($employee, $request->user()->id, $kioskId)], 201);
     }
 
-    public function clockOut(Request $request, SelfAttendanceClockService $clock)
+    public function clockOut(Request $request, SelfAttendanceClockService $clock, CurrentTenant $tenant)
     {
         abort_unless($request->user()->can(Permissions::ESS_ATTENDANCE_CLOCK), 403);
 
         $employee = $this->employeeFor($request, withProfile: false);
 
-        return response()->json(['data' => $clock->clockOut($employee, $request->user()->id)]);
+        $kioskId = $request->filled('kiosk_token')
+            ? KioskToken::consume($request->string('kiosk_token')->toString(), $tenant->id())
+            : null;
+
+        return response()->json(['data' => $clock->clockOut($employee, $request->user()->id, $kioskId)]);
+    }
+
+    public function kioskClock(Request $request, SelfAttendanceClockService $clock, CurrentTenant $tenant)
+    {
+        abort_unless($request->user()->can(Permissions::ESS_ATTENDANCE_CLOCK), 403);
+
+        $request->validate(['kiosk_token' => ['required', 'string']]);
+        $employee = $this->employeeFor($request, withProfile: false);
+        $kioskId = KioskToken::consume($request->string('kiosk_token')->toString(), $tenant->id());
+
+        if ($kioskId === null) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'kiosk_token' => ['This QR code has expired. Scan the current code displayed on the kiosk.'],
+            ]);
+        }
+
+        $today = $clock->today($employee);
+        $data = match ($today['state']) {
+            'not_clocked_in' => $clock->clockIn($employee, $request->user()->id, $kioskId),
+            'clocked_in' => $clock->clockOut($employee, $request->user()->id, $kioskId),
+            default => throw \Illuminate\Validation\ValidationException::withMessages([
+                'clock' => ['You have already clocked out today.'],
+            ]),
+        };
+
+        return response()->json(['data' => $data]);
     }
 
     public function payslips(Request $request)

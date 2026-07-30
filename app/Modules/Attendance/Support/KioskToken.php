@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
  */
 class KioskToken
 {
-    public const TTL_SECONDS = 30;
+    public const TTL_SECONDS = 90;
 
     public static function mint(int $tenantId, int $kioskId): string
     {
@@ -26,13 +26,15 @@ class KioskToken
     }
 
     /**
-     * Validates and consumes (single-use) a token for the given tenant.
+     * Validates a shared rotating token for the given tenant.
      * Returns the kiosk_id on success, null on any failure — expired,
      * unknown, or minted under a different tenant.
      */
     public static function consume(string $token, int $tenantId): ?int
     {
-        $payload = Cache::pull(self::cacheKey($token));
+        // This is a shared, rotating kiosk code. Keep it valid for its short
+        // TTL so multiple employees and a repeat clock-out scan can use it.
+        $payload = Cache::get(self::cacheKey($token));
 
         if ($payload === null || $payload['tenant_id'] !== $tenantId) {
             return null;

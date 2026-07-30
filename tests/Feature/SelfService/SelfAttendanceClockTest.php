@@ -1,9 +1,11 @@
 <?php
 
 use App\Modules\Attendance\Models\AttendanceLog;
+use App\Modules\Attendance\Models\AttendanceKiosk;
 use App\Modules\Attendance\Models\AttendanceSummary;
 use App\Modules\Attendance\Models\Shift;
 use App\Modules\Attendance\Models\ShiftAssignment;
+use App\Modules\Attendance\Support\KioskToken;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
@@ -197,6 +199,33 @@ test('self clock-in is blocked when the tenant has disabled it', function (): vo
         ->assertJsonPath('message', 'Self clock-in is disabled for your organisation. Contact HR.');
 
     expect(AttendanceLog::query()->where('employee_id', $this->employee->id)->count())->toBe(0);
+});
+
+test('QR clock in and out remain available when only ESS buttons are disabled', function (): void {
+    Shift::factory()->create(['start_time' => '08:00', 'end_time' => '17:00']);
+    $kiosk = AttendanceKiosk::query()->create(['name' => 'Reception']);
+    $this->tenant->update(['settings' => ['attendance' => ['self_clock_enabled' => false, 'kiosk_enabled' => true]]]);
+    $this->employeeUser->unsetRelation('tenant');
+    $token = KioskToken::mint($this->tenant->id, $kiosk->id);
+
+    freezeAt('2026-07-06 08:00:00');
+    $this->postJson('/api/v1/self/attendance/kiosk-clock', [
+        'kiosk_token' => $token,
+    ])->assertOk()->assertJsonPath('data.state', 'clocked_in');
+
+    freezeAt('2026-07-06 08:01:00');
+    $this->postJson('/api/v1/self/attendance/kiosk-clock', [
+        'kiosk_token' => $token,
+    ])->assertOk()->assertJsonPath('data.state', 'clocked_out');
+});
+
+test('an invalid kiosk code returns an expiry message instead of the ESS button policy', function (): void {
+    $this->tenant->update(['settings' => ['attendance' => ['self_clock_enabled' => false, 'kiosk_enabled' => true]]]);
+    $this->employeeUser->unsetRelation('tenant');
+
+    $this->postJson('/api/v1/self/attendance/kiosk-clock', ['kiosk_token' => 'expired-token'])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.kiosk_token.0', 'This QR code has expired. Scan the current code displayed on the kiosk.');
 });
 
 test('today reflects the tenant self-clock setting', function (): void {

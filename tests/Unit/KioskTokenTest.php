@@ -8,12 +8,11 @@ it('mints a token that resolves to the minting kiosk under the same tenant', fun
     expect(KioskToken::consume($token, tenantId: 1))->toBe(7);
 });
 
-it('is single-use', function () {
+it('remains valid during its short lifetime for a shared kiosk', function () {
     $token = KioskToken::mint(tenantId: 1, kioskId: 7);
 
-    KioskToken::consume($token, tenantId: 1);
-
-    expect(KioskToken::consume($token, tenantId: 1))->toBeNull();
+    expect(KioskToken::consume($token, tenantId: 1))->toBe(7)
+        ->and(KioskToken::consume($token, tenantId: 1))->toBe(7);
 });
 
 it('rejects a token minted under a different tenant', function () {
