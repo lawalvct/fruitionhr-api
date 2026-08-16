@@ -22,6 +22,16 @@ class PublicVacancyController extends Controller
 
     public function index(Request $request): mixed
     {
+        $request->validate([
+            'search' => ['nullable', 'string', 'max:150'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'company' => ['nullable', 'string', 'max:255'],
+            'employment_type' => ['nullable', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+        ]);
+
         $query = $this->publicQuery()
             ->when($request->filled('search'), function (Builder $query) use ($request): void {
                 $search = trim($request->string('search')->toString());
@@ -35,13 +45,29 @@ class PublicVacancyController extends Controller
             ->when($request->filled('location'), function (Builder $query) use ($request): void {
                 $query->where('location', 'like', '%'.trim($request->string('location')->toString()).'%');
             })
+            ->when($request->filled('company'), function (Builder $query) use ($request): void {
+                $query->whereHas('tenant', fn (Builder $tenants) => $tenants
+                    ->where('slug', $request->string('company')->toString()));
+            })
+            ->when($request->filled('employment_type'), function (Builder $query) use ($request): void {
+                $query->whereHas('employmentType', fn (Builder $types) => $types
+                    ->withoutGlobalScope(TenantScope::class)
+                    ->where('name', $request->string('employment_type')->toString()));
+            })
+            ->when($request->filled('department'), function (Builder $query) use ($request): void {
+                $query->whereHas('requisition', fn (Builder $requisitions) => $requisitions
+                    ->withoutGlobalScope(TenantScope::class)
+                    ->whereHas('department', fn (Builder $departments) => $departments
+                        ->withoutGlobalScope(TenantScope::class)
+                        ->where('name', $request->string('department')->toString())));
+            })
             ->latest('opens_at')
             ->latest('id');
 
-        $vacancies = $query->paginate(min(max($request->integer('per_page', 12), 1), 50))->appends($request->query());
+        $vacancies = $query->paginate($request->integer('per_page', 12))->appends($request->query());
         $vacancies->setCollection($this->hydrateTenantRelations($vacancies->getCollection()));
 
-        return PublicVacancyResource::collection($vacancies);
+        return PublicVacancyResource::collection($vacancies)->additional($this->catalogueMeta());
     }
 
     public function show(string $slug): PublicVacancyResource
@@ -128,5 +154,40 @@ class PublicVacancyController extends Controller
         }
 
         return $vacancies->map(fn (Vacancy $vacancy) => $hydrated[$vacancy->id] ?? $vacancy);
+    }
+
+    private function catalogueMeta(): array
+    {
+        $vacancies = $this->hydrateTenantRelations($this->publicQuery()->get());
+
+        $companies = $vacancies
+            ->map(fn (Vacancy $vacancy) => $vacancy->tenant ? [
+                'value' => $vacancy->tenant->slug,
+                'label' => $vacancy->tenant->name,
+            ] : null)
+            ->filter()
+            ->unique('value')
+            ->sortBy('label')
+            ->values()
+            ->all();
+
+        $option = fn (string $value): array => ['value' => $value, 'label' => $value];
+
+        return [
+            'filters' => [
+                'companies' => $companies,
+                'locations' => $vacancies->pluck('location')->filter()->map(fn (string $value) => trim($value))
+                    ->unique(fn (string $value) => mb_strtolower($value))->sort()->values()->map($option)->all(),
+                'employment_types' => $vacancies->pluck('employmentType.name')->filter()
+                    ->unique(fn (string $value) => mb_strtolower($value))->sort()->values()->map($option)->all(),
+                'departments' => $vacancies->pluck('requisition.department.name')->filter()
+                    ->unique(fn (string $value) => mb_strtolower($value))->sort()->values()->map($option)->all(),
+            ],
+            'summary' => [
+                'open_vacancies' => $vacancies->count(),
+                'open_positions' => $vacancies->sum('positions_available'),
+                'companies' => count($companies),
+            ],
+        ];
     }
 }

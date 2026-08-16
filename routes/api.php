@@ -64,6 +64,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->g
     require __DIR__.'/modules/onboarding.php';
     require __DIR__.'/modules/core.php';
     require __DIR__.'/modules/company.php';
+    require __DIR__.'/modules/access.php';
     require __DIR__.'/modules/employees.php';
     require __DIR__.'/modules/attendance.php';
     require __DIR__.'/modules/leave.php';
@@ -71,6 +72,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->g
     require __DIR__.'/modules/self-service.php';
     require __DIR__.'/modules/recruitment.php';
     require __DIR__.'/modules/performance.php';
+    require __DIR__.'/modules/reports.php';
 });
 
 /*

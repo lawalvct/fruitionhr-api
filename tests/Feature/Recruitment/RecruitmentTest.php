@@ -225,6 +225,7 @@ test('public careers catalogue lists vacancies from active companies', function 
         'manpower_requisition_id' => $approved->id,
         'title' => 'Finance Analyst',
         'description' => 'Support planning and performance reporting.',
+        'location' => 'Lagos',
         'positions_available' => 1,
         'visibility' => Vacancy::VISIBILITY_PUBLIC,
     ])->assertCreated()->json('data.public_slug');
@@ -232,14 +233,20 @@ test('public careers catalogue lists vacancies from active companies', function 
     $this->postJson('/api/v1/recruitment/vacancies/'.$firstVacancy->id.'/open')->assertOk();
 
     [$secondTenant, $secondOwner] = recruitmentTenant();
+    $secondDepartment = Department::factory()->create(['name' => 'Engineering']);
+    $secondEmploymentType = EmploymentType::factory()->create(['name' => 'Contract']);
     $secondRequisition = ManpowerRequisition::factory()->create([
         'requested_by' => $secondOwner->id,
+        'department_id' => $secondDepartment->id,
+        'employment_type_id' => $secondEmploymentType->id,
         'status' => ManpowerRequisition::STATUS_APPROVED,
     ]);
     Vacancy::factory()->create([
         'manpower_requisition_id' => $secondRequisition->id,
+        'employment_type_id' => $secondEmploymentType->id,
         'title' => 'People Operations Lead',
         'public_slug' => 'people-operations-lead-test',
+        'location' => 'Abuja',
         'status' => Vacancy::STATUS_OPEN,
         'visibility' => Vacancy::VISIBILITY_PUBLIC,
         'opens_at' => today(),
@@ -249,6 +256,21 @@ test('public careers catalogue lists vacancies from active companies', function 
     $response = $this->getJson('/api/v1/careers?per_page=50')->assertOk();
     expect(collect($response->json('data'))->pluck('company.name')->all())
         ->toContain($this->tenant->name, $secondTenant->name);
+    $response->assertJsonPath('summary.open_vacancies', 2)
+        ->assertJsonPath('summary.open_positions', 2)
+        ->assertJsonPath('summary.companies', 2);
+
+    expect(collect($response->json('filters.companies'))->pluck('value')->all())
+        ->toContain($this->tenant->slug, $secondTenant->slug);
+
+    $this->getJson('/api/v1/careers?'.http_build_query(['company' => $secondTenant->slug]))
+        ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.title', 'People Operations Lead');
+    $this->getJson('/api/v1/careers?'.http_build_query(['location' => 'Lagos']))
+        ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.slug', $firstSlug);
+    $this->getJson('/api/v1/careers?'.http_build_query(['employment_type' => $this->employmentType->name]))
+        ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.slug', $firstSlug);
+    $this->getJson('/api/v1/careers?'.http_build_query(['department' => $this->department->name]))
+        ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.slug', $firstSlug);
 });
 
 test('a public applicant can submit a resume into the tenant recruitment pipeline', function () {

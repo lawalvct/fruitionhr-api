@@ -98,7 +98,11 @@ class DemoSeeder extends Seeder
         );
     }
 
-    private function seedCompany(string $name, string $email, array $grades, array $departmentNames, int $employeeCount): void
+    /**
+     * Build one complete tenant. Protected so focused demo-company seeders can
+     * reuse the same production-like setup without duplicating the domain flow.
+     */
+    protected function seedCompany(string $name, string $email, array $grades, array $departmentNames, int $employeeCount): void
     {
         $owner = app(RegisterTenant::class)->execute([
             'company_name' => $name,
