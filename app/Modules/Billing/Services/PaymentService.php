@@ -17,6 +17,7 @@ class PaymentService
     public function __construct(
         private readonly PaymentGatewayManager $gateways,
         private readonly BillingService $billing,
+        private readonly GatewaySettings $settings,
     ) {}
 
     /**
@@ -26,13 +27,18 @@ class PaymentService
      */
     public function initialize(Tenant $tenant, Plan $plan, string $email, ?string $provider = null): array
     {
-        $gateway = $this->gateways->driver($provider);
+        // Fall back to the platform default rather than whatever env says, so
+        // the admin switch is what actually decides.
+        $provider ??= $this->settings->default();
+        $usable = $this->settings->usable();
 
-        if (! $gateway->isConfigured()) {
+        if ($provider === null || ! in_array($provider, $usable, true)) {
             throw ValidationException::withMessages([
                 'gateway' => 'That payment method is not available right now.',
             ]);
         }
+
+        $gateway = $this->gateways->driver($provider);
 
         $quote = $this->billing->quote($plan, $tenant->id);
 

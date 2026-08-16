@@ -19,3 +19,9 @@ Route::post('billing/payments/{reference}/verify', [BillingController::class, 'v
     ->where('reference', '[A-Za-z0-9_\-]+')
     ->middleware('throttle:20,1')
     ->name('v1.billing.payments.verify');
+
+// Receipt for a settled payment. A GET so it survives the read-only state a
+// lapsed tenant is put into — they must always be able to retrieve records.
+Route::get('billing/payments/{reference}/receipt', [BillingController::class, 'receipt'])
+    ->where('reference', '[A-Za-z0-9_\-]+')
+    ->name('v1.billing.payments.receipt');

@@ -102,3 +102,7 @@ Route::put('billing/plans/{plan}', [AdminBillingController::class, 'updatePlan']
     ->name('admin.v1.billing.plans.update');
 Route::get('billing/subscriptions', [AdminBillingController::class, 'subscriptions'])
     ->name('admin.v1.billing.subscriptions');
+Route::get('billing/gateways', [AdminBillingController::class, 'gateways'])
+    ->name('admin.v1.billing.gateways');
+Route::put('billing/gateways', [AdminBillingController::class, 'updateGateways'])
+    ->name('admin.v1.billing.gateways.update');

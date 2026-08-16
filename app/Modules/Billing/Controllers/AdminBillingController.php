@@ -9,6 +9,7 @@ use App\Modules\Billing\Models\Subscription;
 use App\Modules\Billing\Requests\StorePlanRequest;
 use App\Modules\Billing\Requests\UpdatePlanRequest;
 use App\Modules\Billing\Resources\PlanResource;
+use App\Modules\Billing\Services\GatewaySettings;
 use App\Support\Tenancy\TenantScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -67,6 +68,46 @@ class AdminBillingController extends Controller
         );
 
         return new PlanResource($model->refresh());
+    }
+
+    /** Which gateways are switched on, and which have credentials. */
+    public function gateways(GatewaySettings $settings): JsonResponse
+    {
+        return response()->json([
+            'data' => $settings->overview(),
+            'meta' => ['default' => $settings->default()],
+        ]);
+    }
+
+    public function updateGateways(
+        Request $request,
+        GatewaySettings $settings,
+        PlatformActivityService $activity,
+    ): JsonResponse {
+        $validated = $request->validate([
+            'enabled' => ['required', 'array', 'min:1'],
+            'enabled.*' => ['string', 'max:40'],
+            'default' => ['nullable', 'string', 'max:40'],
+        ]);
+
+        $before = $settings->overview();
+        $settings->update($validated['enabled'], $validated['default'] ?? null);
+
+        $activity->record(
+            request: $request,
+            action: 'billing.gateways_updated',
+            subjectType: 'billing',
+            subjectId: null,
+            subjectLabel: 'Payment gateways',
+            before: ['enabled' => collect($before)->where('enabled', true)->pluck('slug')->all()],
+            after: ['enabled' => $validated['enabled'], 'default' => $settings->default()],
+        );
+
+        return response()->json([
+            'data' => $settings->overview(),
+            'meta' => ['default' => $settings->default()],
+            'message' => 'Payment methods updated.',
+        ]);
     }
 
     /** Every tenant's subscription, across the platform. */

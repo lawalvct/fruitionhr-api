@@ -28,10 +28,23 @@ class PaymentGatewayManager
         };
     }
 
-    /** @return list<string> */
+    /** Every gateway this codebase knows how to talk to. @return list<string> */
+    public function supported(): array
+    {
+        return [self::PAYSTACK, self::NOMBA];
+    }
+
+    /**
+     * Gateways with working credentials.
+     *
+     * Being configured is not the same as being live — see GatewaySettings for
+     * the admin switch that decides what customers are actually offered.
+     *
+     * @return list<string>
+     */
     public function available(): array
     {
-        return collect([self::PAYSTACK, self::NOMBA])
+        return collect($this->supported())
             ->filter(fn (string $name): bool => $this->driver($name)->isConfigured())
             ->values()
             ->all();
@@ -39,6 +52,16 @@ class PaymentGatewayManager
 
     public function supports(string $provider): bool
     {
-        return in_array($provider, [self::PAYSTACK, self::NOMBA], true);
+        return in_array($provider, $this->supported(), true);
+    }
+
+    /** Human-readable name for the admin console and error messages. */
+    public function label(string $provider): string
+    {
+        return match ($provider) {
+            self::PAYSTACK => 'Paystack',
+            self::NOMBA => 'Nomba',
+            default => ucfirst($provider),
+        };
     }
 }

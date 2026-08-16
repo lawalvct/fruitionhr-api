@@ -10,11 +10,14 @@ use App\Modules\Billing\Resources\PaymentResource;
 use App\Modules\Billing\Resources\PlanResource;
 use App\Modules\Billing\Resources\SubscriptionResource;
 use App\Modules\Billing\Services\BillingService;
+use App\Modules\Billing\Services\GatewaySettings;
 use App\Modules\Billing\Services\PaymentService;
+use App\Modules\Billing\Services\ReceiptService;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -28,7 +31,7 @@ class BillingController extends Controller
     public function __construct(
         private readonly BillingService $billing,
         private readonly PaymentService $payments,
-        private readonly PaymentGatewayManager $gateways,
+        private readonly GatewaySettings $gatewaySettings,
     ) {}
 
     /** The price list, each plan quoted against this tenant's headcount. */
@@ -47,7 +50,7 @@ class BillingController extends Controller
         )->additional([
             'meta' => [
                 'employees' => $this->billing->billableEmployees($tenantId),
-                'gateways' => $this->gateways->available(),
+                'gateways' => $this->paymentMethods(),
                 'currency' => 'NGN',
             ],
         ]);
@@ -71,8 +74,9 @@ class BillingController extends Controller
                 'renewal_quote' => $subscription?->plan === null
                     ? null
                     : $this->billing->quote($subscription->plan, $tenantId),
-                'gateways' => $this->gateways->available(),
+                'gateways' => $this->paymentMethods(),
                 // Offered when the company has outgrown its current tier.
+                'default_gateway' => $this->gatewaySettings->default(),
                 'suggested_plan' => $subscription?->plan?->exceedsCeiling($employees)
                     ? new PlanResource($this->billing->suggestUpgrade($employees))
                     : null,
@@ -171,6 +175,21 @@ class BillingController extends Controller
         );
     }
 
+    /**
+     * Download the receipt for a settled payment.
+     *
+     * Only successful payments have one — a pending or failed charge has
+     * nothing to receipt, and issuing a document for it would be misleading.
+     */
+    public function receipt(string $reference, ReceiptService $receipts): Response
+    {
+        $payment = $receipts->findForTenant($reference, $this->tenantId());
+
+        abort_unless($payment->status === Payment::STATUS_SUCCESSFUL, 404);
+
+        return $receipts->document($payment)->download($receipts->filename($payment));
+    }
+
     public function cancel(): JsonResponse
     {
         $subscription = $this->billing->activeSubscription($this->tenantId());
@@ -187,6 +206,22 @@ class BillingController extends Controller
             'data' => (new SubscriptionResource($cancelled))->toArray(request()),
             'message' => 'Cancelled. You keep access until the end of the period you have paid for.',
         ]);
+    }
+
+    /**
+     * Payment methods a tenant can actually choose from, with labels for the
+     * picker. Only gateways the platform has switched on appear here.
+     *
+     * @return list<array{slug: string, label: string}>
+     */
+    private function paymentMethods(): array
+    {
+        return collect($this->gatewaySettings->usable())
+            ->map(fn (string $slug): array => [
+                'slug' => $slug,
+                'label' => app(PaymentGatewayManager::class)->label($slug),
+            ])
+            ->all();
     }
 
     private function tenantId(): int
