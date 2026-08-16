@@ -24,7 +24,8 @@ return new class extends Migration
             $table->unsignedInteger('min_employees')->default(1);
             $table->unsignedInteger('max_employees')->nullable(); // null = unlimited
 
-            $table->unsignedInteger('trial_days')->default(14);
+            // 30 days: long enough to run one full monthly payroll.
+            $table->unsignedInteger('trial_days')->default(30);
             $table->json('features')->nullable();
             $table->boolean('is_active')->default(true);
             $table->unsignedInteger('sort_order')->default(0);

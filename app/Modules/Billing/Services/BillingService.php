@@ -42,7 +42,10 @@ class BillingService
     /**
      * What a tenant would pay right now on a given plan.
      *
-     * @return array{employees: int, billable_seats: int, unit_price: int, amount: int}
+     * Every employee is charged for, even past the plan ceiling — the ceiling
+     * drives an upgrade prompt, not a discount.
+     *
+     * @return array{employees: int, billable_seats: int, unit_price: int, amount: int, exceeds_ceiling: bool, ceiling: ?int}
      */
     public function quote(Plan $plan, int $tenantId): array
     {
@@ -54,7 +57,49 @@ class BillingService
             'billable_seats' => $seats,
             'unit_price' => $plan->price_per_employee,
             'amount' => $seats * $plan->price_per_employee,
+            'exceeds_ceiling' => $plan->exceedsCeiling($employees),
+            'ceiling' => $plan->max_employees,
         ];
+    }
+
+    /**
+     * The cheapest active plan that comfortably fits this headcount — what to
+     * offer someone who has outgrown their current tier.
+     */
+    public function suggestUpgrade(int $employeeCount): ?Plan
+    {
+        return Plan::query()
+            ->where('is_active', true)
+            ->where(function ($query) use ($employeeCount): void {
+                $query->whereNull('max_employees')
+                    ->orWhere('max_employees', '>=', $employeeCount);
+            })
+            ->orderBy('price_per_employee')
+            ->orderBy('sort_order')
+            ->first();
+    }
+
+    /**
+     * The tenant's current subscription record, whatever state it is in.
+     *
+     * Expired and cancelled subscriptions are included deliberately. Omitting
+     * them would make a lapsed tenant indistinguishable from one that never
+     * subscribed — which reads as "no plan yet" on the billing page and, worse,
+     * lets enforcement wave them straight through.
+     */
+    /**
+     * The plan a brand-new tenant starts on: the cheapest active tier.
+     *
+     * Null when no plans are configured yet — a fresh install must still be
+     * able to register companies.
+     */
+    public function defaultPlan(): ?Plan
+    {
+        return Plan::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('price_per_employee')
+            ->first();
     }
 
     public function activeSubscription(int $tenantId): ?Subscription
@@ -63,12 +108,6 @@ class BillingService
             ->withoutGlobalScope(TenantScope::class)
             ->with('plan')
             ->where('tenant_id', $tenantId)
-            ->whereIn('status', [
-                Subscription::STATUS_TRIALING,
-                Subscription::STATUS_ACTIVE,
-                Subscription::STATUS_PAST_DUE,
-                Subscription::STATUS_CANCELLED,
-            ])
             ->latest('id')
             ->first();
     }

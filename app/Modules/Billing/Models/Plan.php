@@ -48,14 +48,22 @@ class Plan extends Model
     }
 
     /**
-     * Seats actually charged for: never fewer than the plan floor, and capped
-     * at the ceiling when the plan sets one.
+     * Seats actually charged for: never fewer than the plan floor.
+     *
+     * max_employees is deliberately NOT applied here. It marks the point at
+     * which a company has outgrown the plan and should be prompted to upgrade
+     * — not a discount. Capping the bill at the ceiling would make the
+     * cheapest plan unlimited-at-a-discount.
      */
     public function billableSeats(int $employeeCount): int
     {
-        $seats = max($employeeCount, $this->min_employees);
+        return max($employeeCount, $this->min_employees);
+    }
 
-        return $this->max_employees === null ? $seats : min($seats, $this->max_employees);
+    /** Whether this headcount has outgrown the plan and should upgrade. */
+    public function exceedsCeiling(int $employeeCount): bool
+    {
+        return $this->max_employees !== null && $employeeCount > $this->max_employees;
     }
 
     /** Total for a headcount, in kobo. */

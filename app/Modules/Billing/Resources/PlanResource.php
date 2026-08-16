@@ -9,16 +9,37 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin Plan */
 class PlanResource extends JsonResource
 {
-    /** @param array<string, mixed>|null $quote */
-    public function __construct($resource, private readonly ?array $quote = null)
+    /** @var array<string, mixed>|null */
+    private ?array $quote = null;
+
+    /**
+     * Attach what a particular tenant would pay for this plan.
+     *
+     * Deliberately a setter rather than a constructor argument: Laravel's
+     * Collection::mapInto() calls `new static($model, $key)`, so a second
+     * constructor parameter gets handed the array key and blows up when the
+     * resource is used with ::collection() over plain models.
+     *
+     * @param  array<string, mixed>  $quote
+     */
+    public function withQuote(array $quote): static
     {
-        parent::__construct($resource);
+        $this->quote = $quote;
+
+        return $this;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * The plan's own fields are always present, including the nullable ones —
+     * a missing `max_employees` and a null one mean different things to a
+     * client ("unknown" vs "unlimited"), and filtering nulls conflates them.
+     * Only the two contextual extras are conditional.
+     *
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
-        return array_filter([
+        return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
@@ -26,13 +47,15 @@ class PlanResource extends JsonResource
             'price_per_employee' => $this->price_per_employee, // kobo
             'billing_interval' => $this->billing_interval,
             'min_employees' => $this->min_employees,
-            'max_employees' => $this->max_employees,
+            'max_employees' => $this->max_employees, // null = unlimited
             'trial_days' => $this->trial_days,
             'features' => $this->features ?? [],
             'is_active' => $this->is_active,
             'sort_order' => $this->sort_order,
-            // What this specific tenant would pay today, when asked for.
-            'quote' => $this->quote,
-        ], static fn ($value) => $value !== null);
+            // Only present when the caller asked for a count.
+            'subscriptions_count' => $this->whenCounted('subscriptions'),
+            // What this specific tenant would pay today, when quoted.
+            'quote' => $this->when($this->quote !== null, $this->quote),
+        ];
     }
 }

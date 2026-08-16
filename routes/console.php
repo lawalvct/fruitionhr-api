@@ -16,3 +16,7 @@ if (class_exists(Telescope::class)) {
 // Payments get missed: customers close the browser before the callback fires
 // and webhooks occasionally never land. Anything money-related needs a sweep.
 Schedule::command('billing:reconcile')->everyFifteenMinutes()->withoutOverlapping();
+
+// Nothing else moves a subscription out of `active` when its period ends, so
+// without this a lapsed tenant keeps write access indefinitely.
+Schedule::command('billing:expire-lapsed')->hourly()->withoutOverlapping();

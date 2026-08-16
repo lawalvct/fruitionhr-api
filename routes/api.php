@@ -29,6 +29,7 @@ Route::prefix('v1')->group(function (): void {
     require __DIR__.'/modules/reference.php';
     require __DIR__.'/modules/public-recruitment.php';
     require __DIR__.'/modules/public-blog.php';
+    require __DIR__.'/modules/public-billing.php';
 
     // Gateway webhooks. No auth: the caller is Paystack/Nomba, not a user —
     // the HMAC signature check inside the controller is the gate.
@@ -75,7 +76,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): 
     require __DIR__.'/modules/billing.php';
 });
 
-Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->group(function (): void {
+Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email', 'subscribed'])->group(function (): void {
     require __DIR__.'/modules/onboarding.php';
     require __DIR__.'/modules/core.php';
     require __DIR__.'/modules/company.php';

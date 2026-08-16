@@ -94,3 +94,66 @@ test('platform billing is closed to tenant users and guests', function (): void 
     $this->getJson('/api/admin/v1/billing/plans')->assertForbidden();
     $this->postJson('/api/admin/v1/billing/plans', [])->assertForbidden();
 });
+
+test('a plan whose name collides with an existing one is rejected cleanly', function (): void {
+    Plan::factory()->create(['name' => 'Starter', 'slug' => 'starter']);
+
+    $this->actingAs(User::factory()->platformAdministrator()->create());
+
+    // No slug sent — it is derived from the name, so validation must still
+    // catch the clash rather than letting the database throw a 500.
+    $this->postJson('/api/admin/v1/billing/plans', [
+        'name' => 'Starter',
+        'price_per_employee' => 60000,
+        'billing_interval' => 'monthly',
+        'min_employees' => 1,
+        'max_employees' => 20,
+        'trial_days' => 14,
+    ])->assertUnprocessable()->assertJsonValidationErrors('slug');
+});
+
+test('a differently named plan still gets a derived slug', function (): void {
+    Plan::factory()->create(['name' => 'Starter', 'slug' => 'starter']);
+
+    $this->actingAs(User::factory()->platformAdministrator()->create());
+
+    $this->postJson('/api/admin/v1/billing/plans', [
+        'name' => 'Starter Plus',
+        'price_per_employee' => 60000,
+        'billing_interval' => 'monthly',
+        'min_employees' => 1,
+        'trial_days' => 14,
+    ])->assertCreated()->assertJsonPath('data.slug', 'starter-plus');
+});
+
+test('an explicit slug is still honoured and still checked', function (): void {
+    Plan::factory()->create(['slug' => 'taken']);
+
+    $this->actingAs(User::factory()->platformAdministrator()->create());
+
+    $this->postJson('/api/admin/v1/billing/plans', [
+        'name' => 'Anything',
+        'slug' => 'taken',
+        'price_per_employee' => 60000,
+        'billing_interval' => 'monthly',
+        'min_employees' => 1,
+        'trial_days' => 14,
+    ])->assertUnprocessable()->assertJsonValidationErrors('slug');
+});
+
+test('the plan list loads existing plans with their subscriber counts', function (): void {
+    // Regression: Collection::mapInto() passes the array key as a second
+    // constructor argument, which used to blow up PlanResource and 500 here.
+    $starter = Plan::factory()->create(['name' => 'Starter', 'slug' => 'starter', 'sort_order' => 1]);
+    Plan::factory()->create(['name' => 'Growth', 'slug' => 'growth', 'sort_order' => 2]);
+
+    $tenant = Tenant::factory()->create();
+    Subscription::factory()->create(['tenant_id' => $tenant->id, 'plan_id' => $starter->id]);
+
+    $this->actingAs(User::factory()->platformAdministrator()->create());
+
+    $response = $this->getJson('/api/admin/v1/billing/plans')->assertOk();
+
+    expect(collect($response->json('data'))->pluck('name')->all())->toBe(['Starter', 'Growth']);
+    expect(collect($response->json('data'))->firstWhere('name', 'Starter')['subscriptions_count'])->toBe(1);
+});

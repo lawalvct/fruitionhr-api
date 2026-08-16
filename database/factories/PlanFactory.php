@@ -24,7 +24,7 @@ class PlanFactory extends Factory
             'billing_interval' => Plan::INTERVAL_MONTHLY,
             'min_employees' => 1,
             'max_employees' => null,
-            'trial_days' => 14,
+            'trial_days' => 30,
             'features' => ['Payroll', 'Attendance'],
             'is_active' => true,
             'sort_order' => 0,

@@ -14,7 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Str;
 
 /** Platform-side billing: the price list, and revenue across every tenant. */
 class AdminBillingController extends Controller
@@ -22,16 +21,20 @@ class AdminBillingController extends Controller
     public function plans(): AnonymousResourceCollection
     {
         return PlanResource::collection(
-            Plan::query()->withCount('subscriptions')->orderBy('sort_order')->get()
+            Plan::query()
+                // Subscription is tenant-scoped and the scope fails closed, so
+                // counting without dropping it returns 0 for every plan.
+                ->withCount(['subscriptions' => fn ($query) => $query->withoutGlobalScope(TenantScope::class)])
+                ->orderBy('sort_order')
+                ->get()
         );
     }
 
     public function storePlan(StorePlanRequest $request, PlatformActivityService $activity): JsonResponse
     {
-        $data = $request->validated();
-        $data['slug'] = Str::slug($data['slug'] ?? $data['name']);
-
-        $plan = Plan::query()->create($data);
+        // The slug is derived and uniqueness-checked in StorePlanRequest, so it
+        // is already safe to persist here.
+        $plan = Plan::query()->create($request->validated());
 
         $activity->record(
             request: $request,

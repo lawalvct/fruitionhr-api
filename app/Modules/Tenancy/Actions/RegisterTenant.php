@@ -5,10 +5,12 @@ namespace App\Modules\Tenancy\Actions;
 use App\Core\Notifications\NotificationTemplates;
 use App\Core\Workflow\WorkflowProvisioner;
 use App\Models\User;
+use App\Modules\Billing\Services\BillingService;
 use App\Modules\Payroll\Support\StatutoryProvisioner;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -22,11 +24,11 @@ class RegisterTenant
         private readonly TenantRoleProvisioner $roleProvisioner,
         private readonly WorkflowProvisioner $workflowProvisioner,
         private readonly StatutoryProvisioner $statutoryProvisioner,
-    ) {
-    }
+        private readonly BillingService $billing,
+    ) {}
 
     /**
-     * @param array{company_name: string, name: string, email: string, phone?: ?string, password: string} $input
+     * @param  array{company_name: string, name: string, email: string, phone?: ?string, password: string}  $input
      */
     public function execute(array $input): User
     {
@@ -54,6 +56,8 @@ class RegisterTenant
             setPermissionsTeamId($tenant->id);
             $user->assignRole('owner');
 
+            $this->startTrial($tenant);
+
             // Greet the new owner with an in-app notification (database channel,
             // sent synchronously so it's waiting in their bell on first login).
             $user->notify(NotificationTemplates::make('welcome', [
@@ -63,6 +67,31 @@ class RegisterTenant
 
             return $user;
         });
+    }
+
+    /**
+     * Put the new company on the entry plan's trial.
+     *
+     * Every tenant belongs on the billing ladder from day one — without this,
+     * a company with no subscription is indistinguishable from a lapsed one
+     * and slips past subscription enforcement entirely.
+     *
+     * Never fatal: a platform with no plans configured must still accept
+     * sign-ups, so registration proceeds unsubscribed rather than failing.
+     */
+    private function startTrial(Tenant $tenant): void
+    {
+        $plan = $this->billing->defaultPlan();
+
+        if ($plan === null) {
+            Log::warning('Registered a tenant with no plan available to trial.', [
+                'tenant_id' => $tenant->id,
+            ]);
+
+            return;
+        }
+
+        $this->billing->subscribe($tenant, $plan);
     }
 
     private function uniqueSlug(string $companyName): string

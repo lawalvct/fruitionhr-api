@@ -42,7 +42,8 @@ class BillingController extends Controller
             ->get();
 
         return PlanResource::collection(
-            $plans->map(fn (Plan $plan) => new PlanResource($plan, $this->billing->quote($plan, $tenantId)))
+            $plans->map(fn (Plan $plan) => (new PlanResource($plan))
+                ->withQuote($this->billing->quote($plan, $tenantId)))
         )->additional([
             'meta' => [
                 'employees' => $this->billing->billableEmployees($tenantId),
@@ -71,6 +72,10 @@ class BillingController extends Controller
                     ? null
                     : $this->billing->quote($subscription->plan, $tenantId),
                 'gateways' => $this->gateways->available(),
+                // Offered when the company has outgrown its current tier.
+                'suggested_plan' => $subscription?->plan?->exceedsCeiling($employees)
+                    ? new PlanResource($this->billing->suggestUpgrade($employees))
+                    : null,
             ],
         ]);
     }

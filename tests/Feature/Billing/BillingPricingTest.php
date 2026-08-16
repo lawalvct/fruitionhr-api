@@ -73,7 +73,7 @@ test('a company below the plan floor still pays for the minimum seats', function
         ->and($quote['amount'])->toBe(500000);
 });
 
-test('a plan ceiling caps what is charged', function (): void {
+test('a plan ceiling flags an upgrade without capping the bill', function (): void {
     $tenant = Tenant::factory()->create();
     seedEmployees($tenant, active: 40);
 
@@ -85,7 +85,10 @@ test('a plan ceiling caps what is charged', function (): void {
 
     $quote = app(BillingService::class)->quote($plan, $tenant->id);
 
-    expect($quote['employees'])->toBe(40)->and($quote['billable_seats'])->toBe(25);
+    // The ceiling means "you have outgrown this plan", not "the rest is free".
+    expect($quote['employees'])->toBe(40)
+        ->and($quote['billable_seats'])->toBe(40)
+        ->and($quote['exceeds_ceiling'])->toBeTrue();
 });
 
 test('headcount is counted per tenant, never across the platform', function (): void {
