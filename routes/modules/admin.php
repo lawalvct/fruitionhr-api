@@ -6,6 +6,7 @@ use App\Modules\Admin\Controllers\PlatformDashboardController;
 use App\Modules\Admin\Controllers\PlatformRecruitmentController;
 use App\Modules\Admin\Controllers\PlatformTenantController;
 use App\Modules\Admin\Controllers\PlatformUserController;
+use App\Modules\Billing\Controllers\AdminBillingController;
 use App\Modules\Content\Controllers\BlogMediaController;
 use App\Modules\Content\Controllers\BlogPostController;
 use Illuminate\Support\Facades\Route;
@@ -90,3 +91,14 @@ Route::post('users/{user}/reset-password', [PlatformUserController::class, 'rese
     ->whereNumber('user')
     ->middleware('throttle:10,1')
     ->name('admin.v1.users.reset-password');
+
+// Billing: the price list, and subscriptions across every tenant.
+Route::get('billing/plans', [AdminBillingController::class, 'plans'])
+    ->name('admin.v1.billing.plans');
+Route::post('billing/plans', [AdminBillingController::class, 'storePlan'])
+    ->name('admin.v1.billing.plans.store');
+Route::put('billing/plans/{plan}', [AdminBillingController::class, 'updatePlan'])
+    ->whereNumber('plan')
+    ->name('admin.v1.billing.plans.update');
+Route::get('billing/subscriptions', [AdminBillingController::class, 'subscriptions'])
+    ->name('admin.v1.billing.subscriptions');

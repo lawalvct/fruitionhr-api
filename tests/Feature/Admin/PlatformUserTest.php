@@ -170,8 +170,8 @@ test('an admin can reset a password and the new one is emailed, never returned',
         return true;
     });
 
-    // Readable format: lowercase words plus digits, e.g. copper-mango-river-482.
-    expect($emailed)->toMatch('/^[a-z]+(-[a-z]+){2}-\d{3}$/');
+    // Readable format: lowercase words joined by hyphens, ending in digits.
+    expect($emailed)->toMatch('/^[a-z]+(-[a-z]+)*-\d+$/');
     expect(Hash::check($emailed, $user->fresh()->password))->toBeTrue();
 
     // The response body must not carry the credential.

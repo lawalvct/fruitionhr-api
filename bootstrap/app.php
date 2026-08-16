@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Workflow\Console\BackfillWorkflowsCommand;
+use App\Modules\Billing\Console\ReconcilePendingPayments;
 use App\Support\Http\EnsureEmailVerified;
 use App\Support\Http\EnsureSuperAdmin;
 use App\Support\Tenancy\SetCurrentTenant;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         BackfillWorkflowsCommand::class,
+        ReconcilePendingPayments::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();

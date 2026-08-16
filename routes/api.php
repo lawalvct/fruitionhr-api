@@ -4,6 +4,7 @@ use App\Modules\Auth\Controllers\AuthController;
 use App\Modules\Auth\Controllers\EmailVerificationController;
 use App\Modules\Auth\Controllers\EssInvitationController;
 use App\Modules\Auth\Controllers\ProfileController;
+use App\Modules\Billing\Controllers\PaymentWebhookController;
 use App\Modules\Tenancy\Controllers\RegisterTenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,13 @@ Route::prefix('v1')->group(function (): void {
     require __DIR__.'/modules/reference.php';
     require __DIR__.'/modules/public-recruitment.php';
     require __DIR__.'/modules/public-blog.php';
+
+    // Gateway webhooks. No auth: the caller is Paystack/Nomba, not a user —
+    // the HMAC signature check inside the controller is the gate.
+    Route::post('/webhooks/{gateway}', PaymentWebhookController::class)
+        ->where('gateway', '[a-z]+')
+        ->middleware('throttle:120,1')
+        ->name('v1.webhooks');
 });
 
 /*
@@ -61,6 +69,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
 |--------------------------------------------------------------------------
 | All company-facing module routes register inside this group.
 */
+// Billing is deliberately outside the verified.email group below: a tenant
+// that cannot yet use the product must still be able to see and pay its bill.
+Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): void {
+    require __DIR__.'/modules/billing.php';
+});
+
 Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->group(function (): void {
     require __DIR__.'/modules/onboarding.php';
     require __DIR__.'/modules/core.php';
