@@ -115,4 +115,55 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Markdown Mail Components
+    |--------------------------------------------------------------------------
+    |
+    | The "fruition" theme and the overridden components in resources/views/
+    | vendor/mail give every markdown email the FruitionHR chrome. The paths
+    | entry is required — without it the framework components win.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'fruition',
+
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Brand Chrome
+    |--------------------------------------------------------------------------
+    |
+    | Shared header/footer details for every outgoing email, consumed by the
+    | mail components in resources/views/vendor/mail. Mail clients cannot
+    | resolve relative paths, so the logo URL must always be absolute.
+    |
+    */
+
+    'brand' => [
+        'product' => env('MAIL_BRAND_PRODUCT', 'FruitionHR'),
+
+        'tagline' => env('MAIL_BRAND_TAGLINE', 'Empowering Your Workforce'),
+
+        // `?:` rather than an env() default so a blank .env entry still falls back.
+        'logo_url' => env('MAIL_BRAND_LOGO_URL')
+            ?: rtrim((string) env('APP_URL', 'http://localhost'), '/').'/images/fruitionhr-logo-email.png',
+
+        // Where the header logo links to, and where "open the dashboard" CTAs point.
+        'app_url' => rtrim((string) env('FRONTEND_URL', env('APP_URL', 'http://localhost')), '/'),
+
+        'website_url' => rtrim((string) env('MAIL_BRAND_WEBSITE_URL', 'https://fruitionhr.com'), '/'),
+
+        'support_email' => env('MAIL_BRAND_SUPPORT_EMAIL', 'support@fruitionhr.com'),
+
+        'company' => env('MAIL_BRAND_COMPANY', 'FruitionHR'),
+
+        'address' => env('MAIL_BRAND_ADDRESS', 'Lagos, Nigeria'),
+    ],
+
 ];

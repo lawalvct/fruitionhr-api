@@ -4,6 +4,7 @@ namespace App\Modules\Auth\Notifications;
 
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class EssInvitationNotification extends Notification
 {
@@ -20,11 +21,14 @@ class EssInvitationNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Set up your FruitionHR employee account')
-            ->greeting('Hello '.$notifiable->name.',')
-            ->line($this->companyName.' has created an employee self-service account for you.')
-            ->line('Use your email address to sign in after setting your password.')
-            ->action('Set up my password', $this->setupUrl)
-            ->line('This link expires in 60 minutes. If you were not expecting this invitation, contact your HR administrator.');
+            ->subject($this->companyName.' has invited you to '.config('mail.brand.product'))
+            ->markdown('emails.auth.ess-invitation', [
+                'setupUrl' => $this->setupUrl,
+                'company' => $this->companyName,
+                'name' => Str::before(trim((string) $notifiable->name), ' ') ?: 'there',
+                'email' => (string) $notifiable->email,
+                // Mirrors the password broker TTL that minted the setup token.
+                'expiresInMinutes' => (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60),
+            ]);
     }
 }
