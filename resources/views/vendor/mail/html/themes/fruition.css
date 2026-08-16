@@ -241,6 +241,11 @@ img {
     text-align: center;
 }
 
+.code-value-sm {
+    font-size: 23px;
+    letter-spacing: 1.5px;
+}
+
 .code-expiry {
     color: #059669;
     font-size: 12px;

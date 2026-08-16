@@ -23,10 +23,14 @@ class SetCurrentTenant
             abort(403, 'This account is not attached to a company.');
         }
 
+        if ($user->isSuperAdmin()) {
+            abort(403, 'Platform administrator accounts cannot use company routes.');
+        }
+
         $tenant = $user->tenant;
 
         if ($tenant === null || $tenant->status !== 'active') {
-            abort(403, 'This company account is suspended. Contact support.');
+            abort(403, 'This company account is not active. Contact support.');
         }
 
         app(CurrentTenant::class)->set($tenant);

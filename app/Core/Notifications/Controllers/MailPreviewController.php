@@ -3,6 +3,7 @@
 namespace App\Core\Notifications\Controllers;
 
 use App\Models\User;
+use App\Modules\Auth\Notifications\AdminPasswordResetNotification;
 use App\Modules\Auth\Notifications\EmailVerificationCodeNotification;
 use App\Modules\Auth\Notifications\EssInvitationNotification;
 use App\Modules\Tenancy\Models\Tenant;
@@ -69,6 +70,11 @@ class MailPreviewController extends Controller
                 'label' => 'Email verification code (owner sign-up)',
                 'notifiable' => $this->fakeUser('Adaeze Nwosu', 'adaeze@example.com', 'Fruition Foods Ltd'),
                 'notification' => new EmailVerificationCodeNotification('482913'),
+            ],
+            'admin-password-reset' => [
+                'label' => 'Password reset by support',
+                'notifiable' => $this->fakeUser('Chidi Okafor', 'chidi.okafor@example.com', 'Fruition Foods Ltd'),
+                'notification' => new AdminPasswordResetNotification('Xq7#mR2vTp9!Ld4B'),
             ],
             'ess-invitation' => [
                 'label' => 'Employee self-service invitation',

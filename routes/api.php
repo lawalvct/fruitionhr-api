@@ -27,6 +27,7 @@ Route::prefix('v1')->group(function (): void {
 
     require __DIR__.'/modules/reference.php';
     require __DIR__.'/modules/public-recruitment.php';
+    require __DIR__.'/modules/public-blog.php';
 });
 
 /*
@@ -81,5 +82,5 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email'])->g
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin/v1')->middleware(['auth:sanctum', 'super-admin'])->group(function (): void {
-    // Tenant management endpoints land here.
+    require __DIR__.'/modules/admin.php';
 });

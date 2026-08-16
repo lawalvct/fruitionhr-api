@@ -25,13 +25,13 @@ use App\Modules\Payroll\Models\EmployeeSalary;
 use App\Modules\Payroll\Models\SalaryComponent;
 use App\Modules\Payroll\Models\SalaryStructure;
 use App\Modules\Payroll\Services\PayrollRunService;
+use App\Modules\Performance\Models\Goal;
+use App\Modules\Performance\Models\PerformanceCategory;
+use App\Modules\Performance\Models\PerformanceKpi;
 use App\Modules\Recruitment\Models\Applicant;
 use App\Modules\Recruitment\Models\Application;
 use App\Modules\Recruitment\Models\ManpowerRequisition;
 use App\Modules\Recruitment\Models\Vacancy;
-use App\Modules\Performance\Models\Goal;
-use App\Modules\Performance\Models\PerformanceCategory;
-use App\Modules\Performance\Models\PerformanceKpi;
 use App\Modules\Tenancy\Actions\RegisterTenant;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Support\Tenancy\CurrentTenant;
@@ -39,6 +39,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use LogicException;
 
 /**
  * Seeds fully-configured demo companies for end-to-end testing: company setup,
@@ -55,6 +56,10 @@ class DemoSeeder extends Seeder
 
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new LogicException('Demo data cannot be seeded in production.');
+        }
+
         // Payroll dispatches a queued job; run it inline during seeding.
         config(['queue.default' => 'sync']);
 
@@ -87,15 +92,17 @@ class DemoSeeder extends Seeder
 
     private function superAdmin(): void
     {
-        User::query()->updateOrCreate(
-            ['email' => 'admin@fruitionhr.test'],
-            [
-                'name' => 'Platform Admin',
-                'password' => Hash::make(self::PASSWORD),
-                'is_super_admin' => true,
-                'status' => User::STATUS_ACTIVE,
-            ],
-        );
+        $administrator = User::query()->firstOrNew([
+            'email' => 'admin@fruitionhr.test',
+        ]);
+        $administrator->forceFill([
+            'tenant_id' => null,
+            'name' => 'Platform Admin',
+            'password' => Hash::make(self::PASSWORD),
+            'is_super_admin' => true,
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
+        ])->save();
     }
 
     /**

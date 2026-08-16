@@ -31,6 +31,11 @@ font-size: 28px !important;
 letter-spacing: 6px !important;
 }
 
+.code-value-sm {
+font-size: 18px !important;
+letter-spacing: 0.5px !important;
+}
+
 .details-label,
 .details-value {
 display: block !important;

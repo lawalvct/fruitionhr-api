@@ -30,6 +30,13 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            // Mirror the migration defaults explicitly. Model::shouldBeStrict()
+            // is on outside production, so a factory user missing these throws
+            // MissingAttributeException the moment anything reads them (e.g.
+            // isSuperAdmin() in the EnsureSuperAdmin middleware).
+            'tenant_id' => null,
+            'is_super_admin' => false,
+            'status' => User::STATUS_ACTIVE,
         ];
     }
 
@@ -40,6 +47,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function platformAdministrator(bool $verified = true): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tenant_id' => null,
+            'is_super_admin' => true,
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => $verified ? now() : null,
         ]);
     }
 }
