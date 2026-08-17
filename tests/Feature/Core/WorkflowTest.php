@@ -4,6 +4,7 @@ use App\Core\Workflow\Events\WorkflowApproved;
 use App\Core\Workflow\Events\WorkflowRejected;
 use App\Core\Workflow\Models\WorkflowDefinition;
 use App\Core\Workflow\Models\WorkflowRequest;
+use App\Core\Workflow\WorkflowProvisioner;
 use App\Core\Workflow\WorkflowService;
 use App\Models\User;
 use App\Modules\Employee\Models\Employee;
@@ -11,13 +12,15 @@ use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Support\Facades\Event;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 function workflowTenant(): array
 {
     $tenant = Tenant::factory()->create();
     app(CurrentTenant::class)->set($tenant);
     app(TenantRoleProvisioner::class)->provision($tenant);
-    app(\App\Core\Workflow\WorkflowProvisioner::class)->provision($tenant);
+    app(WorkflowProvisioner::class)->provision($tenant);
     setPermissionsTeamId($tenant->id);
 
     $employee = User::factory()->create(['tenant_id' => $tenant->id]);
@@ -88,7 +91,7 @@ test('a non-approver cannot act on the current step', function () {
 
     // The requester holds only the employee role — not a manager.
     $service->act($request, $employeeUser, 'approve');
-})->throws(Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException::class);
+})->throws(AccessDeniedHttpException::class);
 
 test('rejection stops the flow and fires WorkflowRejected', function () {
     Event::fake([WorkflowRejected::class]);
@@ -105,7 +108,7 @@ test('rejection stops the flow and fires WorkflowRejected', function () {
 
     // Completed requests cannot be acted on again.
     expect(fn () => $service->act($request, $hr, 'approve'))
-        ->toThrow(Symfony\Component\HttpKernel\Exception\ConflictHttpException::class);
+        ->toThrow(ConflictHttpException::class);
 });
 
 test('approvals inbox lists requests pending for my role via the API', function () {
@@ -157,4 +160,39 @@ test('registration provisions default workflow definitions', function () {
 
     expect(WorkflowDefinition::query()->pluck('module')->sort()->values()->all())
         ->toBe(['leave', 'loan', 'overtime', 'payroll', 'profile_update', 'recruitment_requisition']);
+});
+
+test('the inbox loads for someone who submitted their own request', function () {
+    // Regression: `my_requests` omitted `record` from its eager load while
+    // loadMorph() reads it via pluck(). With lazy loading disabled that threw,
+    // so the whole inbox 500'd for anyone who had ever submitted anything —
+    // and every other test here views the inbox as a non-submitter.
+    [, $employeeUser, , , $record] = workflowTenant();
+
+    app(WorkflowService::class)->submit($record, 'leave', $employeeUser);
+
+    $response = $this->actingAs($employeeUser)->getJson('/api/v1/approvals')->assertOk();
+
+    expect($response->json('data.my_requests'))->toHaveCount(1)
+        ->and($response->json('data.my_requests.0.module'))->toBe('leave');
+});
+
+test('an owner who submitted a request still sees the pending queue', function () {
+    // The reported bug: an owner raises a requisition, then finds their own
+    // approvals page empty because the endpoint errored rather than rendered.
+    [, $employeeUser, , , $record] = workflowTenant();
+    $owner = User::factory()->create(['tenant_id' => $record->tenant_id]);
+    setPermissionsTeamId($record->tenant_id);
+    $owner->assignRole('owner');
+
+    // The owner submits something of their own...
+    app(WorkflowService::class)->submit($record, 'leave', $owner);
+    // ...and someone else submits too.
+    app(WorkflowService::class)->submit(Employee::factory()->create(), 'leave', $employeeUser);
+
+    $response = $this->actingAs($owner)->getJson('/api/v1/approvals')->assertOk();
+
+    // Owners see every pending step, including the one they raised.
+    expect($response->json('data.pending_for_me'))->toHaveCount(2)
+        ->and($response->json('data.my_requests'))->toHaveCount(1);
 });

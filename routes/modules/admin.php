@@ -9,6 +9,7 @@ use App\Modules\Admin\Controllers\PlatformUserController;
 use App\Modules\Billing\Controllers\AdminBillingController;
 use App\Modules\Content\Controllers\BlogMediaController;
 use App\Modules\Content\Controllers\BlogPostController;
+use App\Modules\Support\Controllers\AdminSupportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('dashboard', PlatformDashboardController::class)
@@ -106,3 +107,21 @@ Route::get('billing/gateways', [AdminBillingController::class, 'gateways'])
     ->name('admin.v1.billing.gateways');
 Route::put('billing/gateways', [AdminBillingController::class, 'updateGateways'])
     ->name('admin.v1.billing.gateways.update');
+
+// Support queue across every tenant.
+Route::get('support/tickets', [AdminSupportController::class, 'index'])
+    ->name('admin.v1.support.index');
+Route::get('support/summary', [AdminSupportController::class, 'summary'])
+    ->name('admin.v1.support.summary');
+Route::get('support/tickets/{ticket}', [AdminSupportController::class, 'show'])
+    ->whereNumber('ticket')
+    ->name('admin.v1.support.show');
+Route::post('support/tickets/{ticket}/messages', [AdminSupportController::class, 'reply'])
+    ->whereNumber('ticket')
+    ->name('admin.v1.support.reply');
+Route::post('support/tickets/{ticket}/status', [AdminSupportController::class, 'updateStatus'])
+    ->whereNumber('ticket')
+    ->name('admin.v1.support.status');
+Route::post('support/tickets/{ticket}/assign', [AdminSupportController::class, 'assign'])
+    ->whereNumber('ticket')
+    ->name('admin.v1.support.assign');

@@ -3,6 +3,7 @@
 namespace App\Modules\Tenancy\Models;
 
 use App\Models\User;
+use App\Modules\Recruitment\Models\Vacancy;
 use Database\Factories\TenantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,6 +54,15 @@ class Tenant extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Used by the public careers site to tell whether this company is
+     * currently advertising, which is what makes its logo public.
+     */
+    public function vacancies(): HasMany
+    {
+        return $this->hasMany(Vacancy::class);
     }
 
     /** Whether employees may clock themselves in/out (ESS + kiosk). Defaults to enabled. */

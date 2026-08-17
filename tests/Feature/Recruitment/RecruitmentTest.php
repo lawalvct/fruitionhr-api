@@ -11,6 +11,7 @@ use App\Modules\Employee\Models\Employee;
 use App\Modules\Recruitment\Models\Application;
 use App\Modules\Recruitment\Models\ManpowerRequisition;
 use App\Modules\Recruitment\Models\Vacancy;
+use App\Modules\Recruitment\Requests\PublicApplicationRequest;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
@@ -234,7 +235,11 @@ test('public careers catalogue lists vacancies from active companies', function 
 
     [$secondTenant, $secondOwner] = recruitmentTenant();
     $secondDepartment = Department::factory()->create(['name' => 'Engineering']);
-    $secondEmploymentType = EmploymentType::factory()->create(['name' => 'Contract']);
+    // Deliberately outside EmploymentTypeFactory's name pool: this tenant's type
+    // has to differ from $this->employmentType, or the employment_type filter
+    // below matches both vacancies. Picking 'Contract' made this test fail one
+    // run in five.
+    $secondEmploymentType = EmploymentType::factory()->create(['name' => 'Seasonal']);
     $secondRequisition = ManpowerRequisition::factory()->create([
         'requested_by' => $secondOwner->id,
         'department_id' => $secondDepartment->id,
@@ -315,4 +320,124 @@ test('a public applicant can submit a resume into the tenant recruitment pipelin
         'privacy_consent' => '1',
         'resume' => UploadedFile::fake()->create('duplicate.pdf', 80, 'application/pdf'),
     ], ['Accept' => 'application/json'])->assertConflict();
+});
+
+/**
+ * Opens a public vacancy and hands back its careers slug, with tenant context
+ * cleared the way an anonymous visitor's request would arrive.
+ */
+function openPublicVacancy($test): string
+{
+    $approved = createApprovedRequisition($test);
+    $created = $test->postJson('/api/v1/recruitment/vacancies', [
+        'manpower_requisition_id' => $approved->id,
+        'title' => 'Payroll Specialist',
+        'description' => 'Run compliant monthly payroll and reconciliations.',
+        'positions_available' => 1,
+        'visibility' => Vacancy::VISIBILITY_PUBLIC,
+    ])->assertCreated();
+
+    $test->postJson('/api/v1/recruitment/vacancies/'.$created->json('data.id').'/open')->assertOk();
+    app(CurrentTenant::class)->forget();
+
+    return $created->json('data.public_slug');
+}
+
+/** @return array<string, mixed> */
+function publicApplicationPayload(array $overrides = []): array
+{
+    return array_merge([
+        'first_name' => 'Amara',
+        'last_name' => 'Eze',
+        'email' => 'amara.public@example.com',
+        'phone' => '08030000001',
+        'privacy_consent' => '1',
+        'resume' => UploadedFile::fake()->create('resume.pdf', 80, 'application/pdf'),
+    ], $overrides);
+}
+
+test('an applicant cannot smuggle a javascript link into a recruiter browser', function () {
+    Storage::fake('local');
+    $slug = openPublicVacancy($this);
+
+    // The candidate sheet renders this straight into an href, so anything but
+    // http/https is a stored XSS aimed at whoever reviews the application.
+    $this->post(
+        '/api/v1/careers/'.$slug.'/apply',
+        publicApplicationPayload(['linkedin_url' => 'javascript:alert(document.cookie)']),
+        ['Accept' => 'application/json'],
+    )->assertStatus(422)->assertJsonValidationErrors('linkedin_url');
+
+    $this->post(
+        '/api/v1/careers/'.$slug.'/apply',
+        publicApplicationPayload(['linkedin_url' => 'https://linkedin.com/in/amara-eze']),
+        ['Accept' => 'application/json'],
+    )->assertCreated();
+});
+
+test('a bot that fills the hidden honeypot field is turned away', function () {
+    Storage::fake('local');
+    $slug = openPublicVacancy($this);
+
+    $this->post(
+        '/api/v1/careers/'.$slug.'/apply',
+        publicApplicationPayload(['referrer_code' => 'https://cheap-seo.example.com']),
+        ['Accept' => 'application/json'],
+    )->assertStatus(422);
+
+    app(CurrentTenant::class)->set($this->tenant);
+    expect(Application::query()->count())->toBe(0);
+});
+
+test('a withdrawn application still blocks a repeat submission rather than exploding', function () {
+    Storage::fake('local');
+    $slug = openPublicVacancy($this);
+
+    $this->post('/api/v1/careers/'.$slug.'/apply', publicApplicationPayload(), ['Accept' => 'application/json'])
+        ->assertCreated();
+
+    // Recruiter withdraws it. The row is soft deleted, but it keeps its slot in
+    // the (tenant_id, vacancy_id, applicant_id) unique index — so a re-application
+    // has to be reported as a conflict, not allowed through into a 500.
+    app(CurrentTenant::class)->set($this->tenant);
+    Application::query()->firstOrFail()->delete();
+    app(CurrentTenant::class)->forget();
+
+    $this->post('/api/v1/careers/'.$slug.'/apply', publicApplicationPayload(), ['Accept' => 'application/json'])
+        ->assertConflict();
+});
+
+test('a duplicate application is refused however the email is capitalised', function () {
+    Storage::fake('local');
+    $slug = openPublicVacancy($this);
+
+    $this->post('/api/v1/careers/'.$slug.'/apply', publicApplicationPayload(), ['Accept' => 'application/json'])
+        ->assertCreated();
+
+    $this->post(
+        '/api/v1/careers/'.$slug.'/apply',
+        publicApplicationPayload(['email' => 'Amara.Public@Example.com']),
+        ['Accept' => 'application/json'],
+    )->assertConflict();
+});
+test('an untouched honeypot never blocks a real candidate', function () {
+    Storage::fake('local');
+    $slug = openPublicVacancy($this);
+
+    // An untouched text input still posts an empty string in a multipart form,
+    // and that must sail through — a honeypot that rejects real applicants is
+    // worse than no honeypot at all.
+    $this->post('/api/v1/careers/'.$slug.'/apply', publicApplicationPayload(['referrer_code' => '']), ['Accept' => 'application/json'])
+        ->assertCreated();
+});
+
+test('the honeypot is not named after anything an autofiller recognises', function () {
+    // Regression guard. The trap was once called "website", which password
+    // managers and browser autofill cheerfully fill in on a contact form —
+    // so genuine applicants were being turned away as bots.
+    // Instantiated directly: resolving a FormRequest from the container
+    // would validate the current request rather than just expose its rules.
+    $fields = array_keys((new PublicApplicationRequest)->rules());
+
+    expect(array_intersect($fields, ['website', 'url', 'homepage', 'company_url', 'organization']))->toBeEmpty();
 });

@@ -5,9 +5,9 @@ namespace App\Core\Workflow\Controllers;
 use App\Core\Workflow\Models\WorkflowRequest;
 use App\Core\Workflow\Resources\WorkflowRequestResource;
 use App\Core\Workflow\WorkflowService;
+use App\Modules\Payroll\Models\StaffLoan;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Modules\Payroll\Models\StaffLoan;
 
 class ApprovalController extends Controller
 {
@@ -36,7 +36,11 @@ class ApprovalController extends Controller
 
         $mine = WorkflowRequest::query()
             ->where('requested_by', $user->id)
-            ->with(['currentStep', 'requester', 'actions.actor'])
+            // 'record' is required here, not optional: loadMorph() below reads
+            // the relation via pluck(), which lazy loads it — and lazy loading
+            // is disabled outside production, so omitting it 500s the whole
+            // inbox for anyone who has ever submitted a request.
+            ->with(['currentStep', 'requester', 'record', 'actions.actor'])
             ->latest('submitted_at')
             ->limit(30)
             ->get();

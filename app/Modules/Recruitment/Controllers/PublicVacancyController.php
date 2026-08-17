@@ -85,7 +85,7 @@ class PublicVacancyController extends Controller
 
         try {
             $application = $this->recruitment->apply([
-                ...Arr::except($request->validated(), ['resume', 'privacy_consent', 'website']),
+                ...Arr::except($request->validated(), ['resume', 'privacy_consent', 'referrer_code']),
                 'vacancy_id' => $vacancy->id,
                 'source' => 'public_careers',
             ], null, $request->file('resume'));

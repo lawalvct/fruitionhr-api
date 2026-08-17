@@ -74,6 +74,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
 // that cannot yet use the product must still be able to see and pay its bill.
 Route::prefix('v1')->middleware(['auth:sanctum', 'tenant'])->group(function (): void {
     require __DIR__.'/modules/billing.php';
+    // Support is deliberately here too: someone who cannot pay, or cannot
+    // verify their email, is precisely who most needs to reach us.
+    require __DIR__.'/modules/support.php';
 });
 
 Route::prefix('v1')->middleware(['auth:sanctum', 'tenant', 'verified.email', 'subscribed'])->group(function (): void {

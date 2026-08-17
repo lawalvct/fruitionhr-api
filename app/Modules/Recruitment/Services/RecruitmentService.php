@@ -14,6 +14,7 @@ use App\Modules\Recruitment\Models\OnboardingTask;
 use App\Modules\Recruitment\Models\Vacancy;
 use App\Support\Tenancy\CurrentTenant;
 use App\Support\Tenancy\TenantScope;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -115,7 +116,11 @@ class RecruitmentService
                 ],
             );
 
-            if (Application::query()->where('vacancy_id', $vacancy->id)->where('applicant_id', $applicant->id)->exists()) {
+            // withTrashed(): a withdrawn application still holds its slot in the
+            // (tenant_id, vacancy_id, applicant_id) unique index, so without this
+            // the duplicate check passes and the insert below dies on the
+            // constraint instead of returning a usable answer.
+            if (Application::query()->withTrashed()->where('vacancy_id', $vacancy->id)->where('applicant_id', $applicant->id)->exists()) {
                 throw new ConflictHttpException('An application for this vacancy already exists for this email address.');
             }
 
@@ -142,15 +147,22 @@ class RecruitmentService
                 }
             }
 
-            $application = Application::query()->create([
-                'vacancy_id' => $vacancy->id,
-                'applicant_id' => $applicant->id,
-                'stage' => 'applied',
-                'source' => $data['source'] ?? null,
-                'cover_letter' => $data['cover_letter'] ?? null,
-                'applied_at' => now(),
-                'created_by' => $user?->id,
-            ]);
+            try {
+                $application = Application::query()->create([
+                    'vacancy_id' => $vacancy->id,
+                    'applicant_id' => $applicant->id,
+                    'stage' => 'applied',
+                    'source' => $data['source'] ?? null,
+                    'cover_letter' => $data['cover_letter'] ?? null,
+                    'applied_at' => now(),
+                    'created_by' => $user?->id,
+                ]);
+            } catch (UniqueConstraintViolationException) {
+                // Two submissions racing each other past the check above. The
+                // database is the real arbiter; report the loser as a conflict
+                // rather than a 500.
+                throw new ConflictHttpException('An application for this vacancy already exists for this email address.');
+            }
 
             $application->stageHistory()->create(['to_stage' => 'applied', 'changed_by' => $user?->id]);
 

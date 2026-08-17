@@ -22,6 +22,7 @@ class PublicVacancyResource extends JsonResource
             'company' => $this->whenLoaded('tenant', fn () => [
                 'name' => $this->tenant->name,
                 'slug' => $this->tenant->slug,
+                'has_logo' => $this->tenant->logo_path !== null,
             ]),
             'employment_type' => $this->whenLoaded('employmentType', fn () => $this->employmentType
                 ? ['name' => $this->employmentType->name]

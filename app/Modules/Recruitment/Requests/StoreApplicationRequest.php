@@ -23,7 +23,7 @@ class StoreApplicationRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:50'],
             'city' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:100'],
-            'linkedin_url' => ['nullable', 'url', 'max:500'],
+            'linkedin_url' => ['nullable', 'url:http,https', 'max:500'],
             'source' => ['nullable', 'string', 'max:100'],
             'cover_letter' => ['nullable', 'string', 'max:10000'],
         ];
