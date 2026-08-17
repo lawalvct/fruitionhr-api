@@ -5,6 +5,7 @@ namespace App\Modules\Auth\Controllers;
 use App\Models\User;
 use App\Modules\Auth\Requests\LoginRequest;
 use App\Modules\Auth\Resources\MeResource;
+use App\Support\Http\SessionEstablished;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Http\JsonResponse;
@@ -60,6 +61,8 @@ class AuthController extends Controller
                     : 'This account is disabled.'],
             ]);
         }
+
+        SessionEstablished::assert($request, 'login');
 
         if ($request->hasSession()) {
             $request->session()->regenerate();
