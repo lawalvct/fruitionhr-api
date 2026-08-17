@@ -23,6 +23,7 @@ function abilityEndpoints(): array
         PlatformAbilities::USERS => '/api/admin/v1/users',
         PlatformAbilities::SUPPORT => '/api/admin/v1/support/tickets',
         PlatformAbilities::BILLING => '/api/admin/v1/billing/plans',
+        PlatformAbilities::REVENUE => '/api/admin/v1/revenue',
         PlatformAbilities::CAREERS => '/api/admin/v1/recruitment/vacancies',
         PlatformAbilities::BLOG => '/api/admin/v1/blog-posts',
         PlatformAbilities::ACTIVITY => '/api/admin/v1/activity',

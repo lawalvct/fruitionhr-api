@@ -3,7 +3,6 @@
 namespace App\Modules\Billing\Controllers;
 
 use App\Modules\Admin\Services\PlatformActivityService;
-use App\Modules\Billing\Models\Payment;
 use App\Modules\Billing\Models\Plan;
 use App\Modules\Billing\Models\Subscription;
 use App\Modules\Billing\Requests\StorePlanRequest;
@@ -159,11 +158,9 @@ class AdminBillingController extends Controller
             'trialing' => $subs()->where('status', Subscription::STATUS_TRIALING)->count(),
             'past_due' => $subs()->where('status', Subscription::STATUS_PAST_DUE)->count(),
             'cancelled' => $subs()->where('status', Subscription::STATUS_CANCELLED)->count(),
-            // Money actually collected, in kobo.
-            'collected' => (int) Payment::query()
-                ->withoutGlobalScope(TenantScope::class)
-                ->where('status', Payment::STATUS_SUCCESSFUL)
-                ->sum('amount'),
+            // Revenue deliberately lives on the Revenue page, behind its own
+            // ability: someone who runs the price list does not automatically
+            // get to see what the business earns.
             'billable_employees' => (int) Subscription::query()
                 ->withoutGlobalScope(TenantScope::class)
                 ->whereIn('status', [Subscription::STATUS_ACTIVE, Subscription::STATUS_TRIALING])

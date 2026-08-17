@@ -26,6 +26,8 @@ final class PlatformAbilities
 
     public const BILLING = 'billing';
 
+    public const REVENUE = 'revenue';
+
     public const CAREERS = 'careers';
 
     public const BLOG = 'blog';
@@ -76,6 +78,12 @@ final class PlatformAbilities
                 'key' => self::BILLING,
                 'label' => 'Billing',
                 'description' => 'Edit plans and pricing, see subscriptions, and set the payment gateway.',
+                'assignable' => true,
+            ],
+            [
+                'key' => self::REVENUE,
+                'label' => 'Revenue',
+                'description' => 'What the platform earns, which companies it comes from, and what is due next.',
                 'assignable' => true,
             ],
             [

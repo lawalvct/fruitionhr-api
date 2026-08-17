@@ -273,3 +273,50 @@ test('a cover path outside the upload tree is rejected', function (): void {
         'cover_image_path' => '../../.env',
     ])->assertUnprocessable()->assertJsonValidationErrors('cover_image_path');
 });
+
+test('reading a post counts a view, and the listing does not', function (): void {
+    $post = BlogPost::factory()->published()->create(['slug' => 'counted']);
+    $other = BlogPost::factory()->published()->create(['slug' => 'not-counted']);
+
+    expect($post->views)->toBe(0);
+
+    $this->getJson("/api/v1/blog/{$post->slug}")->assertOk();
+    $this->getJson("/api/v1/blog/{$post->slug}")->assertOk();
+
+    // Browsing the index is not reading an article; counting it would make
+    // every post look popular the moment anyone opens the blog.
+    $this->getJson('/api/v1/blog')->assertOk();
+
+    expect($post->refresh()->views)->toBe(2)
+        ->and($other->refresh()->views)->toBe(0);
+});
+
+test('counting a view does not make a post look freshly edited', function (): void {
+    $post = BlogPost::factory()->published()->create(['slug' => 'timestamps']);
+    $updatedAt = $post->updated_at;
+
+    $this->travel(2)->minutes();
+    $this->getJson("/api/v1/blog/{$post->slug}")->assertOk();
+
+    // The admin list shows "Updated <date>". If a view touched updated_at,
+    // every visitor would reorder the editor's list.
+    expect($post->refresh()->updated_at->timestamp)->toBe($updatedAt->timestamp)
+        ->and($post->views)->toBe(1);
+});
+
+test('a draft that cannot be read cannot be counted either', function (): void {
+    $draft = BlogPost::factory()->create(['slug' => 'hidden', 'status' => BlogPost::STATUS_DRAFT]);
+
+    $this->getJson("/api/v1/blog/{$draft->slug}")->assertNotFound();
+
+    expect($draft->refresh()->views)->toBe(0);
+});
+
+test('the admin listing reports view counts', function (): void {
+    $post = BlogPost::factory()->published()->create(['slug' => 'reported']);
+    $this->getJson("/api/v1/blog/{$post->slug}")->assertOk();
+
+    $this->actingAs(User::factory()->platformAdministrator()->create());
+
+    expect($this->getJson('/api/admin/v1/blog-posts')->assertOk()->json('data.0.views'))->toBe(1);
+});

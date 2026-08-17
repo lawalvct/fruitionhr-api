@@ -3,7 +3,10 @@
 namespace App\Modules\Tenancy\Models;
 
 use App\Models\User;
+use App\Modules\Billing\Models\Payment;
+use App\Modules\Billing\Models\Subscription;
 use App\Modules\Recruitment\Models\Vacancy;
+use App\Support\Tenancy\TenantScope;
 use Database\Factories\TenantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -63,6 +66,26 @@ class Tenant extends Model
     public function vacancies(): HasMany
     {
         return $this->hasMany(Vacancy::class);
+    }
+
+    /**
+     * Billing history, for the platform revenue reporting.
+     *
+     * Both relations drop the tenant scope: they are read from the admin
+     * console, which has no tenant context, and the scope fails closed —
+     * without this every company would report zero revenue.
+     *
+     * @return HasMany<Payment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->withoutGlobalScope(TenantScope::class);
+    }
+
+    /** @return HasMany<Subscription, $this> */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class)->withoutGlobalScope(TenantScope::class);
     }
 
     /** Whether employees may clock themselves in/out (ESS + kiosk). Defaults to enabled. */

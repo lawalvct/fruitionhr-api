@@ -213,7 +213,7 @@ class BlogPostService
     {
         $direction = str_starts_with($sort, '-') ? 'desc' : 'asc';
         $column = ltrim($sort, '-');
-        $allowed = ['created_at', 'published_at', 'title', 'status'];
+        $allowed = ['created_at', 'published_at', 'title', 'status', 'views'];
 
         return [in_array($column, $allowed, true) ? $column : 'created_at', $direction];
     }

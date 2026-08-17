@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -47,7 +48,22 @@ class BlogPost extends Model
     {
         return [
             'published_at' => 'datetime',
+            'views' => 'integer',
         ];
+    }
+
+    /**
+     * Counts one read of this post.
+     *
+     * Straight to the query builder on purpose. Eloquent's increment() would
+     * touch updated_at, and the admin list shows "Updated <date>" — every
+     * visitor would make the post look freshly edited. Going through the
+     * builder also makes it a single atomic UPDATE, so concurrent readers
+     * cannot lose counts to a read-modify-write race.
+     */
+    public function recordView(): void
+    {
+        DB::table($this->getTable())->where('id', $this->id)->increment('views');
     }
 
     public function author(): BelongsTo

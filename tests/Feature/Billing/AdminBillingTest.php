@@ -6,7 +6,7 @@ use App\Modules\Billing\Models\Plan;
 use App\Modules\Billing\Models\Subscription;
 use App\Modules\Tenancy\Models\Tenant;
 
-test('an admin can see every tenant subscription with revenue totals', function (): void {
+test('an admin can see every tenant subscription across the platform', function (): void {
     $alpha = Tenant::factory()->create(['name' => 'Alpha Foods Ltd']);
     $beta = Tenant::factory()->create(['name' => 'Beta Logistics Ltd']);
     $plan = Plan::factory()->create(['name' => 'Growth']);
@@ -37,9 +37,9 @@ test('an admin can see every tenant subscription with revenue totals', function 
 
     expect($response->json('summary.active'))->toBe(1)
         ->and($response->json('summary.trialing'))->toBe(1)
-        // Only settled money counts as collected.
-        ->and($response->json('summary.collected'))->toBe(1800000)
-        ->and($response->json('summary.billable_employees'))->toBe(20);
+        ->and($response->json('summary.billable_employees'))->toBe(20)
+        // Revenue moved to /revenue, behind its own ability — see RevenueTest.
+        ->and($response->json('summary.collected'))->toBeNull();
 });
 
 test('an admin can create and reprice a plan', function (): void {

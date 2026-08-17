@@ -24,6 +24,10 @@ class BlogPostFactory extends Factory
             'cover_image_url' => null,
             'status' => BlogPost::STATUS_DRAFT,
             'published_at' => null,
+            // Mirrors the column default explicitly: a model built by create()
+            // only carries the attributes that were inserted, so without this
+            // ->views reads as null on a freshly made post.
+            'views' => 0,
             'author_user_id' => null,
             'seo_title' => null,
             'seo_description' => null,

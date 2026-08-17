@@ -35,6 +35,8 @@ class PublicBlogController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
+        $post->recordView();
+
         return new PublicBlogPostResource($post, withBody: true);
     }
 }

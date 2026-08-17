@@ -23,6 +23,7 @@ class BlogPostResource extends JsonResource
             'status' => $this->status,
             'is_published' => $this->isPublished(),
             'published_at' => $this->published_at?->toIso8601String(),
+            'views' => (int) $this->views,
             'seo_title' => $this->seo_title,
             'seo_description' => $this->seo_description,
             'author' => $this->whenLoaded('author', fn () => $this->author === null ? null : [

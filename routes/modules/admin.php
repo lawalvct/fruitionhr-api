@@ -8,6 +8,7 @@ use App\Modules\Admin\Controllers\PlatformRoleController;
 use App\Modules\Admin\Controllers\PlatformTenantController;
 use App\Modules\Admin\Controllers\PlatformUserController;
 use App\Modules\Billing\Controllers\AdminBillingController;
+use App\Modules\Billing\Controllers\AdminRevenueController;
 use App\Modules\Content\Controllers\BlogMediaController;
 use App\Modules\Content\Controllers\BlogPostController;
 use App\Modules\Support\Controllers\AdminSupportController;
@@ -149,6 +150,15 @@ Route::middleware('platform:'.PlatformAbilities::BILLING)->group(function (): vo
         ->name('admin.v1.billing.gateways');
     Route::put('billing/gateways', [AdminBillingController::class, 'updateGateways'])
         ->name('admin.v1.billing.gateways.update');
+});
+
+// What the platform earns. A separate ability from billing: running the price
+// list and knowing the company's income are different jobs.
+Route::middleware('platform:'.PlatformAbilities::REVENUE)->group(function (): void {
+    Route::get('revenue', [AdminRevenueController::class, 'overview'])
+        ->name('admin.v1.revenue.overview');
+    Route::get('revenue/companies', [AdminRevenueController::class, 'companies'])
+        ->name('admin.v1.revenue.companies');
 });
 
 // Support queue across every tenant.
