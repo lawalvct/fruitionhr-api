@@ -1,7 +1,6 @@
 <?php
 
 use App\Core\Documents\Controllers\DocumentController;
-use App\Core\Notifications\Controllers\NotificationController;
 use App\Core\Workflow\Controllers\ApprovalController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +16,5 @@ Route::post('/documents', [DocumentController::class, 'store'])->name('v1.docume
 Route::get('/documents/{document}/download', [DocumentController::class, 'download'])->name('v1.documents.download');
 Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('v1.documents.destroy');
 
-// Notifications
-Route::get('/notifications', [NotificationController::class, 'index'])->name('v1.notifications.index');
-Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('v1.notifications.read-all');
+// Notifications are declared in routes/api.php: they belong to the user, not
+// to a company, and platform administrators have no tenant to be scoped to.

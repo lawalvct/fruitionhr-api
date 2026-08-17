@@ -2,11 +2,14 @@
 
 namespace App\Modules\Billing\Services;
 
+use App\Modules\Admin\Services\PlatformAdminNotifier;
 use App\Modules\Billing\Gateways\PaymentGatewayManager;
 use App\Modules\Billing\Models\Payment;
 use App\Modules\Billing\Models\Plan;
 use App\Modules\Billing\Models\Subscription;
 use App\Modules\Tenancy\Models\Tenant;
+use App\Support\Money\Naira;
+use App\Support\Authorization\PlatformAbilities;
 use App\Support\Tenancy\TenantScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -18,6 +21,7 @@ class PaymentService
         private readonly PaymentGatewayManager $gateways,
         private readonly BillingService $billing,
         private readonly GatewaySettings $settings,
+        private readonly PlatformAdminNotifier $platformNotifier,
     ) {}
 
     /**
@@ -128,6 +132,8 @@ class PaymentService
                     'verified_at' => now(),
                 ])->save();
 
+                $this->notifyFailure($locked, 'was declined by '.$locked->gateway);
+
                 return $locked->refresh();
             }
 
@@ -139,6 +145,10 @@ class PaymentService
                     'gateway_response' => $result->raw + ['amount_mismatch' => true],
                     'verified_at' => now(),
                 ])->save();
+
+                // Worth a human look: the gateway settled a different amount
+                // than we asked for, which is never routine.
+                $this->notifyFailure($locked, 'settled a different amount than we charged', 'danger');
 
                 return $locked->refresh();
             }
@@ -174,5 +184,30 @@ class PaymentService
         $prefix = $gateway === PaymentGatewayManager::NOMBA ? 'NMB' : 'PST';
 
         return $prefix.'_'.strtoupper(Str::random(10)).'_'.time();
+    }
+
+    /**
+     * Flag a charge that did not go through.
+     *
+     * Money that fails quietly is money nobody chases, and the customer is
+     * about to lose write access when their period ends.
+     */
+    private function notifyFailure(Payment $payment, string $what, string $type = 'warning'): void
+    {
+        $company = Tenant::query()->find($payment->tenant_id);
+
+        $this->platformNotifier->notify(
+            ability: PlatformAbilities::BILLING,
+            title: 'Payment failed',
+            body: sprintf(
+                '%s: a payment of %s %s (%s).',
+                $company?->name ?? 'A company',
+                Naira::format($payment->amount),
+                $what,
+                $payment->reference,
+            ),
+            actionUrl: '/billing',
+            type: $type,
+        );
     }
 }

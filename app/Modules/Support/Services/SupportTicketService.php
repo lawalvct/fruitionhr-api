@@ -3,9 +3,11 @@
 namespace App\Modules\Support\Services;
 
 use App\Models\User;
+use App\Modules\Admin\Services\PlatformAdminNotifier;
 use App\Modules\Support\Models\SupportTicket;
 use App\Modules\Support\Models\SupportTicketMessage;
 use App\Modules\Support\Notifications\SupportTicketRepliedNotification;
+use App\Support\Authorization\PlatformAbilities;
 use App\Support\Tenancy\TenantScope;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +23,11 @@ use Illuminate\Validation\ValidationException;
  */
 class SupportTicketService
 {
+    public function __construct(
+        private readonly PlatformAdminNotifier $platformNotifier,
+    ) {
+    }
+
     /**
      * Raise a ticket with its opening message.
      *
@@ -42,6 +49,7 @@ class SupportTicketService
             ])->save();
 
             $this->addMessage($ticket, $author, $data['body'], SupportTicketMessage::AUTHOR_CUSTOMER);
+            $this->notifyPlatform($ticket, 'raised a ticket');
 
             return $ticket->refresh();
         });
@@ -92,6 +100,8 @@ class SupportTicketService
                     // they clearly do not consider it finished.
                     'status' => SupportTicket::STATUS_OPEN,
                 ])->save();
+
+                $this->notifyPlatform($ticket, 'replied');
             }
 
             return $message;
@@ -264,6 +274,31 @@ class SupportTicketService
         ])->save();
 
         return $message->refresh();
+    }
+
+    /**
+     * Put the ticket in front of the support team.
+     *
+     * Without this the queue is silent: a customer waits, and nobody on our
+     * side knows unless somebody happens to open the admin console.
+     */
+    private function notifyPlatform(SupportTicket $ticket, string $what): void
+    {
+        $company = $ticket->company()->withoutGlobalScope(TenantScope::class)->first();
+
+        $this->platformNotifier->notify(
+            ability: PlatformAbilities::SUPPORT,
+            title: $what === 'raised a ticket' ? 'New support ticket' : 'Customer replied',
+            body: sprintf(
+                '%s %s: %s (%s)',
+                $company?->name ?? 'A company',
+                $what,
+                $ticket->subject,
+                $ticket->reference,
+            ),
+            actionUrl: '/support',
+            type: $ticket->priority === 'urgent' ? 'danger' : 'info',
+        );
     }
 
     private function notifyCustomer(SupportTicket $ticket, SupportTicketMessage $message): void

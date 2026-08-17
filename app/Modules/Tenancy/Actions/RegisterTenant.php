@@ -5,10 +5,12 @@ namespace App\Modules\Tenancy\Actions;
 use App\Core\Notifications\NotificationTemplates;
 use App\Core\Workflow\WorkflowProvisioner;
 use App\Models\User;
+use App\Modules\Admin\Services\PlatformAdminNotifier;
 use App\Modules\Billing\Services\BillingService;
 use App\Modules\Payroll\Support\StatutoryProvisioner;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
+use App\Support\Authorization\PlatformAbilities;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -25,6 +27,7 @@ class RegisterTenant
         private readonly WorkflowProvisioner $workflowProvisioner,
         private readonly StatutoryProvisioner $statutoryProvisioner,
         private readonly BillingService $billing,
+        private readonly PlatformAdminNotifier $platformNotifier,
     ) {}
 
     /**
@@ -64,6 +67,16 @@ class RegisterTenant
                 'name' => Str::of($input['name'])->trim()->explode(' ')->first(),
                 'company' => $tenant->name,
             ]));
+
+            // After the transaction: a failure telling ourselves must never roll
+            // back a sign-up that otherwise succeeded.
+            DB::afterCommit(fn () => $this->platformNotifier->notify(
+                ability: PlatformAbilities::TENANTS,
+                title: 'New company signed up',
+                body: sprintf('%s registered and started a trial.', $tenant->name),
+                actionUrl: '/tenants/'.$tenant->id,
+                type: 'success',
+            ));
 
             return $user;
         });

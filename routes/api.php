@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Notifications\Controllers\NotificationController;
 use App\Modules\Auth\Controllers\AuthController;
 use App\Modules\Auth\Controllers\EmailVerificationController;
 use App\Modules\Auth\Controllers\EssInvitationController;
@@ -62,6 +63,17 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function (): void {
     Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
         ->middleware('throttle:3,1')
         ->name('v1.email.resend');
+
+    /*
+     * Notifications belong to the user, not to a company — the controller only
+     * ever reads $request->user()->notifications. They sat in the tenant group,
+     * which meant the bell in the shared AppShell answered 403 ("not attached
+     * to a company") on every admin page load, once a minute, forever.
+     */
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('v1.notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])
+        ->name('v1.notifications.read-all');
 });
 
 /*

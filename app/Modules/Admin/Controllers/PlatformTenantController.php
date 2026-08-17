@@ -8,7 +8,11 @@ use App\Modules\Admin\Requests\ReasonRequest;
 use App\Modules\Admin\Requests\UpdateTenantRequest;
 use App\Modules\Admin\Resources\PlatformTenantResource;
 use App\Modules\Admin\Services\PlatformActivityService;
+use App\Modules\Admin\Services\PlatformCustomerSnapshot;
 use App\Modules\Tenancy\Services\PlatformTenantService;
+use App\Support\Authorization\PlatformAbilities;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -24,9 +28,22 @@ class PlatformTenantController extends Controller
         );
     }
 
-    public function show(int $tenant, PlatformTenantService $service): PlatformTenantResource
-    {
-        return new PlatformTenantResource($service->find($tenant));
+    public function show(
+        Request $request,
+        int $tenant,
+        PlatformTenantService $service,
+        PlatformCustomerSnapshot $snapshot,
+    ): JsonResponse {
+        $company = $service->find($tenant);
+
+        // Merged into `data` rather than sitting beside it, so the detail page
+        // reads one object. Money inside the snapshot is gated on the revenue
+        // ability — administering a company is not the same permission as
+        // seeing what it pays us.
+        return response()->json([
+            'data' => (new PlatformTenantResource($company))->resolve($request)
+                + $snapshot->for($company, $request->user()->hasPlatformAbility(PlatformAbilities::REVENUE)),
+        ]);
     }
 
     public function update(
