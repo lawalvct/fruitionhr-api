@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Modules\Admin\Models\PlatformRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -36,7 +37,15 @@ class UserFactory extends Factory
             // isSuperAdmin() in the EnsureSuperAdmin middleware).
             'tenant_id' => null,
             'is_super_admin' => false,
+            'platform_role_id' => null,
             'status' => User::STATUS_ACTIVE,
+            // Nullable profile columns, for the same reason: /me reads every
+            // one of them, and a model built by create() only carries the
+            // attributes that were actually inserted.
+            'phone' => null,
+            'timezone' => null,
+            'bio' => null,
+            'avatar_path' => null,
         ];
     }
 
@@ -50,13 +59,24 @@ class UserFactory extends Factory
         ]);
     }
 
+    /** A full owner: the platform administrator with the run of the place. */
     public function platformAdministrator(bool $verified = true): static
     {
         return $this->state(fn (array $attributes) => [
             'tenant_id' => null,
             'is_super_admin' => true,
+            'platform_role_id' => PlatformRole::query()
+                ->where('slug', PlatformRole::OWNER_SLUG)
+                ->value('id'),
             'status' => User::STATUS_ACTIVE,
             'email_verified_at' => $verified ? now() : null,
         ]);
+    }
+
+    /** Platform staff limited to whatever the given role grants. */
+    public function platformStaff(PlatformRole $role, bool $verified = true): static
+    {
+        return $this->platformAdministrator($verified)
+            ->state(fn (array $attributes) => ['platform_role_id' => $role->id]);
     }
 }

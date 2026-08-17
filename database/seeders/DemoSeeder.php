@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Core\Workflow\Models\WorkflowRequest;
 use App\Core\Workflow\WorkflowService;
 use App\Models\User;
+use App\Modules\Admin\Models\PlatformRole;
 use App\Modules\Attendance\Models\AttendanceLog;
 use App\Modules\Attendance\Models\Shift;
 use App\Modules\Attendance\Models\ShiftAssignment;
@@ -100,9 +101,48 @@ class DemoSeeder extends Seeder
             'name' => 'Platform Admin',
             'password' => Hash::make(self::PASSWORD),
             'is_super_admin' => true,
+            // Without a role this account clears EnsureSuperAdmin and then
+            // finds every section closed to it — a console with no sidebar.
+            'platform_role_id' => PlatformRole::query()
+                ->where('slug', PlatformRole::OWNER_SLUG)
+                ->value('id'),
             'status' => User::STATUS_ACTIVE,
             'email_verified_at' => now(),
         ])->save();
+
+        $this->seedStaffExamples();
+    }
+
+    /**
+     * Two limited administrators, so the access model is visible in a demo
+     * rather than something you have to go and build before you can see it.
+     */
+    private function seedStaffExamples(): void
+    {
+        $examples = [
+            ['support@fruitionhr.test', 'Support Desk', 'support-agent'],
+            ['editor@fruitionhr.test', 'Blog Editor', 'content-editor'],
+        ];
+
+        foreach ($examples as [$email, $name, $roleSlug]) {
+            $roleId = PlatformRole::query()->where('slug', $roleSlug)->value('id');
+
+            if ($roleId === null) {
+                continue;
+            }
+
+            User::query()->firstOrNew(['email' => $email])->forceFill([
+                'tenant_id' => null,
+                'name' => $name,
+                'password' => Hash::make(self::PASSWORD),
+                'is_super_admin' => true,
+                'platform_role_id' => $roleId,
+                'status' => User::STATUS_ACTIVE,
+                'email_verified_at' => now(),
+            ])->save();
+        }
+
+        $this->command?->info('  Platform:     admin@fruitionhr.test (owner) | support@fruitionhr.test | editor@fruitionhr.test');
     }
 
     /**

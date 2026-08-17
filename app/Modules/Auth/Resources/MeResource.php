@@ -46,6 +46,11 @@ class MeResource extends JsonResource
             ]),
             'roles' => $this->when($isTenantUser, fn () => $this->getRoleNames()),
             'permissions' => $this->when($isTenantUser, fn () => $this->getAllPermissions()->pluck('name')),
+            // Platform staff only. The admin sidebar draws itself from this,
+            // and the API enforces the same list on every admin route.
+            'platform_role' => $this->when(! $isTenantUser, fn (): ?string => $this->loadMissing('platformRole')
+                ->getRelation('platformRole')?->name),
+            'platform_abilities' => $this->when(! $isTenantUser, fn (): array => $this->platformAbilities()),
         ];
     }
 }

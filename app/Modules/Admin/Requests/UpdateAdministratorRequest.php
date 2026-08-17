@@ -26,6 +26,15 @@ class UpdateAdministratorRequest extends FormRequest
             ],
             'phone' => ['sometimes', 'nullable', 'string', 'max:40'],
             'timezone' => ['sometimes', 'nullable', 'timezone'],
+            'platform_role_id' => ['sometimes', 'required', 'integer', 'exists:platform_roles,id'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'platform_role_id.required' => 'Choose what this administrator can access.',
+            'platform_role_id.exists' => 'That access level no longer exists.',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Modules\Auth\Services\PlatformAdministratorService;
+use App\Modules\Admin\Models\PlatformRole;
 use App\Modules\Tenancy\Models\Tenant;
 use Illuminate\Support\Facades\Notification;
 
@@ -11,6 +12,12 @@ use Illuminate\Support\Facades\Notification;
  * that gate gets its own test — a regression in any one of them is a
  * cross-tenant data leak, the worst bug this codebase can ship.
  */
+/** The built-in Owner role, seeded by the platform_roles migration. */
+function ownerRole(): PlatformRole
+{
+    return PlatformRole::query()->where('slug', PlatformRole::OWNER_SLUG)->firstOrFail();
+}
+
 $endpoints = [
     'dashboard' => '/api/admin/v1/dashboard',
     'tenants' => '/api/admin/v1/tenants',
@@ -94,6 +101,7 @@ test('a newly created administrator is auto-verified and needs no code', functio
         'email' => 'nneka@fruitionhr.test',
         'password' => 'Sup3r-Secret!',
         'password_confirmation' => 'Sup3r-Secret!',
+        'platform_role_id' => ownerRole()->id,
     ])->assertCreated()->assertJsonPath('data.is_email_verified', true);
 
     expect(User::query()->where('email', 'nneka@fruitionhr.test')->firstOrFail()->hasVerifiedEmail())
@@ -110,6 +118,7 @@ test('an administrator created by the service reaches the console with no extra 
         'name' => 'Tunde Adeyemi',
         'email' => 'tunde@fruitionhr.test',
         'password' => 'Sup3r-Secret!',
+        'platform_role_id' => ownerRole()->id,
     ])['administrator'];
 
     $this->actingAs($created)->getJson('/api/admin/v1/dashboard')->assertOk();

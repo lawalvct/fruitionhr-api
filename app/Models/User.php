@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Modules\Admin\Models\PlatformRole;
 use App\Modules\Employee\Models\Employee;
 use App\Modules\Tenancy\Models\Tenant;
+use App\Support\Authorization\PlatformAbilities;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
@@ -57,5 +59,44 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function isSuperAdmin(): bool
     {
         return $this->is_super_admin === true;
+    }
+
+    /** @return BelongsTo<PlatformRole, $this> */
+    public function platformRole(): BelongsTo
+    {
+        return $this->belongsTo(PlatformRole::class);
+    }
+
+    /**
+     * What this administrator may reach in the admin surface.
+     *
+     * Platform staff without a role get nothing rather than everything: an
+     * administrator whose role was never set should be inert, not omnipotent.
+     *
+     * @return list<string>
+     */
+    public function platformAbilities(): array
+    {
+        if (! $this->isSuperAdmin()) {
+            return [];
+        }
+
+        // loadMissing rather than a bare ->platformRole: lazy loading is
+        // disabled outside production and this runs from middleware on every
+        // admin request, where nothing has eager loaded the relation yet.
+        return $this->loadMissing('platformRole')
+            ->getRelation('platformRole')
+            ?->grantedAbilities() ?? [];
+    }
+
+    public function hasPlatformAbility(string $ability): bool
+    {
+        return in_array($ability, $this->platformAbilities(), true);
+    }
+
+    /** Whether this administrator can hand out platform access to others. */
+    public function isPlatformOwner(): bool
+    {
+        return $this->hasPlatformAbility(PlatformAbilities::ADMINISTRATORS);
     }
 }

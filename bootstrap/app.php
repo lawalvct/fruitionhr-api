@@ -5,6 +5,7 @@ use App\Modules\Billing\Console\ExpireLapsedSubscriptions;
 use App\Modules\Billing\Console\ReconcilePendingPayments;
 use App\Support\Http\EnsureActiveSubscription;
 use App\Support\Http\EnsureEmailVerified;
+use App\Support\Http\EnsurePlatformAbility;
 use App\Support\Http\EnsureSuperAdmin;
 use App\Support\Tenancy\SetCurrentTenant;
 use Illuminate\Auth\Middleware\Authenticate;
@@ -40,6 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant' => SetCurrentTenant::class,
             'super-admin' => EnsureSuperAdmin::class,
+            'platform' => EnsurePlatformAbility::class,
             'verified.email' => EnsureEmailVerified::class,
             'subscribed' => EnsureActiveSubscription::class,
         ]);

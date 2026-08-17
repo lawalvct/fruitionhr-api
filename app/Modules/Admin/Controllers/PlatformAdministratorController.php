@@ -63,7 +63,7 @@ class PlatformAdministratorController extends Controller
         EmailVerificationService $verification,
     ): PlatformAdministratorResource {
         $result = DB::transaction(function () use ($request, $administrator, $service, $activity): array {
-            $result = $service->update($administrator, $request->validated());
+            $result = $service->update($administrator, $request->validated(), $request->user());
             $activity->record(
                 request: $request,
                 action: 'administrator.updated',
