@@ -5,12 +5,27 @@ namespace App\Core\Workflow\Controllers;
 use App\Core\Workflow\Models\WorkflowRequest;
 use App\Core\Workflow\Resources\WorkflowRequestResource;
 use App\Core\Workflow\WorkflowService;
+use App\Modules\Leave\Models\LeaveRequest;
+use App\Modules\Payroll\Models\OvertimePayment;
 use App\Modules\Payroll\Models\StaffLoan;
+use App\Modules\SelfService\Models\ProfileUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class ApprovalController extends Controller
 {
+    /**
+     * Relations each record type needs for its workflowSummary()/record_details.
+     * Anything missing here would be lazy loaded by the resource, which throws
+     * outside production — keep this in step with the models' workflowSummary().
+     */
+    private const RECORD_RELATIONS = [
+        StaffLoan::class => ['employee'],
+        LeaveRequest::class => ['employee', 'leaveType'],
+        OvertimePayment::class => ['employee'],
+        ProfileUpdateRequest::class => ['employee'],
+    ];
+
     /**
      * Pending approvals where the current step's role is held by the user,
      * plus the user's own submitted requests.
@@ -32,7 +47,7 @@ class ApprovalController extends Controller
             ->with(['currentStep', 'requester', 'record', 'actions.actor'])
             ->latest('submitted_at')
             ->get();
-        $pendingForMe->loadMorph('record', [StaffLoan::class => ['employee']]);
+        $pendingForMe->loadMorph('record', self::RECORD_RELATIONS);
 
         $mine = WorkflowRequest::query()
             ->where('requested_by', $user->id)
@@ -44,7 +59,7 @@ class ApprovalController extends Controller
             ->latest('submitted_at')
             ->limit(30)
             ->get();
-        $mine->loadMorph('record', [StaffLoan::class => ['employee']]);
+        $mine->loadMorph('record', self::RECORD_RELATIONS);
 
         return response()->json([
             'data' => [

@@ -56,8 +56,8 @@ class LeaveRequest extends Model
     /** Human-readable label shown in the approvals inbox. */
     public function workflowSummary(): string
     {
-        $employee = $this->employee?->full_name ?? 'Employee';
-        $type = $this->leaveType?->name ?? 'Leave';
+        $employee = ($this->relationLoaded('employee') ? $this->employee?->full_name : null) ?? 'Employee';
+        $type = ($this->relationLoaded('leaveType') ? $this->leaveType?->name : null) ?? 'Leave';
 
         return "{$employee} · {$type} ({$this->days} day".($this->days === 1 ? '' : 's').')';
     }

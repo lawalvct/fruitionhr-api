@@ -8,6 +8,12 @@ use App\Core\Workflow\WorkflowProvisioner;
 use App\Core\Workflow\WorkflowService;
 use App\Models\User;
 use App\Modules\Employee\Models\Employee;
+use App\Modules\Leave\Models\LeaveRequest;
+use App\Modules\Leave\Models\LeaveType;
+use App\Modules\Payroll\Models\OvertimePayment;
+use App\Modules\Payroll\Models\StaffLoan;
+use App\Modules\Recruitment\Models\ManpowerRequisition;
+use App\Modules\SelfService\Models\ProfileUpdateRequest;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
@@ -195,4 +201,65 @@ test('an owner who submitted a request still sees the pending queue', function (
     // Owners see every pending step, including the one they raised.
     expect($response->json('data.pending_for_me'))->toHaveCount(2)
         ->and($response->json('data.my_requests'))->toHaveCount(1);
+});
+
+test('the inbox renders every record type without lazy loading its relations', function () {
+    // Regression: the inbox only eager loaded StaffLoan's employee, so any
+    // record whose workflowSummary() reaches for a relation — LeaveRequest
+    // wants employee + leaveType — threw a LazyLoadingViolationException and
+    // 500'd the page. Every other test here submits a bare Employee, which has
+    // no workflowSummary(), so the real record types went unexercised.
+    [$tenant, $employeeUser, , , $employee] = workflowTenant();
+
+    $owner = User::factory()->create(['tenant_id' => $tenant->id]);
+    $owner->assignRole('owner');
+
+    // Two leave requests on purpose: Eloquent only arms preventsLazyLoading on
+    // hydrated models when a query returns more than one row (Builder::hydrate),
+    // so a single pending leave request lazy loads quietly and hides the bug.
+    $leaveType = LeaveType::factory()->create(['name' => 'Annual Leave']);
+    $leave = LeaveRequest::factory()->create([
+        'employee_id' => $employee->id,
+        'leave_type_id' => $leaveType->id,
+        'requested_by' => $employeeUser->id,
+    ]);
+    $secondLeave = LeaveRequest::factory()->create([
+        'employee_id' => $employee->id,
+        'leave_type_id' => $leaveType->id,
+        'requested_by' => $employeeUser->id,
+    ]);
+    $loan = StaffLoan::factory()->create(['employee_id' => $employee->id]);
+    $overtime = OvertimePayment::factory()->create(['employee_id' => $employee->id]);
+    $requisition = ManpowerRequisition::factory()->create(['requested_by' => $employeeUser->id]);
+    $profileUpdate = ProfileUpdateRequest::create([
+        'employee_id' => $employee->id,
+        'requested_by' => $employeeUser->id,
+        'current_values' => ['phone' => '08010000000'],
+        'requested_values' => ['phone' => '08020000000'],
+        'status' => ProfileUpdateRequest::STATUS_PENDING,
+    ]);
+
+    $service = app(WorkflowService::class);
+    $service->submit($leave, 'leave', $employeeUser);
+    $service->submit($secondLeave, 'leave', $employeeUser);
+    $service->submit($loan, 'loan', $employeeUser);
+    $service->submit($overtime, 'overtime', $employeeUser);
+    $service->submit($requisition, 'recruitment_requisition', $employeeUser);
+    $service->submit($profileUpdate, 'profile_update', $employeeUser);
+
+    $response = $this->actingAs($owner)->getJson('/api/v1/approvals')->assertOk();
+
+    $summaries = collect($response->json('data.pending_for_me'))
+        ->pluck('record_summary', 'module');
+
+    expect($response->json('data.pending_for_me'))->toHaveCount(6)
+        ->and($summaries)->toHaveCount(5)
+        // Relations resolved, so the real names land in the summary rather than
+        // the 'Employee' / 'Leave' placeholders that signal an unloaded relation.
+        ->and($summaries['leave'])->toContain($employee->full_name)
+        ->and($summaries['leave'])->toContain('Annual Leave')
+        ->and($summaries['loan'])->toContain($employee->full_name)
+        ->and($summaries['overtime'])->toContain($employee->full_name)
+        ->and($summaries['profile_update'])->toContain($employee->full_name)
+        ->and($summaries['recruitment_requisition'])->toContain($requisition->title);
 });
