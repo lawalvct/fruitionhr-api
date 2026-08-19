@@ -45,8 +45,8 @@ class ProfileUpdateRequest extends Model
 
     public function workflowSummary(): string
     {
-        $this->loadMissing('employee');
+        $name = $this->relationLoaded('employee') ? $this->employee?->full_name : null;
 
-        return 'Profile update for '.$this->employee->full_name;
+        return 'Profile update for '.($name ?? 'employee #'.$this->employee_id);
     }
 }

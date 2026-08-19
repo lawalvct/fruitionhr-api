@@ -15,7 +15,7 @@ use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
 
-function workflowTenant(): array
+function appraisalTenant(): array
 {
     $tenant = Tenant::factory()->create();
     app(TenantRoleProvisioner::class)->provision($tenant);
@@ -68,7 +68,7 @@ function createManagerOnlyAssignment(User $manager, Employee $employee, Appraisa
 }
 
 beforeEach(function () {
-    [$this->tenant, $this->owner, $this->employeeUser, $this->employee] = workflowTenant();
+    [$this->tenant, $this->owner, $this->employeeUser, $this->employee] = appraisalTenant();
     $this->actingAs($this->owner);
 });
 
@@ -291,7 +291,7 @@ test('the defaults provisioner is tenant scoped', function () {
     app(PerformanceDefaultsProvisioner::class)->provision($this->owner);
     expect(PerformanceKpi::query()->count())->toBeGreaterThan(0);
 
-    [, $otherOwner] = workflowTenant();
+    [, $otherOwner] = appraisalTenant();
     $this->actingAs($otherOwner);
     $this->getJson('/api/v1/performance/kpis')->assertOk()->assertJsonCount(0, 'data');
 });
