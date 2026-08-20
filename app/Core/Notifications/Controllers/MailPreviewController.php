@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Modules\Auth\Notifications\AdminPasswordResetNotification;
 use App\Modules\Auth\Notifications\EmailVerificationCodeNotification;
 use App\Modules\Auth\Notifications\EssInvitationNotification;
+use App\Modules\Auth\Notifications\PasswordResetNotification;
 use App\Modules\Tenancy\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -65,6 +66,9 @@ class MailPreviewController extends Controller
         $setupUrl = rtrim((string) config('app.frontend_url'), '/')
             .'/setup-account?token=preview-token-0123456789abcdef&email=chidi.okafor%40example.com';
 
+        $resetUrl = rtrim((string) config('app.frontend_url'), '/')
+            .'/reset-password?token=preview-token-0123456789abcdef&email=adaeze%40example.com';
+
         return [
             'verification-code' => [
                 'label' => 'Email verification code (owner sign-up)',
@@ -75,6 +79,11 @@ class MailPreviewController extends Controller
                 'label' => 'Password reset by support',
                 'notifiable' => $this->fakeUser('Chidi Okafor', 'chidi.okafor@example.com', 'Fruition Foods Ltd'),
                 'notification' => new AdminPasswordResetNotification('Xq7#mR2vTp9!Ld4B'),
+            ],
+            'password-reset' => [
+                'label' => 'Password reset link (forgot password)',
+                'notifiable' => $this->fakeUser('Adaeze Nwosu', 'adaeze@example.com', 'Fruition Foods Ltd'),
+                'notification' => new PasswordResetNotification($resetUrl),
             ],
             'ess-invitation' => [
                 'label' => 'Employee self-service invitation',

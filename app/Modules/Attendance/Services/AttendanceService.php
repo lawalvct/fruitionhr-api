@@ -80,6 +80,155 @@ class AttendanceService
     }
 
     /**
+     * Mark many employees across one or more dates in a single period.
+     *
+     * Status is derived, never stored, so a status is only ever expressed as
+     * clock times: "present" writes the employee's own shift hours, "late"
+     * writes an arrival past the grace period, and "absent" removes the log so
+     * the calculator falls back to ABSENT on its own. That keeps
+     * AttendanceCalculator the one place a day's outcome is decided.
+     *
+     * Days the company does not own are never touched: holidays, approved
+     * leave, non-working weekdays and employees with no shift are reported as
+     * skipped rather than silently overwritten — attendance must not contradict
+     * the leave module or the holiday calendar.
+     *
+     * @param  int[]  $employeeIds
+     * @param  string[]  $dates  Y-m-d, all within one YYYY-MM period
+     * @param  bool  $overwrite  replace days that already carry a log
+     * @return array{marked:int,cleared:int,skipped:list<array{employee_id:int,employee:string,date:string,reason:string}>}
+     */
+    public function bulkMark(
+        array $employeeIds,
+        array $dates,
+        string $status,
+        ?string $clockIn,
+        ?string $clockOut,
+        ?string $note,
+        User $actor,
+        bool $overwrite = false,
+    ): array {
+        $period = substr((string) reset($dates), 0, 7);
+
+        $employees = Employee::query()
+            ->whereIn('id', $employeeIds)
+            ->where('employment_status', '!=', Employee::STATUS_EXITED)
+            ->get();
+
+        $marked = 0;
+        $cleared = 0;
+        $skipped = [];
+
+        DB::transaction(function () use (
+            $employees, $dates, $period, $status, $clockIn, $clockOut, $note,
+            $actor, $overwrite, &$marked, &$cleared, &$skipped
+        ): void {
+            foreach ($employees as $employee) {
+                // Reuse the same derivation the grid shows, so "why was this
+                // day skipped?" always matches what the user is looking at.
+                $days = $this->daysFor($employee, $period);
+
+                $logs = AttendanceLog::query()
+                    ->where('employee_id', $employee->id)
+                    ->whereIn('date', $dates)
+                    ->get()
+                    ->keyBy(fn (AttendanceLog $log) => $log->date->toDateString());
+
+                foreach ($dates as $date) {
+                    $current = $days[$date] ?? null;
+
+                    if ($current === null || ! $current->isWorkingDay()) {
+                        $skipped[] = $this->skip($employee, $date, $current?->status ?? DayStatus::NO_SHIFT);
+
+                        continue;
+                    }
+
+                    $existing = $logs->get($date);
+
+                    if ($existing !== null && ! $overwrite) {
+                        $skipped[] = $this->skip($employee, $date, 'already_recorded');
+
+                        continue;
+                    }
+
+                    if ($status === DayStatus::ABSENT) {
+                        if ($existing === null) {
+                            $skipped[] = $this->skip($employee, $date, 'already_absent');
+
+                            continue;
+                        }
+
+                        $existing->delete();
+                        $cleared++;
+
+                        continue;
+                    }
+
+                    $shift = $this->shiftFor($employee, Carbon::parse($date));
+
+                    if ($shift === null) {
+                        $skipped[] = $this->skip($employee, $date, DayStatus::NO_SHIFT);
+
+                        continue;
+                    }
+
+                    AttendanceLog::query()->updateOrCreate(
+                        ['employee_id' => $employee->id, 'date' => $date],
+                        [
+                            'clock_in' => $clockIn ?? $this->defaultClockIn($shift, $status),
+                            'clock_out' => $clockOut ?? $this->time($shift->end_time),
+                            'note' => $note,
+                            'source' => AttendanceLog::SOURCE_MANUAL,
+                            'created_by' => $actor->id,
+                        ],
+                    );
+
+                    $marked++;
+                }
+            }
+        });
+
+        return ['marked' => $marked, 'cleared' => $cleared, 'skipped' => $skipped];
+    }
+
+    /**
+     * Clock-in that produces the requested status against this shift. "Late"
+     * has to land past the grace period, otherwise the calculator would read
+     * it back as present.
+     */
+    private function defaultClockIn(Shift $shift, string $status): string
+    {
+        $start = $this->time($shift->start_time);
+
+        if ($status !== DayStatus::LATE) {
+            return $start;
+        }
+
+        [$hours, $minutes] = array_map('intval', explode(':', $start));
+        $total = $hours * 60 + $minutes + (int) $shift->grace_minutes + 1;
+        $total = min($total, 23 * 60 + 59);
+
+        return sprintf('%02d:%02d', intdiv($total, 60), $total % 60);
+    }
+
+    /** Normalise 'H:i:s' shift columns down to the 'H:i' logs are stored in. */
+    private function time(mixed $value): string
+    {
+        return substr((string) $value, 0, 5);
+    }
+
+    /** @return array{employee_id:int,employee:string,date:string,reason:string} */
+    private function skip(Employee $employee, string $date, string $reason): array
+    {
+        return [
+            'employee_id' => $employee->id,
+            'employee' => $employee->full_name,
+            'date' => $date,
+            'reason' => $reason,
+        ];
+    }
+
+    /**
      * Compute and persist finalized summaries for all active employees for
      * the period, then lock them. Idempotent overwrite of open summaries.
      *

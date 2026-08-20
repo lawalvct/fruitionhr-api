@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Modules\Auth\Notifications\EmailVerificationCodeNotification;
 use App\Modules\Auth\Notifications\EssInvitationNotification;
+use App\Modules\Auth\Notifications\PasswordResetNotification;
 use App\Modules\Auth\Services\EmailVerificationService;
 use Tests\Support\MailRenderer;
 
@@ -10,6 +11,7 @@ test('every email carries the fruition logo and brand chrome', function (): void
     $mails = [
         MailRenderer::render(new EmailVerificationCodeNotification('482913'), MailRenderer::recipient()),
         MailRenderer::render(new EssInvitationNotification('https://app.test/setup-account?token=abc', 'Fruition Foods Ltd'), MailRenderer::recipient()),
+        MailRenderer::render(new PasswordResetNotification('https://app.test/reset-password?token=abc'), MailRenderer::recipient()),
     ];
 
     foreach ($mails as $mail) {
@@ -104,4 +106,22 @@ test('the mail preview gallery renders outside production', function (): void {
         ->assertHeader('Content-Type', 'text/plain; charset=utf-8');
 
     $this->get('/debug/emails/does-not-exist')->assertNotFound();
+});
+
+test('the password reset email carries the link and its expiry', function (): void {
+    $url = 'https://app.test/reset-password?token=abc123&email=adaeze%40example.test';
+    $mail = MailRenderer::render(new PasswordResetNotification($url), MailRenderer::recipient('Adaeze Nwosu', 'adaeze@example.test'));
+
+    $ttl = (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
+
+    expect($mail['subject'])->toBe('Reset your FruitionHR password');
+
+    expect($mail['html'])
+        // Blade escapes the query separator, so match the rendered href.
+        ->toContain(e($url))
+        ->toContain('Hi Adaeze,')
+        ->toContain('adaeze@example.test')
+        ->toContain($ttl.' minutes')
+        // Someone who did not ask for this needs to know they can ignore it.
+        ->toContain("Didn't ask for this?");
 });

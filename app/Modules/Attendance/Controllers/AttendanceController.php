@@ -5,6 +5,7 @@ namespace App\Modules\Attendance\Controllers;
 use App\Modules\Attendance\Imports\AttendanceLogsImport;
 use App\Modules\Attendance\Exports\AttendanceImportTemplateExport;
 use App\Modules\Attendance\Models\AttendanceLog;
+use App\Modules\Attendance\Requests\BulkAttendanceLogRequest;
 use App\Modules\Attendance\Models\AttendanceSummary;
 use App\Modules\Attendance\Services\AttendanceService;
 use App\Modules\Employee\Models\Employee;
@@ -109,6 +110,53 @@ class AttendanceController extends Controller
                 'clock_out' => $log->clock_out ? substr((string) $log->clock_out, 0, 5) : null,
             ],
         ], 201);
+    }
+
+    /**
+     * Mark many employees at once, for one date or a range inside one month.
+     *
+     * Reports what it skipped rather than forcing every day through: holidays,
+     * approved leave and rest days stay untouched, and days that already carry
+     * a log are left alone unless the caller explicitly asks to overwrite.
+     */
+    public function bulkStore(BulkAttendanceLogRequest $request)
+    {
+        $this->guardOpenPeriod($request->period());
+
+        $result = $this->service->bulkMark(
+            employeeIds: $request->input('employee_ids'),
+            dates: $request->dates(),
+            status: $request->string('status')->value(),
+            clockIn: $request->input('clock_in'),
+            clockOut: $request->input('clock_out'),
+            note: $request->input('note'),
+            actor: $request->user(),
+            overwrite: $request->boolean('overwrite'),
+        );
+
+        return response()->json([
+            'data' => $result,
+            'message' => $this->bulkMessage($result),
+        ]);
+    }
+
+    /** @param  array{marked:int,cleared:int,skipped:list<array<string,mixed>>}  $result */
+    private function bulkMessage(array $result): string
+    {
+        $changed = $result['marked'] + $result['cleared'];
+        $skipped = count($result['skipped']);
+
+        if ($changed === 0) {
+            return $skipped === 0
+                ? 'Nothing to update.'
+                : "No days were changed — {$skipped} were skipped.";
+        }
+
+        $message = $result['cleared'] > 0 && $result['marked'] === 0
+            ? "Cleared {$result['cleared']} day".($result['cleared'] === 1 ? '' : 's').'.'
+            : "Updated {$changed} day".($changed === 1 ? '' : 's').'.';
+
+        return $skipped > 0 ? $message." {$skipped} skipped." : $message;
     }
 
     public function import(Request $request)

@@ -4,6 +4,7 @@ use App\Core\Notifications\Controllers\NotificationController;
 use App\Modules\Auth\Controllers\AuthController;
 use App\Modules\Auth\Controllers\EmailVerificationController;
 use App\Modules\Auth\Controllers\EssInvitationController;
+use App\Modules\Auth\Controllers\PasswordResetController;
 use App\Modules\Auth\Controllers\ProfileController;
 use App\Modules\Billing\Controllers\PaymentWebhookController;
 use App\Modules\Tenancy\Controllers\RegisterTenantController;
@@ -26,6 +27,16 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/ess-invitations/accept', [EssInvitationController::class, 'accept'])
         ->middleware('throttle:10,1')
         ->name('v1.ess-invitations.accept');
+
+    // Forgot password. The tight throttle on the request endpoint is per-IP and
+    // sits on top of the broker's own per-user throttle window.
+    Route::post('/forgot-password', [PasswordResetController::class, 'request'])
+        ->middleware('throttle:6,1')
+        ->name('v1.password.request');
+
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])
+        ->middleware('throttle:10,1')
+        ->name('v1.password.reset');
 
     require __DIR__.'/modules/reference.php';
     require __DIR__.'/modules/public-recruitment.php';
