@@ -19,6 +19,7 @@ Route::post('shift-assignments', [ShiftAssignmentController::class, 'store'])->n
 Route::get('attendance', [AttendanceController::class, 'index'])->name('v1.attendance.index');
 Route::get('attendance/import-template.xlsx', [AttendanceController::class, 'importTemplate'])->name('v1.attendance.import-template');
 Route::post('attendance-logs', [AttendanceController::class, 'storeLog'])->name('v1.attendance-logs.store');
+Route::post('attendance-logs/bulk', [AttendanceController::class, 'bulkStore'])->name('v1.attendance-logs.bulk');
 Route::post('attendance-logs/import', [AttendanceController::class, 'import'])->name('v1.attendance-logs.import');
 Route::post('attendance-periods/{period}/finalize', [AttendanceController::class, 'finalize'])->name('v1.attendance.finalize');
 

@@ -56,6 +56,10 @@ return [
 
     'frontend_url' => env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
 
+    // Super-admin surface. Emailed links (password resets) must land a platform
+    // admin on admin.* rather than the tenant app, which would bounce them.
+    'admin_url' => env('ADMIN_URL', env('FRONTEND_URL', env('APP_URL', 'http://localhost'))),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
