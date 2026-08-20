@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['employee_salary_id', 'salary_component_id', 'mode', 'amount', 'percent'])]
+#[Fillable(['employee_salary_id', 'salary_component_id', 'formula_revision_id', 'mode', 'amount', 'percent'])]
 class EmployeeSalaryComponentOverride extends Model
 {
     use BelongsToTenant;
@@ -34,5 +34,10 @@ class EmployeeSalaryComponentOverride extends Model
     public function component(): BelongsTo
     {
         return $this->belongsTo(SalaryComponent::class, 'salary_component_id');
+    }
+
+    public function formulaRevision(): BelongsTo
+    {
+        return $this->belongsTo(SalaryFormulaRevision::class, 'formula_revision_id');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Modules\Payroll\Services;
 use App\Core\Workflow\WorkflowService;
 use App\Models\User;
 use App\Modules\Employee\Models\Employee;
+use App\Modules\Payroll\Formula\SalaryFormulaException;
 use App\Modules\Payroll\Jobs\CalculatePayrollRun;
 use App\Modules\Payroll\Models\PayPeriod;
 use App\Modules\Payroll\Models\PayrollRun;
@@ -13,6 +14,7 @@ use App\Modules\Payroll\Support\PayrollRunState;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Throwable;
 
 class PayrollRunService
 {
@@ -78,38 +80,84 @@ class PayrollRunService
     {
         $this->state->assertMutable($run);
 
-        DB::transaction(function () use ($run): void {
-            // Clear any prior partial results (safe: run is pre-approval).
-            $run->runEmployees()->each(fn ($re) => $re->items()->delete());
-            $run->runEmployees()->delete();
+        try {
+            DB::transaction(function () use ($run): void {
+                // Clear any prior partial results (safe: run is pre-approval).
+                $run->runEmployees()->each(fn ($re) => $re->items()->delete());
+                $run->runEmployees()->delete();
 
-            $totals = [
-                'employee_count' => 0, 'total_gross' => 0, 'total_statutory' => 0,
-                'total_deductions' => 0, 'total_net' => 0, 'total_employer_cost' => 0,
-            ];
+                $totals = [
+                    'employee_count' => 0, 'total_gross' => 0, 'total_statutory' => 0,
+                    'total_deductions' => 0, 'total_net' => 0, 'total_employer_cost' => 0,
+                ];
 
-            Employee::query()
-                ->where('employment_status', Employee::STATUS_ACTIVE)
-                ->chunkById(200, function ($employees) use ($run, &$totals): void {
-                    foreach ($employees as $employee) {
-                        $line = $this->calculator->calculateFor($run, $employee);
-                        if ($line === null) {
-                            continue;
+                Employee::query()
+                    ->where('employment_status', Employee::STATUS_ACTIVE)
+                    ->chunkById(200, function ($employees) use ($run, &$totals): void {
+                        foreach ($employees as $employee) {
+                            $line = $this->calculator->calculateFor($run, $employee);
+                            if ($line === null) {
+                                continue;
+                            }
+
+                            $totals['employee_count']++;
+                            $totals['total_gross'] += $line->gross;
+                            $totals['total_statutory'] += $line->total_statutory;
+                            $totals['total_deductions'] += $line->total_deductions;
+                            $totals['total_net'] += $line->net;
+                            $totals['total_employer_cost'] += $line->pension_employer + $line->nsitf + $line->employer_contributions;
                         }
+                    });
 
-                        $totals['employee_count']++;
-                        $totals['total_gross'] += $line->gross;
-                        $totals['total_statutory'] += $line->total_statutory;
-                        $totals['total_deductions'] += $line->total_deductions;
-                        $totals['total_net'] += $line->net;
-                        $totals['total_employer_cost'] += $line->pension_employer + $line->nsitf + $line->employer_contributions;
-                    }
-                });
+                $run->update($totals);
+            });
 
-            $run->update($totals);
+            $this->state->transition($run, PayrollRun::STATUS_REVIEW);
+            $run->update([
+                'calculation_error_code' => null,
+                'calculation_error_message' => null,
+                'calculation_failed_at' => null,
+            ]);
+        } catch (Throwable $exception) {
+            $run->refresh();
+            if ($run->status === PayrollRun::STATUS_CALCULATING) {
+                $this->state->transition($run, PayrollRun::STATUS_DRAFT);
+            }
+
+            $run->update([
+                'calculation_error_code' => $exception instanceof SalaryFormulaException
+                    ? $exception->errorCode
+                    : 'PAYROLL_CALCULATION_FAILED',
+                'calculation_error_message' => $exception instanceof SalaryFormulaException
+                    ? $exception->getMessage()
+                    : 'Payroll calculation failed. Review the payroll inputs and retry.',
+                'calculation_failed_at' => now(),
+            ]);
+            report($exception);
+
+            throw $exception;
+        }
+    }
+
+    public function retry(PayrollRun $run): void
+    {
+        $locked = DB::transaction(function () use ($run): PayrollRun {
+            $locked = PayrollRun::query()->whereKey($run->id)->lockForUpdate()->firstOrFail();
+
+            if ($locked->status !== PayrollRun::STATUS_DRAFT || $locked->calculation_failed_at === null) {
+                throw new ConflictHttpException('Only a failed draft payroll run can be retried.');
+            }
+
+            if (! $this->preflight->passes($locked->period)) {
+                throw new ConflictHttpException('Payroll preflight checks are not all passing for this period.');
+            }
+
+            $this->state->transition($locked, PayrollRun::STATUS_CALCULATING);
+
+            return $locked;
         });
 
-        $this->state->transition($run, PayrollRun::STATUS_REVIEW);
+        CalculatePayrollRun::dispatch($locked->refresh());
     }
 
     public function submit(PayrollRun $run, User $user): void

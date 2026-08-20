@@ -14,9 +14,7 @@ use Illuminate\Support\Carbon;
 
 class PayrollRunController extends Controller
 {
-    public function __construct(private readonly PayrollRunService $service)
-    {
-    }
+    public function __construct(private readonly PayrollRunService $service) {}
 
     public function index(Request $request)
     {
@@ -105,6 +103,15 @@ class PayrollRunController extends Controller
         return response()->json(['data' => $this->presentSummary($payrollRun->refresh())]);
     }
 
+    public function retryCalculation(Request $request, PayrollRun $payrollRun)
+    {
+        abort_unless($request->user()->can(Permissions::PAYROLL_PROCESS), 403);
+
+        $this->service->retry($payrollRun);
+
+        return response()->json(['data' => $this->presentSummary($payrollRun->refresh())]);
+    }
+
     public function lock(Request $request, PayrollRun $payrollRun)
     {
         abort_unless($request->user()->can(Permissions::PAYROLL_APPROVE), 403);
@@ -145,6 +152,12 @@ class PayrollRunController extends Controller
             'submitted_at' => $run->submitted_at?->toISOString(),
             'approved_at' => $run->approved_at?->toISOString(),
             'locked_at' => $run->locked_at?->toISOString(),
+            'calculation_failure' => $run->calculation_failed_at === null ? null : [
+                'code' => $run->calculation_error_code,
+                'message' => $run->calculation_error_message,
+                'failed_at' => $run->calculation_failed_at->toISOString(),
+                'retryable' => $run->status === PayrollRun::STATUS_DRAFT,
+            ],
         ];
     }
 

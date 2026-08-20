@@ -99,4 +99,10 @@ class Tenant extends Model
     {
         return (bool) ($this->settings['attendance']['kiosk_enabled'] ?? true);
     }
+
+    /** Advanced formula authoring is opt-in. Existing pinned formulas remain payable. */
+    public function advancedSalaryFormulasEnabled(): bool
+    {
+        return (bool) ($this->settings['payroll']['advanced_salary_formulas_enabled'] ?? false);
+    }
 }

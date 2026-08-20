@@ -167,3 +167,111 @@ it('rounds percentage calculations to the nearest kobo', function () {
 
     expect($breakdown->earnings[0]['amount'])->toBe(33000);
 });
+
+it('resolves an earning as a percent of basic plus the other earnings', function () {
+    // ₦100,000 basic, housing 30% of basic (₦30,000), transport 20% of gross.
+    // The gross base for transport is 100,000 + 30,000 = ₦130,000, so transport
+    // is ₦26,000 — transport is excluded from its own base by design.
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'HOU', 'calc_type' => 'percent_of_basic', 'percent' => 30])),
+        line(earning(['code' => 'TRA', 'calc_type' => 'percent_of_gross', 'percent' => 20])),
+    ]);
+
+    expect($breakdown->earnings[0]['amount'])->toBe(3_000_000)
+        ->and($breakdown->earnings[1]['amount'])->toBe(2_600_000)
+        ->and($breakdown->gross())->toBe(15_600_000);
+});
+
+it('gives every percent-of-gross earning the same base, whatever the order', function () {
+    // Two gross-percent earnings must not compound: each is 10% of the same
+    // ₦110,000 base, not 10% of a running total that already includes the other.
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'A', 'calc_type' => 'percent_of_gross', 'percent' => 10])),
+        line(earning(['code' => 'FIX']), amount: 1_000_000),
+        line(earning(['code' => 'B', 'calc_type' => 'percent_of_gross', 'percent' => 10])),
+    ]);
+
+    expect($breakdown->earnings[0]['amount'])->toBe(1_100_000)
+        ->and($breakdown->earnings[2]['amount'])->toBe(1_100_000)
+        ->and($breakdown->gross())->toBe(13_200_000);
+});
+
+it('measures a percent-of-gross deduction against the finished gross', function () {
+    // Union dues at 2% of gross. Deductions are not part of gross, so there is
+    // no loop and the full figure — including gross-percent earnings — is used.
+    $deduction = new SalaryComponent([
+        'name' => 'Union Dues', 'code' => 'UNI',
+        'type' => SalaryComponent::TYPE_DEDUCTION,
+        'calc_type' => SalaryComponent::CALC_PERCENT_OF_GROSS,
+        'percent' => 2,
+    ]);
+
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'TRA', 'calc_type' => 'percent_of_gross', 'percent' => 20])),
+        line($deduction),
+    ]);
+
+    // Gross = 100,000 + 20,000 = ₦120,000, so dues = ₦2,400.
+    expect($breakdown->gross())->toBe(12_000_000)
+        ->and($breakdown->componentDeductions())->toBe(240_000);
+});
+
+it('measures a percent-of-gross employer cost against the finished gross', function () {
+    $employerCost = new SalaryComponent([
+        'name' => 'Group Life', 'code' => 'GLI',
+        'type' => SalaryComponent::TYPE_EMPLOYER_CONTRIBUTOR,
+        'calc_type' => SalaryComponent::CALC_PERCENT_OF_GROSS,
+        'percent' => 5,
+    ]);
+
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'HOU']), amount: 2_000_000),
+        line($employerCost),
+    ]);
+
+    // 5% of ₦120,000 gross.
+    expect($breakdown->employerContributionTotal())->toBe(600_000)
+        ->and($breakdown->gross())->toBe(12_000_000);
+});
+
+it('lets a structure amount override a percent-of-gross component', function () {
+    // A flat figure on the structure line wins, exactly as it does for
+    // percent-of-basic — the component stops following gross entirely.
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'TRA', 'calc_type' => 'percent_of_gross', 'percent' => 20]), amount: 500_000),
+    ]);
+
+    expect($breakdown->earnings[0]['amount'])->toBe(500_000)
+        ->and($breakdown->gross())->toBe(10_500_000);
+});
+
+it('lets a structure percent override a percent-of-gross component back onto basic', function () {
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'TRA', 'calc_type' => 'percent_of_gross', 'percent' => 20]), percent: 10),
+    ]);
+
+    // 10% of basic, not of gross.
+    expect($breakdown->earnings[0]['amount'])->toBe(1_000_000)
+        ->and($breakdown->gross())->toBe(11_000_000);
+});
+
+it('keeps taxable and pensionable flags working for percent-of-gross earnings', function () {
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'TAXED', 'calc_type' => 'percent_of_gross', 'percent' => 10, 'is_pensionable' => true])),
+        line(earning(['code' => 'FREE', 'calc_type' => 'percent_of_gross', 'percent' => 10, 'is_taxable' => false])),
+    ]);
+
+    // Each is 10% of the ₦100,000 base = ₦10,000.
+    expect($breakdown->gross())->toBe(12_000_000)
+        ->and($breakdown->taxablePay())->toBe(11_000_000)
+        ->and($breakdown->pensionablePay())->toBe(11_000_000);
+});
+
+it('treats a percent-of-gross component with no percent as zero', function () {
+    $breakdown = app(SalaryResolver::class)->resolve(10_000_000, [
+        line(earning(['code' => 'TRA', 'calc_type' => 'percent_of_gross'])),
+    ]);
+
+    expect($breakdown->earnings[0]['amount'])->toBe(0)
+        ->and($breakdown->gross())->toBe(10_000_000);
+});

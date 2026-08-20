@@ -14,72 +14,108 @@ class Permissions
 {
     // Company setup
     public const COMPANY_VIEW = 'company.view';
+
     public const COMPANY_MANAGE = 'company.manage';
 
     // Users & roles
     public const USERS_VIEW = 'users.view';
+
     public const USERS_MANAGE = 'users.manage';
+
     public const ROLES_MANAGE = 'roles.manage';
 
     // Employees
     public const EMPLOYEES_VIEW = 'employees.view';
+
     public const EMPLOYEES_CREATE = 'employees.create';
+
     public const EMPLOYEES_UPDATE = 'employees.update';
+
     public const EMPLOYEES_DELETE = 'employees.delete';
+
     public const EMPLOYEES_VIEW_SALARY = 'employees.view_salary';
+
     public const EMPLOYEES_MANAGE_SALARY = 'employees.manage_salary';
 
     // Attendance
     public const ATTENDANCE_VIEW = 'attendance.view';
+
     public const ATTENDANCE_MANAGE = 'attendance.manage';
+
     public const ATTENDANCE_APPROVE = 'attendance.approve';
 
     // Leave
     public const LEAVE_VIEW = 'leave.view';
+
     public const LEAVE_MANAGE = 'leave.manage';
+
     public const LEAVE_APPROVE = 'leave.approve';
 
     // Payroll
     public const PAYROLL_VIEW = 'payroll.view';
+
     public const PAYROLL_PROCESS = 'payroll.process';
+
     public const PAYROLL_APPROVE = 'payroll.approve';
+
     public const PAYROLL_REVERSE = 'payroll.reverse';
+
+    public const PAYROLL_FORMULAS_MANAGE = 'payroll.formulas.manage';
 
     // Overtime
     public const OVERTIME_VIEW = 'overtime.view';
+
     public const OVERTIME_MANAGE = 'overtime.manage';
+
     public const OVERTIME_APPROVE = 'overtime.approve';
 
     // Loans & salary advances
     public const LOANS_VIEW = 'loans.view';
+
     public const LOANS_MANAGE = 'loans.manage';
+
     public const LOANS_APPROVE = 'loans.approve';
 
     // Employee self-service (ESS)
     public const ESS_PROFILE_VIEW = 'ess.profile.view';
+
     public const ESS_PROFILE_UPDATE = 'ess.profile.update';
+
     public const ESS_LEAVE_VIEW = 'ess.leave.view';
+
     public const ESS_LEAVE_APPLY = 'ess.leave.apply';
+
     public const ESS_ATTENDANCE_VIEW = 'ess.attendance.view';
+
     public const ESS_ATTENDANCE_CLOCK = 'ess.attendance.clock';
+
     public const ESS_PAYSLIPS_VIEW = 'ess.payslips.view';
+
     public const ESS_LOANS_VIEW = 'ess.loans.view';
+
     public const ESS_LOANS_REQUEST = 'ess.loans.request';
 
     // Manager self-service (MSS)
     public const MSS_APPROVALS_VIEW = 'mss.approvals.view';
+
     public const MSS_TEAM_VIEW = 'mss.team.view';
 
     // Recruitment
     public const RECRUITMENT_VIEW = 'recruitment.view';
+
     public const RECRUITMENT_MANAGE = 'recruitment.manage';
+
     public const RECRUITMENT_APPROVE = 'recruitment.approve';
 
     // Performance and goals
     public const PERFORMANCE_VIEW = 'performance.view';
+
     public const PERFORMANCE_MANAGE = 'performance.manage';
+
     public const PERFORMANCE_REVIEW = 'performance.review';
+
     public const GOALS_VIEW = 'goals.view';
+
     public const GOALS_MANAGE = 'goals.manage';
 
     // Reports
@@ -112,6 +148,7 @@ class Permissions
             self::PAYROLL_PROCESS,
             self::PAYROLL_APPROVE,
             self::PAYROLL_REVERSE,
+            self::PAYROLL_FORMULAS_MANAGE,
             self::OVERTIME_VIEW,
             self::OVERTIME_MANAGE,
             self::OVERTIME_APPROVE,
@@ -169,6 +206,7 @@ class Permissions
                 self::LEAVE_APPROVE,
                 self::PAYROLL_VIEW,
                 self::PAYROLL_PROCESS,
+                self::PAYROLL_FORMULAS_MANAGE,
                 self::OVERTIME_VIEW,
                 self::OVERTIME_MANAGE,
                 self::OVERTIME_APPROVE,

@@ -3,6 +3,7 @@
 namespace App\Modules\Payroll\Requests;
 
 use App\Modules\Payroll\Models\SalaryComponent;
+use App\Modules\Payroll\Services\AdvancedSalaryFeature;
 use App\Support\Authorization\Permissions;
 use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Foundation\Http\FormRequest;
@@ -13,7 +14,12 @@ class SalaryComponentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can(Permissions::EMPLOYEES_MANAGE_SALARY) ?? false;
+        $canManageSalary = $this->user()?->can(Permissions::EMPLOYEES_MANAGE_SALARY) ?? false;
+        $touchesFormula = $this->input('calc_type') === SalaryComponent::CALC_FORMULA
+            || $this->route('salaryComponent')?->calc_type === SalaryComponent::CALC_FORMULA;
+
+        return $canManageSalary && (! $touchesFormula
+            || ($this->user()?->can(Permissions::PAYROLL_FORMULAS_MANAGE) ?? false));
     }
 
     public function rules(): array
@@ -35,8 +41,15 @@ class SalaryComponentRequest extends FormRequest
                 SalaryComponent::TYPE_EMPLOYER_CONTRIBUTOR,
                 SalaryComponent::TYPE_FRINGE_BENEFIT,
             ])],
-            'calc_type' => ['required', Rule::in([SalaryComponent::CALC_FIXED, SalaryComponent::CALC_PERCENT])],
-            'percent' => ['nullable', 'integer', 'min:0', 'max:100', 'required_if:calc_type,'.SalaryComponent::CALC_PERCENT],
+            'calc_type' => ['required', Rule::in(SalaryComponent::CALC_TYPES)],
+            'percent' => [
+                'nullable', 'integer', 'min:0', 'max:100',
+                Rule::requiredIf(fn (): bool => in_array(
+                    $this->input('calc_type'),
+                    SalaryComponent::PERCENT_CALC_TYPES,
+                    true,
+                )),
+            ],
             'is_taxable' => ['sometimes', 'boolean'],
             'is_pensionable' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
@@ -63,6 +76,16 @@ class SalaryComponentRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
+            if ($this->input('calc_type') === SalaryComponent::CALC_FORMULA) {
+                if (! app(AdvancedSalaryFeature::class)->enabled()) {
+                    $validator->errors()->add('calc_type', 'Enable advanced salary formulas in Payroll settings first.');
+                }
+
+                if ($this->filled('percent')) {
+                    $validator->errors()->add('percent', 'Formula components do not use a component percentage.');
+                }
+            }
+
             if (! SalaryComponent::isReservedBasicSalary($this->input('name'), $this->input('code'))) {
                 return;
             }

@@ -4,6 +4,7 @@ namespace App\Modules\Payroll\Services;
 
 use App\Modules\Attendance\Models\AttendanceSummary;
 use App\Modules\Employee\Models\Employee;
+use App\Modules\Payroll\Formula\SalaryFormulaEngine;
 use App\Modules\Payroll\Models\EmployeeSalary;
 use App\Modules\Payroll\Models\PayrollItem;
 use App\Modules\Payroll\Models\PayrollRun;
@@ -48,6 +49,7 @@ class PayrollCalculationService
             $salary->basic_salary,
             $salary->structure?->components ?? collect(),
             $salary->componentOverrides,
+            $salary->definition_snapshot,
         );
 
         // Approved in-payroll overtime rides this run as a taxable, non-pensionable
@@ -187,6 +189,27 @@ class PayrollCalculationService
             ],
             'basic_salary' => $salary->basic_salary,
             'structure' => $salary->structure?->name,
+            'salary_definition' => [
+                'uses_advanced_formula' => $salary->uses_advanced_formula,
+                'schema_version' => $salary->definition_snapshot['schema_version'] ?? null,
+                'formula_revisions' => collect($salary->definition_snapshot['components'] ?? [])
+                    ->filter(fn (array $line): bool => is_array($line['formula_revision'] ?? null))
+                    ->map(fn (array $line): array => [
+                        'salary_component_id' => $line['salary_component_id'],
+                        'code' => $line['code'],
+                        'revision_id' => $line['formula_revision']['id'],
+                        'version' => $line['formula_revision']['version'],
+                        'checksum' => $line['formula_revision']['checksum'],
+                        'summary' => $line['formula_revision']['summary'],
+                        'definition' => $line['formula_revision']['definition'],
+                    ])->values()->all(),
+                'engine' => [
+                    'schema_version' => SalaryFormulaEngine::SCHEMA_VERSION,
+                    'arithmetic' => 'exact_rational',
+                    'money_unit' => 'kobo',
+                    'rounding' => 'half_up_at_final_result',
+                ],
+            ],
             'earnings' => $breakdown->earnings,
             'component_deductions' => $breakdown->deductions,
             'employer_contributions' => $breakdown->employerContributions,

@@ -8,6 +8,7 @@ use App\Modules\Payroll\Models\SalaryStructure;
 use App\Modules\Tenancy\Models\Tenant;
 use App\Modules\Tenancy\Services\TenantRoleProvisioner;
 use App\Support\Tenancy\CurrentTenant;
+use Illuminate\Support\Carbon;
 
 function salaryTenant(): array
 {
@@ -23,8 +24,13 @@ function salaryTenant(): array
 }
 
 beforeEach(function () {
+    Carbon::setTestNow('2026-07-15 12:00:00');
     [$this->tenant, $this->owner] = salaryTenant();
     $this->actingAs($this->owner);
+});
+
+afterEach(function () {
+    Carbon::setTestNow();
 });
 
 test('salary components can be created and listed', function () {
@@ -286,4 +292,107 @@ test('salary data is tenant isolated', function () {
 
     $this->actingAs($otherOwner)->getJson('/api/v1/salary-components')
         ->assertOk()->assertJsonCount(0, 'data');
+});
+
+test('a percent-of-gross component is accepted and requires a percent', function () {
+    $this->postJson('/api/v1/salary-components', [
+        'name' => 'Transport Allowance', 'code' => 'TRAG', 'type' => 'earning',
+        'calc_type' => SalaryComponent::CALC_PERCENT_OF_GROSS, 'percent' => 20,
+    ])->assertCreated()
+        ->assertJsonPath('data.calc_type', SalaryComponent::CALC_PERCENT_OF_GROSS)
+        ->assertJsonPath('data.percent', 20);
+
+    // A percentage-based component without a percentage would silently resolve
+    // to zero on every payslip, so it is rejected at the door.
+    $this->postJson('/api/v1/salary-components', [
+        'name' => 'Missing Percent', 'code' => 'MPC', 'type' => 'earning',
+        'calc_type' => SalaryComponent::CALC_PERCENT_OF_GROSS,
+    ])->assertUnprocessable()->assertJsonValidationErrors('percent');
+});
+
+test('an unknown calculation method is rejected', function () {
+    $this->postJson('/api/v1/salary-components', [
+        'name' => 'Odd One', 'code' => 'ODD', 'type' => 'earning',
+        'calc_type' => 'percent_of_the_moon', 'percent' => 10,
+    ])->assertUnprocessable()->assertJsonValidationErrors('calc_type');
+});
+
+test('percent of basic still resolves on its own', function () {
+    // Guard against the gross work having disturbed the original behaviour:
+    // a lone percent-of-basic component must still be a percentage of basic.
+    $housing = SalaryComponent::factory()->create([
+        'code' => 'HOU', 'calc_type' => SalaryComponent::CALC_PERCENT, 'percent' => 30,
+    ]);
+    $structure = SalaryStructure::factory()->create();
+    $structure->components()->create(['salary_component_id' => $housing->id]);
+    $employee = Employee::factory()->create();
+
+    $response = $this->postJson("/api/v1/employees/{$employee->id}/salary", [
+        'basic_salary' => 10_000_000, // ₦100,000
+        'salary_structure_id' => $structure->id,
+        'effective_from' => '2026-07-01',
+    ])->assertCreated();
+
+    // 30% of ₦100,000 = ₦30,000, gross ₦130,000.
+    expect($response->json('data.breakdown.earnings.0.amount'))->toBe(3_000_000)
+        ->and($response->json('data.breakdown.gross'))->toBe(13_000_000);
+});
+
+test('percent of gross resolves on its own', function () {
+    $transport = SalaryComponent::factory()->create([
+        'code' => 'TRA', 'calc_type' => SalaryComponent::CALC_PERCENT_OF_GROSS, 'percent' => 20,
+    ]);
+    $structure = SalaryStructure::factory()->create();
+    $structure->components()->create(['salary_component_id' => $transport->id]);
+    $employee = Employee::factory()->create();
+
+    $response = $this->postJson("/api/v1/employees/{$employee->id}/salary", [
+        'basic_salary' => 10_000_000,
+        'salary_structure_id' => $structure->id,
+        'effective_from' => '2026-07-01',
+    ])->assertCreated();
+
+    // Nothing else in the structure, so the base is basic alone: 20% = ₦20,000.
+    expect($response->json('data.breakdown.earnings.0.amount'))->toBe(2_000_000)
+        ->and($response->json('data.breakdown.gross'))->toBe(12_000_000);
+});
+
+test('fixed, percent of basic and percent of gross all resolve in one structure', function () {
+    $meal = SalaryComponent::factory()->create([
+        'name' => 'Meal', 'code' => 'MEAL', 'calc_type' => SalaryComponent::CALC_FIXED,
+    ]);
+    $housing = SalaryComponent::factory()->create([
+        'name' => 'Housing', 'code' => 'HOU',
+        'calc_type' => SalaryComponent::CALC_PERCENT, 'percent' => 30,
+    ]);
+    $transport = SalaryComponent::factory()->create([
+        'name' => 'Transport', 'code' => 'TRA',
+        'calc_type' => SalaryComponent::CALC_PERCENT_OF_GROSS, 'percent' => 20,
+    ]);
+
+    $structure = SalaryStructure::factory()->create();
+    $structure->components()->create(['salary_component_id' => $meal->id, 'amount' => 500_000]); // ₦5,000
+    $structure->components()->create(['salary_component_id' => $housing->id]);
+    $structure->components()->create(['salary_component_id' => $transport->id]);
+
+    $employee = Employee::factory()->create();
+
+    $response = $this->postJson("/api/v1/employees/{$employee->id}/salary", [
+        'basic_salary' => 10_000_000, // ₦100,000
+        'salary_structure_id' => $structure->id,
+        'effective_from' => '2026-07-01',
+    ])->assertCreated();
+
+    $earnings = collect($response->json('data.breakdown.earnings'))->keyBy('code');
+
+    // Meal ₦5,000 fixed; Housing 30% of basic = ₦30,000; base for Transport is
+    // 100,000 + 5,000 + 30,000 = ₦135,000, so Transport is ₦27,000.
+    expect($earnings['MEAL']['amount'])->toBe(500_000)
+        ->and($earnings['HOU']['amount'])->toBe(3_000_000)
+        ->and($earnings['TRA']['amount'])->toBe(2_700_000)
+        ->and($response->json('data.breakdown.gross'))->toBe(16_200_000);
+
+    // And the same figures come back on a later read, not just on assignment.
+    expect($this->getJson("/api/v1/employees/{$employee->id}/salary")->json('data.breakdown.gross'))
+        ->toBe(16_200_000);
 });

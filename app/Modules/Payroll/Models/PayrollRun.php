@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'pay_period_id', 'period', 'status', 'is_reversal', 'reversed_of_run_id',
+    'calculation_error_code', 'calculation_error_message', 'calculation_failed_at',
     'reversal_reason', 'employee_count',
     'total_gross', 'total_statutory', 'total_deductions', 'total_net',
     'total_employer_cost', 'notes', 'created_by',
@@ -48,6 +49,7 @@ class PayrollRun extends Model
             'submitted_at' => 'datetime',
             'approved_at' => 'datetime',
             'locked_at' => 'datetime',
+            'calculation_failed_at' => 'datetime',
         ];
     }
 

@@ -21,6 +21,9 @@ class CalculatePayrollRun implements ShouldQueue
 
     public int $payrollRunId;
 
+    /** Failed calculations are recovered only through the explicit retry API. */
+    public int $tries = 1;
+
     public function __construct(PayrollRun $run)
     {
         $this->payrollRunId = $run->id;

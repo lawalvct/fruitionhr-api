@@ -14,8 +14,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('type'); // earning | deduction
-            $table->string('calc_type'); // fixed | percent_of_basic
-            $table->unsignedInteger('percent')->nullable(); // when calc_type = percent_of_basic (whole %)
+            $table->string('calc_type'); // fixed | percent_of_basic | percent_of_gross
+            $table->unsignedInteger('percent')->nullable(); // when calc_type is percentage-based (whole %)
             $table->boolean('is_taxable')->default(true);
             $table->boolean('is_pensionable')->default(false);
             $table->boolean('is_active')->default(true);

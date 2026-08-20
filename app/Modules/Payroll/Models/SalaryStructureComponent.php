@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['salary_structure_id', 'salary_component_id', 'amount', 'percent'])]
+#[Fillable(['salary_structure_id', 'salary_component_id', 'formula_revision_id', 'amount', 'percent'])]
 class SalaryStructureComponent extends Model
 {
     use BelongsToTenant;
@@ -28,5 +28,10 @@ class SalaryStructureComponent extends Model
     public function component(): BelongsTo
     {
         return $this->belongsTo(SalaryComponent::class, 'salary_component_id');
+    }
+
+    public function formulaRevision(): BelongsTo
+    {
+        return $this->belongsTo(SalaryFormulaRevision::class, 'formula_revision_id');
     }
 }
